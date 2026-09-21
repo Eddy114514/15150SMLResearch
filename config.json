@@ -1,0 +1,17 @@
+{
+  "manifest": "tasks/manifest.json",
+  "output_dir": "runs",
+  "model": "qwen2.5-coder:7b-instruct-q8_0",
+  "ollama_url": "http://127.0.0.1:11434",
+  "model_options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 8192,
+    "num_predict": 2048
+  },
+  "seed": 150,
+  "valid_target": 1000,
+  "max_attempts": 10000,
+  "http_timeout": 180,
+  "sml_timeout": 30
+}

@@ -1,0 +1,10 @@
+runs/
+__pycache__/
+*.pyc
+.cm/
+setup/*.log
+setup/ollama-install.sh
+corpora/
+tasks/
+
+

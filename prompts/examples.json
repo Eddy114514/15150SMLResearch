@@ -1,0 +1,17 @@
+[
+  {
+    "function": "twice", "input_type": "int", "output_type": "int", "input_pattern": "n",
+    "contract": "REQUIRES: 0 <= n and n <= 100\nENSURES: The result equals twice n.",
+    "response": {"status": "ok", "requires_expr": "0 <= n andalso n <= 100", "ensures_expr": "result = 2 * n", "reason": ""}
+  },
+  {
+    "function": "sortValues", "input_type": "int list", "output_type": "int list", "input_pattern": "xs",
+    "contract": "REQUIRES: true\nENSURES: The result is in nondecreasing order.",
+    "response": {"status": "ok", "requires_expr": "true", "ensures_expr": "Spec.sorted result", "reason": ""}
+  },
+  {
+    "function": "process", "input_type": "int list", "output_type": "int list", "input_pattern": "xs",
+    "contract": "REQUIRES: true\nENSURES: The function runs in O(log n) time for every input size n.",
+    "response": {"status": "unsupported", "requires_expr": null, "ensures_expr": null, "reason": "Asymptotic running-time guarantees are outside the supported executable contract fragment."}
+  }
+]

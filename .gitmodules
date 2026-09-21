@@ -1,0 +1,3 @@
+[submodule "vendor/qcheck"]
+	path = vendor/qcheck
+	url = https://github.com/league/qcheck.git

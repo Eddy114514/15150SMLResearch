@@ -1,0 +1,7 @@
+Repair only the syntax, typing, or unavailable-name errors in the generated
+SML contract expressions, using the original contract as the authority.
+Return the same JSON schema. Preserve all original conditions and do not
+make the contract weaker or stronger to satisfy tests. You have no runtime
+test results. Do not modify the wrapper, input types, allowed helpers, or
+the implementation. If faithful repair is not possible within the supported
+fragment, return ambiguous or unsupported as appropriate.
