@@ -8,10 +8,11 @@ import time
 ROOT = Path(__file__).resolve().parent
 
 PREFIX = "@@SMLPBT@@"
-_TYPE = {"int": ("Runner.readInt", "Runner.int"),
-         "bool": (None, "Runner.bool"),
-         "int list": ("Runner.readList", "Runner.list Runner.int"),
-         "int * int list": ("Runner.readPair", "Runner.pair")}
+_SHOW = {"int": "Runner.int", "bool": "Runner.bool",
+         "int list": "Runner.list Runner.int", "int * int list": "Runner.pair",
+         "int list list": "Runner.list (Runner.list Runner.int)",
+         "int list * int": "Runner.listIntPair",
+         "int list option": "Runner.option (Runner.list Runner.int)"}
 
 
 def _str(value):
@@ -57,9 +58,10 @@ def run_sml(program, workdir, timeout, phase):
     return result
 
 
-def _cm(path, files, exports=None):
+def _cm(path, files, exports=None, libraries=()):
     header = "Group is" if exports is None else "Library\n  " + "\n  ".join(exports) + "\nis"
     return _write(path, header + "\n  $/basis.cm\n" +
+                  "".join("  " + library + "\n" for library in libraries) +
                   "".join("  " + _str(Path(f).resolve()) + "\n" for f in files))
 
 
@@ -72,15 +74,11 @@ def compile_contract(case, requires_expr, ensures_expr, workdir, *, attempt, tim
         f"  fun requires (input : input) : bool = let val {pattern} = input in ({requires_expr}) end\n"
         f"  fun ensures (input : input) (result : output) : bool = let val {pattern} = input in ({ensures_expr}) end\nend\n")
     cm = _cm(workdir / "predicate.cm", [ROOT / "sml/Spec.sml", path], ["structure Contract"])
-    success = '{"status":"compiled","stage":"predicate","compile_ok":true'
+    success = json.dumps({"status": "compiled", "stage": "predicate", "compile_ok": True})
     failure = json.dumps({"status": "compile_error", "stage": "predicate", "compile_ok": False})
     program = (
         f'val ok = CM.make {_str(cm)};\n'
-        'fun number n = String.translate '
-        '(fn #"~" => "-" | c => str c) (Int.toString n);\n'
-        f'val message = if ok then {_str(success)} ^ ",\\"min_int\\":" ^ number (valOf Int.minInt) ^ '
-        '",\\"max_int\\":" ^ number (valOf Int.maxInt) ^ "}" '
-        f'else {_str(failure)};\n'
+        f'val message = if ok then {_str(success)} else {_str(failure)};\n'
         f'val _ = print ("\\n" ^ {_str(PREFIX)} ^ message ^ "\\n");\n'
         'val _ = OS.Process.exit OS.Process.success;\n')
     result = run_sml(program, workdir, timeout, "predicate")
@@ -91,21 +89,28 @@ def compile_contract(case, requires_expr, ensures_expr, workdir, *, attempt, tim
     return result
 
 
-def execute(case, contract_path, source, inputs, workdir, *,
-            valid_target, max_attempts, timeout):
-    # Valid JSON with one complete input per line for the small SML reader.
-    input_path = _write(workdir / "inputs.json", "[\n" + ",\n".join(
-        "  " + json.dumps(value, separators=(",", ":")) for value in inputs) + "\n]\n")
+def execute(case, contract_path, source, workdir, *,
+            seed, valid_target, max_attempts, timeout):
     target = _write(workdir / "Target.sml", "structure Target = struct\n" + source +
                     f'\nfun run (input : {case["input_type"]}) : {case["output_type"]} = {case["entrypoint"]} input\nend\n')
-    input_read, input_show = _TYPE[case["input_type"]]
-    output_show = _TYPE[case["output_type"]][1]
-    driver = _write(workdir / "driver.sml", 'structure Driver = struct\nfun main () =\n'
-        'Runner.run {requires=Contract.requires, ensures=Contract.ensures, target=Target.run,\n'
-        f'readInput={input_read}, showInput={input_show}, showOutput={output_show},\n'
-        f'corpusPath={_str(input_path)}, validTarget={valid_target}, maxAttempts={max_attempts}}}\nend\n')
+    input_show, output_show = _SHOW[case["input_type"]], _SHOW[case["output_type"]]
+    generator = {"int": "Generators.ints", "int_list": "Generators.lists",
+                 "int_list_pair": "Generators.pairs",
+                 "list_int_pair": "Generators.listIntPairs",
+                 "int_list_list": "Generators.listLists"}[case["generator"]]
+    options = f"seed={seed}, count={max_attempts}"
+    if case["generator"] in ("int_list", "int_list_pair", "list_int_pair"):
+        sort_lists = case.get("generator_options", {}).get("sort_lists", False)
+        options += ", sortLists=" + str(sort_lists).lower()
+    driver = _write(workdir / "driver.sml", 'structure Driver = struct\nfun main () = let\n'
+        f'  val inputs = {generator} {{{options}}}\n'
+        f'  val _ = Runner.writeInputs ({_str(workdir / "inputs.json")}, {input_show}, inputs)\n'
+        'in Runner.run {requires=Contract.requires, ensures=Contract.ensures, target=Target.run,\n'
+        f'showInput={input_show}, showOutput={output_show}, inputs=inputs, validTarget={valid_target}}}\n'
+        'end\nend\n')
     cm = _cm(workdir / "runtime.cm", [ROOT / "vendor/qcheck/qcheck.cm", ROOT / "sml/Spec.sml",
-              ROOT / "sml/Runner.sml", contract_path, target, driver])
+              ROOT / "sml/Generators.sml", ROOT / "sml/Runner.sml", contract_path, target, driver],
+              libraries=["$/smlnj-lib.cm"])
     program = (f'val _ = if CM.make {_str(cm)} then () else OS.Process.exit OS.Process.failure;\n'
                'val _ = Driver.main ();\n'
                'val _ = OS.Process.exit OS.Process.success;\n')
@@ -113,4 +118,3 @@ def execute(case, contract_path, source, inputs, workdir, *,
     result = run_sml(program, workdir, timeout, "execution")
     result["main_path"] = str(main)
     return result
-

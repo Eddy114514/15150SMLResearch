@@ -5,3 +5,10 @@ make the contract weaker or stronger to satisfy tests. You have no runtime
 test results. Do not modify the wrapper, input types, allowed helpers, or
 the implementation. If faithful repair is not possible within the supported
 fragment, return ambiguous or unsupported as appropriate.
+
+The target.contract in this request is the original specification. Your
+previous assistant response is generated code, not part of that specification.
+An unavailable function you introduced is a code-generation mistake: replace
+it using the documented Basis operations or a local pure expression. It does
+not make the original contract unsupported. A refusal must identify an obstacle
+in target.contract itself, not an error in your previous response.

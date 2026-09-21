@@ -17,16 +17,19 @@ SCHEMA = {
 HELPERS = {
     "Spec.sorted": "int list -> bool; true exactly when the list is nondecreasing; true on []",
     "Spec.sameMultiset": "int list * int list -> bool; equal element multiplicities, including duplicates",
+    "List.foldl": "('a * 'b -> 'b) -> 'b -> 'a list -> 'b; visit left to right; callback takes the tuple (element, accumulator)",
+    "List.foldr": "('a * 'b -> 'b) -> 'b -> 'a list -> 'b; visit right to left; callback takes the tuple (element, accumulator)",
+    "List.all": "('a -> bool) -> 'a list -> bool; true if every element satisfies the predicate, including on []",
+    "List.exists": "('a -> bool) -> 'a list -> bool; true if at least one element satisfies the predicate",
     "pure_basis": "List.length, List.rev, List.all, List.exists, List.null, List.hd, List.tl, List.map, List.filter, List.foldl, List.foldr, List.concat, List.nth, List.take, List.drop; Int.abs, Int.minInt, Int.maxInt, Int.min, Int.max, Int.compare; arithmetic, ordered equality, comparisons, if/case, andalso/orelse, tuples, lists, lambdas, local pure let expressions. SML machine integers, not unbounded mathematical integers."}
 
 
-def build_task_data(case, contract, examples):
+def build_task_data(case, contract):
     """Keep implementation and research data out of the translation request."""
     target = {key: case[key] for key in
               ("entrypoint", "input_type", "output_type", "input_pattern")}
     target["contract"] = contract
-    return {"examples": examples, "target": target,
-            "helpers": HELPERS, "output_schema": SCHEMA}
+    return {"target": target, "helpers": HELPERS, "output_schema": SCHEMA}
 
 
 def initial_messages(task_data, translate_prompt):
@@ -34,11 +37,13 @@ def initial_messages(task_data, translate_prompt):
             {"role": "user", "content": json.dumps(task_data, ensure_ascii=False)}]
 
 
-def repair_messages(task_data, first_json, diagnostics, repair_prompt):
-    data = {"original_task": task_data, "first_json": first_json,
+def repair_messages(messages, task_data, first_json, diagnostics, repair_prompt):
+    data = {**task_data,
             "predicate_compile_diagnostics": {"stdout": diagnostics, "stderr": ""}}
-    return [{"role": "system", "content": repair_prompt},
-            {"role": "user", "content": json.dumps(data, ensure_ascii=False)}]
+    return messages + [
+        {"role": "assistant", "content": first_json},
+        {"role": "user", "content": repair_prompt + "\n\n" + json.dumps(data, ensure_ascii=False)},
+    ]
 
 
 def call_ollama(messages, *, model_name, ollama_url, options, timeout):

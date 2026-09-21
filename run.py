@@ -29,7 +29,7 @@ def select_cases(cases, manifest, case_id, file_path):
 
 
 def translate(case, contract, workdir, config, resources):
-    task_data = model.build_task_data(case, contract, resources["examples"])
+    task_data = model.build_task_data(case, contract)
     messages = model.initial_messages(task_data, resources["translate_prompt"])
     translation = {"attempts": [], "initial_compile_ok": None, "repair_attempted": False,
                    "model_seconds": 0.0, "status": None, "stage": "model",
@@ -64,7 +64,7 @@ def translate(case, contract, workdir, config, resources):
             return compiled, translation
         if attempt or compiled["status"] != "compile_error":
             break
-        messages = model.repair_messages(task_data, response["raw_content"],
+        messages = model.repair_messages(messages, task_data, response["raw_content"],
             compiled["diagnostics"], resources["repair_prompt"])
     return None, translation
 
@@ -76,10 +76,8 @@ def run_case(case, tasks_dir, workdir, config, resources):
     compiled, translation = translate(case, contract, workdir, config, resources)
     measured = {}
     if compiled is not None:
-        inputs = corpus.generate_corpus(case, config["seed"], count=config["max_attempts"],
-            min_int=compiled["min_int"], max_int=compiled["max_int"])
-        measured = sml.execute(case, compiled["contract_path"], source, inputs, workdir,
-            valid_target=config["valid_target"], max_attempts=config["max_attempts"],
+        measured = sml.execute(case, compiled["contract_path"], source, workdir,
+            seed=config["seed"], valid_target=config["valid_target"], max_attempts=config["max_attempts"],
             timeout=config["sml_timeout"])
     result = {
         "case_id": case["id"],
@@ -117,12 +115,12 @@ def main():
     resources = {
         "translate_prompt": (ROOT / "prompts/translate.txt").read_text(encoding="utf-8"),
         "repair_prompt": (ROOT / "prompts/repair.txt").read_text(encoding="utf-8"),
-        "examples": json.loads((ROOT / "prompts/examples.json").read_text(encoding="utf-8")),
     }
     stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     run_dir = (ROOT / config["output_dir"]).resolve() / (stamp + "-" + uuid.uuid4().hex[:6])
     run_dir.mkdir(parents=True)
-    dump(run_dir / "run_config.json", {**config, "case_ids": [case["id"] for case in cases]})
+    dump(run_dir / "run_config.json", {**config, "case_ids": [case["id"] for case in cases],
+        "generator_implementation": "qcheck-gen-v1"})
     print("Run directory:", run_dir, flush=True)
     with (run_dir / "results.csv").open("w", newline="", encoding="utf-8") as handle:
         writer = None
