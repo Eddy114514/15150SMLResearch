@@ -12,3 +12,9 @@ An unavailable function you introduced is a code-generation mistake: replace
 it using the documented Basis operations or a local pure expression. It does
 not make the original contract unsupported. A refusal must identify an obstacle
 in target.contract itself, not an error in your previous response.
+
+Read type errors using the supplied helper signatures. "Operator is not a
+function" and "operator and operand don't agree" report incorrect application
+or incompatible types, not an unavailable name. Check tuple versus curried
+arguments and option versus contained value; repair the generated expression
+while preserving its intended property. An unbound-name error is different.

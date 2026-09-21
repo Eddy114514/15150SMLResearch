@@ -21,6 +21,10 @@ HELPERS = {
     "List.foldr": "('a * 'b -> 'b) -> 'b -> 'a list -> 'b; visit right to left; callback takes the tuple (element, accumulator)",
     "List.all": "('a -> bool) -> 'a list -> bool; true if every element satisfies the predicate, including on []",
     "List.exists": "('a -> bool) -> 'a list -> bool; true if at least one element satisfies the predicate",
+    "Int.min": "int * int -> int; takes one tuple (x, y), not two curried arguments",
+    "Int.max": "int * int -> int; takes one tuple (x, y), not two curried arguments",
+    "Int.minInt": "int option; SOME lowerBound on SML/NJ; valOf Int.minInt has type int",
+    "Int.maxInt": "int option; SOME upperBound on SML/NJ; valOf Int.maxInt has type int",
     "pure_basis": "List.length, List.rev, List.all, List.exists, List.null, List.hd, List.tl, List.map, List.filter, List.foldl, List.foldr, List.concat, List.nth, List.take, List.drop; Int.abs, Int.minInt, Int.maxInt, Int.min, Int.max, Int.compare; arithmetic, ordered equality, comparisons, if/case, andalso/orelse, tuples, lists, lambdas, local pure let expressions. SML machine integers, not unbounded mathematical integers."}
 
 

@@ -12,10 +12,11 @@ Use the configured WSL, SML/NJ, and Ollama environment:
 cd /home/SMLResearch/15150SMLResearch
 python3 run.py                               # All registered cases
 python3 run.py --case sublist_sum            # One case
+python3 run.py --case list_max
 python3 run.py --file tasks/sublist_sum/sublist_sum.sml
 ```
 
-Current cases: `flatten`, `isprime`, `sublist_sum`. Choose either `--case` or `--file`; source files must be registered in the manifest.
+Current cases: `flatten`, `isprime`, `sublist_sum`, `list_max`. Choose either `--case` or `--file`; source files must be registered in the manifest.
 
 Edit [config.json](config.json) for the model, seed, sample counts, timeouts, and paths. Defaults: 1,000 valid samples, 10,000 candidates, 180-second model timeout, and 30-second SML timeout. Runtime settings have no CLI overrides.
 
