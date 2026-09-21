@@ -1,0 +1,52 @@
+{
+  "cases": [
+    {
+      "id": "flatten",
+      "source": "flatten/flatten.sml",
+      "contract_id": "flatten",
+      "entrypoint": "flatten",
+      "input_type": "int list list",
+      "output_type": "int list",
+      "input_pattern": "LL",
+      "generator": "int_list_list",
+      "data_origin": "user_provided",
+      "review_status": "draft"
+    },
+    {
+      "id": "isprime",
+      "source": "isprime/isprime.sml",
+      "contract_id": "isPrime",
+      "entrypoint": "isPrime",
+      "input_type": "int",
+      "output_type": "bool",
+      "input_pattern": "x",
+      "generator": "int",
+      "data_origin": "synthetic",
+      "review_status": "draft"
+    },
+    {
+      "id": "sublist_sum",
+      "source": "sublist_sum/sublist_sum.sml",
+      "contract_id": "sublistSum",
+      "entrypoint": "sublistSum",
+      "input_type": "int list * int",
+      "output_type": "int list option",
+      "input_pattern": "(L, n)",
+      "generator": "list_int_pair",
+      "data_origin": "user_provided",
+      "review_status": "draft"
+    },
+    {
+      "id": "list_max",
+      "source": "max/max.sml",
+      "contract_id": "maxList",
+      "entrypoint": "maxList",
+      "input_type": "int list",
+      "output_type": "int",
+      "input_pattern": "xs",
+      "generator": "int_list",
+      "data_origin": "synthetic",
+      "review_status": "draft"
+    }
+  ]
+}
