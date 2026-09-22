@@ -22,7 +22,7 @@ Edit [config.json](config.json) for the model, seed, sample counts, timeouts, an
 
 Set `model`, `model_options`, and the root-level `think` in that same file to switch models. Omit `think` or use `null` for the backend default; `false` explicitly disables thinking, while `true` or a backend-supported level string enables it. Initial and repair requests use the same settings. Only the final `message.content` is parsed as JSON; thinking stays in the raw response and is not replayed during repair. Output truncation is recorded as a failure. Larger models may use both CPU and GPU memory; download size does not establish VRAM requirements, and enabling thinking does not establish translation correctness.
 
-On the evaluated RTX 5080, this model used about 25% CPU / 75% GPU loading and often took minutes per request. The [local comparison](evaluation/model_upgrade_20260921T205543Z/MODEL_UPGRADE_REPORT.md) found better finite semantic agreement and error detection, but also one model timeout; use it for research batches and inspect the generated predicates. Its configuration and the previous 7B configuration are saved with that report.
+Optional root-level `keep_alive` controls Ollama residency for both initial and repair requests (for example, `"15m"`). Omit it or use `null` to retain the backend default; numeric `0` is sent and unloads after the request. Longer residency can avoid repeated loading between runs; it does not increase generation throughput.
 
 Local configuration, contract markers, and paths are trusted. Source implementations are assumed to pass syntax checking. Ordinary local errors stop the command.
 
@@ -75,6 +75,9 @@ Each run creates `runs/<run-id>/`:
 - `<case>/translation.json`: model responses and predicate compilation results.
 - `<case>/inputs.json`: generated candidates, when input generation is reached.
 - `<case>/result.json` and `log.txt`: final status, counts, counterexample or exception, and diagnostics.
+- `batch_summary.json`: case count and batch wall time.
+
+Each translation attempt retains its actual request, raw response, client `elapsed_seconds`, HTTP timeout flag, completion state, and `backend_metrics`. Backend durations retain their nanosecond values and have separate seconds conversions; missing metrics stay `null`. `model_seconds` remains the sum of client request times. `case_seconds` includes translation, compilation, and PBT; `repair_count` and `final_compile_ok` complement the first-compilation result.
 
 A false `requires` discards the input without calling the target. A false `ensures` records a counterexample. Passing requires reaching the valid-sample target with no failure; too few valid inputs means `insufficient_valid_inputs`. Translation failures, runtime exceptions, and timeouts are recorded separately.
 

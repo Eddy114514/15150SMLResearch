@@ -6,6 +6,7 @@ import datetime as dt
 import json
 from pathlib import Path
 import sys
+import time
 import uuid
 
 import corpus
@@ -32,16 +33,20 @@ def translate(case, contract, workdir, config, resources):
     task_data = model.build_task_data(case, contract)
     messages = model.initial_messages(task_data, resources["translate_prompt"])
     translation = {"attempts": [], "initial_compile_ok": None, "repair_attempted": False,
+                   "final_compile_ok": None, "repair_count": 0,
                    "model_seconds": 0.0, "status": None, "stage": "model",
                    "exception": None, "reason": None}
     for attempt in range(2):
         response = model.call_ollama(messages, model_name=config["model"],
             ollama_url=config["ollama_url"], options=config["model_options"],
-            timeout=config["http_timeout"], think=config.get("think"))
+            timeout=config["http_timeout"], think=config.get("think"),
+            keep_alive=config.get("keep_alive"))
         item = {"kind": "initial" if attempt == 0 else "repair", **response}
         translation["attempts"].append(item)
         translation["model_seconds"] += response["elapsed_seconds"]
         translation["repair_attempted"] = bool(attempt)
+        translation["repair_count"] = attempt
+        translation["final_compile_ok"] = None
         status = response["status"]
         predicates = response["predicates"]
         translation.update(
@@ -55,6 +60,7 @@ def translate(case, contract, workdir, config, resources):
         compiled = sml.compile_contract(case, predicates["requires_expr"], predicates["ensures_expr"],
             workdir, attempt=attempt, timeout=config["sml_timeout"])
         item["compile"] = compiled
+        translation["final_compile_ok"] = compiled.get("compile_ok")
         if attempt == 0 and compiled["status"] != "timeout":
             translation["initial_compile_ok"] = compiled["compile_ok"]
         translation.update(status=compiled["status"], stage=compiled["stage"],
@@ -70,6 +76,7 @@ def translate(case, contract, workdir, config, resources):
 
 
 def run_case(case, tasks_dir, workdir, config, resources):
+    started = time.monotonic()
     workdir.mkdir()
     source = (tasks_dir / case["source"]).read_text(encoding="utf-8")
     contract = corpus.extract_contract(source, case["contract_id"])
@@ -84,7 +91,9 @@ def run_case(case, tasks_dir, workdir, config, resources):
         "status": measured["status"] if measured else translation["status"],
         "stage": measured["stage"] if measured else translation["stage"],
         "initial_compile_ok": translation["initial_compile_ok"],
+        "final_compile_ok": translation["final_compile_ok"],
         "repair_attempted": translation["repair_attempted"],
+        "repair_count": translation["repair_count"],
         **{key: measured.get(key) for key in (
             "attempted", "accepted", "discarded", "passed", "errored", "target_calls",
             "counterexample_input", "counterexample_output")},
@@ -92,6 +101,7 @@ def run_case(case, tasks_dir, workdir, config, resources):
         "reason": translation["reason"],
         "model_seconds": translation["model_seconds"],
         "pbt_seconds": measured.get("elapsed_seconds"),
+        "case_seconds": time.monotonic() - started,
         "main_path": measured.get("main_path"),
         "log": str(workdir / "log.txt"),
     }
@@ -101,6 +111,7 @@ def run_case(case, tasks_dir, workdir, config, resources):
 
 
 def main():
+    started = time.monotonic()
     parser = argparse.ArgumentParser(description=__doc__)
     selection = parser.add_mutually_exclusive_group()
     selection.add_argument("--case", help="run one manifest case")
@@ -133,6 +144,8 @@ def main():
                              for key, value in result.items()})
             handle.flush()
             print(f"{case['id']}: {result['status']} ({result['stage']})", flush=True)
+    dump(run_dir / "batch_summary.json", {
+        "case_count": len(cases), "batch_seconds": time.monotonic() - started})
     return 0
 
 

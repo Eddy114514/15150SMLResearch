@@ -1,7 +1,8 @@
 (* @contract sublistSum
  * sublistSum : int list * int -> int list option
  * REQUIRES: true
- * ENSURES: if return Some(int list ys), then ys sum to n. Else return NONE
+ * ENSURES: sublistSum(L,n) ==>* SOME(L') where L' is a sublist of L which sums
+ *          to n. sublistSum(L,n) ==>* NONE if there is no such sublist
  *)
 fun sublistSum (L : int list, 0 : int) : int list option = SOME []
   | sublistSum ([]: int list, x : int) : int list option = NONE

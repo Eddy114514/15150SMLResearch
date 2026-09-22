@@ -2,6 +2,7 @@
 
 import http.client
 import json
+import math
 import time
 import urllib.error
 import urllib.request
@@ -50,22 +51,48 @@ def repair_messages(messages, task_data, first_json, diagnostics, repair_prompt)
     ]
 
 
-def call_ollama(messages, *, model_name, ollama_url, options, timeout, think=None):
+def extract_metrics(envelope):
+    """Keep Ollama nanosecond counters distinct from client wall-clock time."""
+    durations = ("load_duration", "prompt_eval_duration", "eval_duration", "total_duration")
+    counts = ("prompt_eval_count", "eval_count", "prompt_eval_cached_count")
+    metrics = {key: envelope.get(key) for key in durations + counts}
+    for key in durations:
+        value = metrics[key]
+        metrics[key + "_seconds"] = (
+            value / 1e9 if type(value) in (int, float) and math.isfinite(value) and value >= 0
+            else None)
+    count, seconds = metrics["eval_count"], metrics["eval_duration_seconds"]
+    metrics["decode_tokens_per_second"] = (
+        count / seconds if type(count) in (int, float) and math.isfinite(count)
+        and count >= 0 and seconds is not None and seconds > 0 else None)
+    return metrics
+
+
+def call_ollama(messages, *, model_name, ollama_url, options, timeout, think=None,
+                keep_alive=None):
     """Return one response or the existing network/JSON failure classification."""
     payload = {"model": model_name, "messages": messages, "format": SCHEMA,
                "stream": False, "options": options}
     if think is not None:
         payload["think"] = think
+    if keep_alive is not None:
+        payload["keep_alive"] = keep_alive
     request = urllib.request.Request(ollama_url.rstrip("/") + "/api/chat",
         data=json.dumps(payload).encode(), headers={"Content-Type": "application/json"})
     result = {"status": None, "request": payload, "raw_response": None,
               "raw_content": None, "predicates": None, "exception": None,
-              "done": None, "done_reason": None, "elapsed_seconds": 0.0}
+              "done": None, "done_reason": None, "elapsed_seconds": 0.0,
+              "http_timeout": False, "http_status": None, "request_timeout_seconds": timeout,
+              "backend_metrics": extract_metrics({})}
     started = time.monotonic()
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
+            result["http_status"] = response.status
             result["raw_response"] = response.read().decode("utf-8")
         envelope = json.loads(result["raw_response"])
+        if not isinstance(envelope, dict):
+            raise ValueError("model response envelope must be an object")
+        result["backend_metrics"] = extract_metrics(envelope)
         result.update(done=envelope["done"], done_reason=envelope.get("done_reason"))
         result["raw_content"] = envelope["message"]["content"]
         if result["done_reason"] == "length":
@@ -84,6 +111,10 @@ def call_ollama(messages, *, model_name, ollama_url, options, timeout, think=Non
     except (urllib.error.URLError, TimeoutError, ConnectionError, http.client.HTTPException) as exc:
         result["status"] = "model_error"
         result["exception"] = str(exc)
+        result["http_timeout"] = isinstance(exc, TimeoutError) or isinstance(
+            getattr(exc, "reason", None), TimeoutError)
+        if isinstance(exc, urllib.error.HTTPError):
+            result["http_status"] = exc.code
     except (ValueError, TypeError, KeyError) as exc:
         result["status"] = "invalid_model_output"
         result["exception"] = str(exc)
