@@ -37,7 +37,7 @@ def translate(case, contract, workdir, config, resources):
     for attempt in range(2):
         response = model.call_ollama(messages, model_name=config["model"],
             ollama_url=config["ollama_url"], options=config["model_options"],
-            timeout=config["http_timeout"])
+            timeout=config["http_timeout"], think=config.get("think"))
         item = {"kind": "initial" if attempt == 0 else "repair", **response}
         translation["attempts"].append(item)
         translation["model_seconds"] += response["elapsed_seconds"]

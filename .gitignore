@@ -5,5 +5,6 @@ __pycache__/
 setup/*.log
 setup/ollama-install.sh
 corpora/
+evaluation/
 
 

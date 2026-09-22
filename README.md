@@ -18,7 +18,11 @@ python3 run.py --file tasks/sublist_sum/sublist_sum.sml
 
 Current cases: `flatten`, `isprime`, `sublist_sum`, `list_max`. Choose either `--case` or `--file`; source files must be registered in the manifest.
 
-Edit [config.json](config.json) for the model, seed, sample counts, timeouts, and paths. Defaults: 1,000 valid samples, 10,000 candidates, 180-second model timeout, and 30-second SML timeout. Runtime settings have no CLI overrides.
+Edit [config.json](config.json) for the model, seed, sample counts, timeouts, and paths. Defaults: `qwen3.8:27b-q4_K_M` with `think: "low"`, 1,000 valid samples, 10,000 candidates, 600-second model timeout, and 30-second SML timeout. Runtime settings have no CLI overrides.
+
+Set `model`, `model_options`, and the root-level `think` in that same file to switch models. Omit `think` or use `null` for the backend default; `false` explicitly disables thinking, while `true` or a backend-supported level string enables it. Initial and repair requests use the same settings. Only the final `message.content` is parsed as JSON; thinking stays in the raw response and is not replayed during repair. Output truncation is recorded as a failure. Larger models may use both CPU and GPU memory; download size does not establish VRAM requirements, and enabling thinking does not establish translation correctness.
+
+On the evaluated RTX 5080, this model used about 25% CPU / 75% GPU loading and often took minutes per request. The [local comparison](evaluation/model_upgrade_20260921T205543Z/MODEL_UPGRADE_REPORT.md) found better finite semantic agreement and error detection, but also one model timeout; use it for research batches and inspect the generated predicates. Its configuration and the previous 7B configuration are saved with that report.
 
 Local configuration, contract markers, and paths are trusted. Source implementations are assumed to pass syntax checking. Ordinary local errors stop the command.
 

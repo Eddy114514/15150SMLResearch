@@ -50,21 +50,28 @@ def repair_messages(messages, task_data, first_json, diagnostics, repair_prompt)
     ]
 
 
-def call_ollama(messages, *, model_name, ollama_url, options, timeout):
+def call_ollama(messages, *, model_name, ollama_url, options, timeout, think=None):
     """Return one response or the existing network/JSON failure classification."""
     payload = {"model": model_name, "messages": messages, "format": SCHEMA,
                "stream": False, "options": options}
+    if think is not None:
+        payload["think"] = think
     request = urllib.request.Request(ollama_url.rstrip("/") + "/api/chat",
         data=json.dumps(payload).encode(), headers={"Content-Type": "application/json"})
     result = {"status": None, "request": payload, "raw_response": None,
               "raw_content": None, "predicates": None, "exception": None,
-              "elapsed_seconds": 0.0}
+              "done": None, "done_reason": None, "elapsed_seconds": 0.0}
     started = time.monotonic()
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
             result["raw_response"] = response.read().decode("utf-8")
         envelope = json.loads(result["raw_response"])
+        result.update(done=envelope["done"], done_reason=envelope.get("done_reason"))
         result["raw_content"] = envelope["message"]["content"]
+        if result["done_reason"] == "length":
+            raise ValueError("model output budget exhausted")
+        if result["done"] is not True:
+            raise ValueError("model response did not finish (done is not true)")
         value = json.loads(result["raw_content"])
         if value["status"] not in ("ok", "ambiguous", "unsupported"):
             raise ValueError("unknown model status")
@@ -72,8 +79,6 @@ def call_ollama(messages, *, model_name, ollama_url, options, timeout):
                 not isinstance(value[key], str) or not value[key].strip()
                 for key in ("requires_expr", "ensures_expr")):
             raise ValueError("ok requires two nonempty predicate strings")
-        if envelope.get("done_reason") == "length":
-            raise ValueError("model output budget exhausted")
         result["status"] = value["status"]
         result["predicates"] = value
     except (urllib.error.URLError, TimeoutError, ConnectionError, http.client.HTTPException) as exc:
