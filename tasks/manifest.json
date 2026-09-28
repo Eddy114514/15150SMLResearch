@@ -2,6 +2,7 @@
   "cases": [
     {
       "id": "flatten",
+      "interfaces": ["basis.list"],
       "source": "flatten/flatten.sml",
       "contract_id": "flatten",
       "entrypoint": "flatten",
@@ -14,6 +15,7 @@
     },
     {
       "id": "isprime",
+      "interfaces": ["spec", "basis.integer"],
       "source": "isprime/isprime.sml",
       "contract_id": "isPrime",
       "entrypoint": "isPrime",
@@ -26,6 +28,7 @@
     },
     {
       "id": "sublist_sum",
+      "interfaces": ["spec", "basis.list", "basis.integer"],
       "source": "sublist_sum/sublist_sum.sml",
       "contract_id": "sublistSum",
       "entrypoint": "sublistSum",
@@ -38,6 +41,7 @@
     },
     {
       "id": "list_max",
+      "interfaces": ["spec", "basis.list"],
       "source": "max/max.sml",
       "contract_id": "maxList",
       "entrypoint": "maxList",
@@ -45,6 +49,134 @@
       "output_type": "int",
       "input_pattern": "xs",
       "generator": "int_list",
+      "data_origin": "synthetic",
+      "review_status": "draft"
+    },
+    {
+      "id": "is_even",
+      "interfaces": ["basis.integer"],
+      "source": "all_even/all_even.sml",
+      "contract_id": "isEven",
+      "entrypoint": "isEven",
+      "input_type": "int",
+      "output_type": "bool",
+      "input_pattern": "x",
+      "generator": "int",
+      "data_origin": "synthetic",
+      "review_status": "draft"
+    },
+    {
+      "id": "all_even",
+      "interfaces": ["spec", "basis.integer"],
+      "source": "all_even/all_even.sml",
+      "contract_id": "allEven",
+      "entrypoint": "allEven",
+      "input_type": "int list",
+      "output_type": "bool",
+      "input_pattern": "xs",
+      "generator": "int_list",
+      "data_origin": "synthetic",
+      "review_status": "draft"
+    },
+    {
+      "id": "tree_is_leaf",
+      "source": "sequence/tree.sml",
+      "contract_id": "treeIsLeaf",
+      "entrypoint": "treeIsLeaf",
+      "input_type": "Tree.tree",
+      "output_type": "bool",
+      "input_pattern": "tree",
+      "interfaces": ["user.tree"],
+      "support_cm": "tasks/sequence/tree-support.cm",
+      "data_adapter": {
+        "file": "tasks/sequence/TreeData.sml",
+        "structure": "TreeLeafData"
+      },
+      "data_origin": "synthetic",
+      "review_status": "draft"
+    },
+    {
+      "id": "seq_reverse_int",
+      "source": "sequence/operations.sml",
+      "contract_id": "reverseSeqInt",
+      "entrypoint": "reverseSeq",
+      "input_type": "int Seq.seq",
+      "output_type": "int Seq.seq",
+      "input_pattern": "xs",
+      "interfaces": ["cmu150.sequence", "spec"],
+      "support_cm": "tasks/sequence/support.cm",
+      "data_adapter": {
+        "file": "tasks/sequence/Data.sml",
+        "structure": "SequenceCases.ReverseInt"
+      },
+      "data_origin": "synthetic",
+      "review_status": "draft"
+    },
+    {
+      "id": "seq_reverse_bool",
+      "source": "sequence/operations.sml",
+      "contract_id": "reverseSeqBool",
+      "entrypoint": "reverseSeq",
+      "input_type": "bool Seq.seq",
+      "output_type": "bool Seq.seq",
+      "input_pattern": "xs",
+      "interfaces": ["cmu150.sequence", "spec"],
+      "support_cm": "tasks/sequence/support.cm",
+      "data_adapter": {
+        "file": "tasks/sequence/Data.sml",
+        "structure": "SequenceCases.ReverseBool"
+      },
+      "data_origin": "synthetic",
+      "review_status": "draft"
+    },
+    {
+      "id": "seq_flatten_int",
+      "source": "sequence/operations.sml",
+      "contract_id": "flattenSeq",
+      "entrypoint": "flattenSeq",
+      "input_type": "int Seq.seq Seq.seq",
+      "output_type": "int Seq.seq",
+      "input_pattern": "xss",
+      "interfaces": ["cmu150.sequence", "basis.list"],
+      "support_cm": "tasks/sequence/support.cm",
+      "data_adapter": {
+        "file": "tasks/sequence/Data.sml",
+        "structure": "SequenceCases.FlattenInt"
+      },
+      "data_origin": "synthetic",
+      "review_status": "draft"
+    },
+    {
+      "id": "seq_leaf_flags",
+      "source": "sequence/operations.sml",
+      "contract_id": "leafFlags",
+      "entrypoint": "leafFlags",
+      "input_type": "Tree.tree Seq.seq",
+      "output_type": "bool Seq.seq",
+      "input_pattern": "trees",
+      "interfaces": ["cmu150.sequence", "user.tree", "spec"],
+      "support_cm": "tasks/sequence/support.cm",
+      "data_adapter": {
+        "file": "tasks/sequence/Data.sml",
+        "structure": "SequenceCases.LeafFlags"
+      },
+      "data_origin": "synthetic",
+      "review_status": "draft"
+    },
+    {
+      "id": "list_to_seq",
+      "source": "sequence/operations.sml",
+      "contract_id": "fromIntList",
+      "entrypoint": "fromIntList",
+      "input_type": "int list",
+      "output_type": "int Seq.seq",
+      "input_pattern": "xs",
+      "interfaces": ["cmu150.sequence", "basis.list"],
+      "support_cm": "tasks/sequence/support.cm",
+      "data_adapter": {
+        "file": "tasks/sequence/Data.sml",
+        "structure": "SequenceCases.ListToSeq"
+      },
       "data_origin": "synthetic",
       "review_status": "draft"
     }

@@ -1,0 +1,9 @@
+(* One shared library instance for Contract, Target and runtime data adapters. *)
+Library
+  signature SEQUENCE
+  structure Seq
+  structure Tree
+is
+  $/basis.cm
+  ../../sequence/sources.cm
+  Shared.sml

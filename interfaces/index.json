@@ -1,0 +1,8 @@
+{
+  "spec": "spec.md",
+  "basis.list": "list.md",
+  "basis.integer": "integer.md",
+  "cmu150.sequence": "sequence_cmu150.md",
+  "cmu150.set": "set_cmu150.md",
+  "user.tree": "tree.md"
+}

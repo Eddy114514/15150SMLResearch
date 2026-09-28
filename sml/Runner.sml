@@ -11,6 +11,7 @@ structure Runner = struct
           "\\u00" ^ StringCvt.padLeft #"0" 2 (Int.fmt StringCvt.HEX (Char.ord c))
         else str c) s ^ "\""
   fun list f xs = "[" ^ String.concatWith "," (List.map f xs) ^ "]"
+  fun sequence toList showElement values = list showElement (toList values)
   fun pair (x, xs) = "[" ^ int x ^ "," ^ list int xs ^ "]"
   fun listIntPair (xs, x) = "[" ^ list int xs ^ "," ^ int x ^ "]"
   fun field (k, v) = quote k ^ ":" ^ v
@@ -18,7 +19,9 @@ structure Runner = struct
   fun option f NONE = object [("tag", quote "NONE")]
     | option f (SOME x) = object [("tag", quote "SOME"), ("value", f x)]
   fun emit fields = (print (prefix ^ object fields ^ "\n"); TextIO.flushOut TextIO.stdOut)
-  fun exnText e = General.exnName e ^ ": " ^ General.exnMessage e
+  fun exnText (Spec.DependencyDomainViolation helper) =
+        "DependencyDomainViolation: " ^ helper
+    | exnText e = General.exnName e ^ ": " ^ General.exnMessage e
   fun writeInputs (path, showInput, inputs) = let
     val stream = TextIO.openOut path
   in
@@ -61,9 +64,11 @@ structure Runner = struct
        ("counterexample_input", case input of NONE => "null" | SOME x => showInput x),
        ("counterexample_output", case result of NONE => "null" | SOME y => showOutput y),
        ("exception", case error of NONE => "null" | SOME e => quote (exnText e))]
-    fun reportError count (stage, x, result, error) =
-      report count (if stage = "target" then "target_exception" else "predicate_error")
-        stage (SOME x) result (SOME error)
+    fun reportError count (stage, x, result, error) = let
+      val status = if stage = "target" then "target_exception" else
+        case error of Spec.DependencyDomainViolation _ => "dependency_domain_error"
+                    | _ => "predicate_error"
+    in report count status stage (SOME x) result (SOME error) end
     fun finish failures ({count, ...} : QCheck.stats) =
       case !firstError of
         SOME error => reportError count error

@@ -1,0 +1,5 @@
+Library
+  structure Spec
+is
+  $/basis.cm
+  Spec.sml

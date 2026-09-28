@@ -8,6 +8,11 @@ structure Generators = struct
   val listListGen : int list list G.gen =
     G.vector List.tabulate (G.range (0, 20), listGen)
 
+  (* Gen.vector advances mutable RNG state in its callback: tabulate sequentially,
+   * then construct the chosen sequence representation from the finished list. *)
+  fun sequence fromList (lengthGen, elementGen) =
+    G.map fromList (G.vector List.tabulate (lengthGen, elementGen))
+
   val intEdges = [0, 1, ~1, valOf Int.minInt, valOf Int.maxInt, ~100, 100]
   val listEdges =
     [[], [0], [1], [~1], [1, 1], [1, 2, 3], [3, 2, 1],

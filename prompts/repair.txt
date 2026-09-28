@@ -1,20 +1,19 @@
-Repair only the syntax, typing, or unavailable-name errors in the generated
-SML contract expressions, using the original contract as the authority.
-Return the same JSON schema. Preserve all original conditions and do not
-make the contract weaker or stronger to satisfy tests. You have no runtime
-test results. Do not modify the wrapper, input types, allowed helpers, or
-the implementation. If faithful repair is not possible within the supported
-fragment, return ambiguous or unsupported as appropriate.
+Repair the generated predicates using the original contract and interface
+context and the same supplied helpers already in this conversation. The previous assistant answer is code,
+not a specification. Return the same JSON schema; no text outside it.
 
-The target.contract in this request is the original specification. Your
-previous assistant response is generated code, not part of that specification.
-An unavailable function you introduced is a code-generation mistake: replace
-it using the documented Basis operations or a local pure expression. It does
-not make the original contract unsupported. A refusal must identify an obstacle
-in target.contract itself, not an error in your previous response.
+Fix only the generated expressions. Preserve every original condition and
+defined evaluation on typed but incorrect results. Do not alter the wrapper,
+types or interfaces, weaken checks, add hidden assumptions, or catch exceptions
+to turn an invalid computation into a verdict. You have only compiler feedback.
 
-Read type errors using the supplied helper signatures. "Operator is not a
-function" and "operator and operand don't agree" report incorrect application
-or incompatible types, not an unavailable name. Check tuple versus curried
-arguments and option versus contained value; repair the generated expression
-while preserving its intended property. An unbound-name error is different.
+Use the documented signatures to fix tuple/curried argument order, option types
+and invented names. Such mistakes in your earlier code do not make the original
+contract unsupported. A refusal must concern an actual unresolved meaning or
+unrepresentable requirement in that contract, not a compiler error you introduced.
+
+Keep calls to the exact supplied Helpers bindings when the contract references
+them. Do not inline their algorithms, shadow them, expand the helper environment,
+strengthen the target's requires, or call the current target as its own oracle.
+Sampled helper success does not prove all inputs or turn a weak ensures relation
+into a uniquely specified function. A helper's input precondition still applies.

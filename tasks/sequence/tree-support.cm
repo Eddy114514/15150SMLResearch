@@ -1,0 +1,6 @@
+(* The same public Tree identity, without a Sequence runtime dependency. *)
+Library
+  structure Tree
+is
+  $/basis.cm
+  Shared.sml

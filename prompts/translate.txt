@@ -1,41 +1,48 @@
-Translate target.contract into Standard ML Boolean expressions that check an
-input and its actual returned value. The target implementation is deliberately
-not provided. Derive the checking algorithm from the stated property.
+Translate target.contract into pure Standard ML Boolean expressions checking
+the input and its actual result. Use target.input_pattern for input bindings;
+result is available only in ensures_expr. The implementation is not provided.
+Check the stated properties; never generate or call the current target's real
+implementation as its own oracle. Only the student helpers explicitly supplied
+in helpers are callable, using exactly their callable_name and concrete signature.
 
-The course notation f(args) ==>* v means that the returned value is v. It
-does not require calling f inside a predicate or proving runtime complexity.
+Each supplied helper passed its independent contract check in this run using
+finite samples; this is not a proof for all inputs. When the target contract
+references a supplied helper, call that binding in the predicate to preserve
+the specification's composition. Do not inline an equivalent algorithm, define
+a local replacement, or shadow the binding. For example, a supplied
+Helpers.isEven must not be replaced by an inline divisibility test.
+Respect each helper's original requires without strengthening the target's
+requires to make calls legal. Calls outside a helper's input domain are errors.
+A helper's ensures is a relation, not a replacement implementation: do not
+turn ensures(x,true) into a Boolean helper. If a weak helper contract leaves
+a mathematical value unspecified, passing samples do not determine that value.
+Distinguish a target explicitly combining the helper's actual returned values
+from one requiring a uniquely specified mathematical value. Use ambiguous or
+unsupported when necessary semantics are missing. Do not call unprovided student
+functions or add their contracts as extra requirements on the target.
 
-Use target.input_pattern for input bindings. The variable result is the actual
-return value, available only in ensures_expr. Bind helper variables and pure
-recursive functions inside let expressions as needed. Use the documented
-Basis operations and helper signatures. Do not call the target function or
-load code, perform I/O, use mutable state, or catch exceptions to report success.
+Preserve exactly the stated requires, quantifier domains, output branches,
+order, multiplicities and weak conditions. Function names add no requirements.
+The course notation f(args) ==>* v describes the returned value, not a call to
+f inside the checker or a proof of complexity. requires_expr uses only input;
+ensures_expr checks all explicit postconditions assuming requires_expr is true.
+Check actual witnesses and any stated absence condition on every result branch.
 
-Preserve the contract exactly, including weak or false conditions. Do not add
-requirements based on the function name. Do not repair the specification.
-requires_expr checks only the precondition. ensures_expr checks every stated
-postcondition assuming requires_expr is true.
+Prefer the supplied interface_context operations with their documented types.
+Use local pure functions only where needed; do not reimplement provided general
+operations. Do not load code, perform I/O, mutate state or catch exceptions to
+manufacture a Boolean verdict. Use defined evaluation order and short-circuiting.
+A wrong result still has the declared output type: input bounds do not imply
+that returned lists have the same length or numeric bounds. Ensure checks remain
+defined for such results without silently changing the contract's arithmetic.
+Do not narrow quantifier domains, truncate searches or randomly sample inside
+predicates. Cost or a missing convenience operation alone does not justify refusal.
 
-Check every result branch. For SOME, verify the returned witness. For NONE,
-verify the stated absence of a witness. Use exactly the domain in the contract;
-do not invent a relationship between a returned list and an input list.
-List equality preserves order and duplicates; multiset equality ignores order.
-Quantified properties may use local finite search or justified mathematical
-rewrites. Never replace a quantifier with an arbitrary sampled range.
-
-Return one JSON object using the supplied schema:
-- ok: requires_expr and ensures_expr are executable Boolean expressions;
-  reason is empty.
-- ambiguous: the contract has materially different possible meanings or an
-  undefined term. Identify that wording and the unresolved meanings.
-- unsupported: a stated requirement cannot be represented as an executable
-  property, such as proving termination or asymptotic complexity. Identify it.
-
-A missing target implementation, missing search algorithm, computational cost,
-or absent convenience library function is not a reason to refuse translation.
-Ordinary mathematical operations can be implemented using Basis combinators
-or local pure functions. Compilation feedback concerns your generated code,
-not the original specification.
-
-For ambiguous or unsupported, both expressions are null. Return only JSON,
-with no Markdown or explanation outside it.
+Return only the supplied JSON schema, with no external reasoning or Markdown:
+- ok: two executable expressions; reason is empty.
+- ambiguous: only for materially incompatible interpretations of the wording;
+  identify the unresolved meaning. An explicit weak condition is not ambiguity.
+- unsupported: identify a stated requirement that cannot be represented in the
+  available executable setting, such as a general termination/complexity proof.
+For either refusal, both expressions are null. Do not invent requirements,
+assume hidden facts, or change the specification to make translation easier.

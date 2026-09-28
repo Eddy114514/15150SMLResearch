@@ -19,5 +19,9 @@
   "max_attempts": 10000,
   "http_timeout": 600,
   "sml_timeout": 30,
-  "think": "low"
+  "think": "low",
+  "keep_alive": "15m",
+  "interfaces": {
+    "index": "interfaces/index.json"
+  }
 }
