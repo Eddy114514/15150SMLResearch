@@ -1,0 +1,7 @@
+Library
+  structure RegexCase
+  structure RegexModel
+is
+  $/basis.cm
+  Shared.sml
+  Model.sml

@@ -1,0 +1,11 @@
+(* Unchanged course test/display libraries from induction.tar. *)
+Library
+  structure MakeString
+  structure Test
+is
+  $/basis.cm
+  $/smlnj-lib.cm
+  MakeString.sig
+  MakeString.sml
+  Test.sig
+  Test.sml

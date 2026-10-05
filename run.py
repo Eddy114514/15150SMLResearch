@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Translate configured SML contracts and test their student implementations."""
+"""Compile manual or translated SML contracts and test their implementations."""
 import argparse
 import csv
 import datetime as dt
@@ -31,23 +31,26 @@ def helper_metadata(helpers):
              ("case_id", "callable_name", "signature", "status")} for helper in helpers]
 
 
-def select_cases(cases, manifest, case_id, file_path):
+def select_cases(cases, manifest, case_id, file_path, group=None):
     if case_id is not None:
         return [case for case in cases if case["id"] == case_id]
     if file_path is not None:
         source = (ROOT / file_path).resolve()
         return [case for case in cases if (manifest.parent / case["source"]).resolve() == source]
+    if group is not None:
+        return [case for case in cases if case.get("group") == group]
     return cases
 
 
-def load_resources(config):
+def load_resources(config, *, include_translation=True):
     manifest = ROOT / config["manifest"]
-    return {
-        "cases": json.loads(manifest.read_text(encoding="utf-8"))["cases"],
-        "catalog": interfaces.load(ROOT, config),
-        "translate_prompt": (ROOT / "prompts/translate.txt").read_text(encoding="utf-8"),
-        "repair_prompt": (ROOT / "prompts/repair.txt").read_text(encoding="utf-8"),
-    }
+    resources = {"cases": json.loads(manifest.read_text(encoding="utf-8"))["cases"]}
+    if include_translation:
+        resources.update(
+            catalog=interfaces.load(ROOT, config),
+            translate_prompt=(ROOT / "prompts/translate.txt").read_text(encoding="utf-8"),
+            repair_prompt=(ROOT / "prompts/repair.txt").read_text(encoding="utf-8"))
+    return resources
 
 
 def translate(case, contract, workdir, config, resources, helpers=()):
@@ -104,11 +107,34 @@ def translate(case, contract, workdir, config, resources, helpers=()):
     return None, translation
 
 
+def prepare_manual(node, workdir, config, helpers):
+    """Use the manual snapshot directly; errors never fall back to translation."""
+    case = node["case"]
+    compiled = sml.compile_manual_contract(case, node["manual_text"], workdir,
+        timeout=config["sml_timeout"], helpers=helpers)
+    preparation = {
+        "case_id": case["id"], "manual_section": node.get("manual_section"),
+        "contract_file": case["contract_file"], "contract_id": case["contract_id"],
+        "sha256": hashlib.sha256(node["manual_text"].encode("utf-8")).hexdigest(),
+        "attempts": [], "model_calls": 0, "model_seconds": 0.0,
+        "initial_compile_ok": compiled.get("compile_ok"),
+        "final_compile_ok": compiled.get("compile_ok"),
+        "repair_attempted": False, "repair_count": 0,
+        "provided_helpers": helper_metadata(helpers),
+        "interface_ids": [], "interface_characters": 0,
+        "status": compiled["status"], "stage": compiled["stage"],
+        "exception": compiled.get("exception"), "reason": None, "compile": compiled}
+    dump(workdir / "manual_contract.json", preparation)
+    return (compiled if compiled["status"] == "compiled" else None), preparation
+
+
 def result_record(case, *, requested_root, direct_dependencies):
     """One result shape for executed cases and cases blocked before translation."""
     return {
         "case_id": case["id"], "source": case["source"],
         "contract_id": case["contract_id"], "entrypoint": case["entrypoint"],
+        "contract_mode": "manual" if "contract_file" in case else "model",
+        "contract_file": case.get("contract_file"), "target_wrapper": case.get("target_wrapper"),
         "requested_root": requested_root, "direct_dependencies": direct_dependencies,
         "blocked_by": [], "dependency_errors": [], "provided_helpers": [],
         "status": None, "stage": None,
@@ -125,12 +151,15 @@ def result_record(case, *, requested_root, direct_dependencies):
 
 
 def run_case(node, workdir, config, resources, *, requested_root, helpers, dependencies):
-    """Translate and test using the source snapshot and this run's admitted helpers."""
+    """Compile and test using source snapshots and this run's admitted helpers."""
     started = time.monotonic()
     started_at = now()
     case = node["case"]
     workdir.mkdir()
-    compiled, translation = translate(case, node["contract"], workdir, config, resources, helpers)
+    if "contract_file" in case:
+        compiled, preparation = prepare_manual(node, workdir, config, helpers)
+    else:
+        compiled, preparation = translate(case, node["contract"], workdir, config, resources, helpers)
     measured = {}
     if compiled is not None:
         measured = sml.execute(case, compiled["contract_path"], node["source_text"], workdir,
@@ -138,27 +167,28 @@ def run_case(node, workdir, config, resources, *, requested_root, helpers, depen
             timeout=config["sml_timeout"], helpers=helpers, dependencies=dependencies)
     result = result_record(case, requested_root=requested_root,
                            direct_dependencies=node["dependencies"])
+    artifacts = compiled or preparation.get("compile", {})
     result.update({
-        "provided_helpers": translation["provided_helpers"],
-        "status": measured["status"] if measured else translation["status"],
-        "stage": measured["stage"] if measured else translation["stage"],
-        "initial_compile_ok": translation["initial_compile_ok"],
-        "final_compile_ok": translation["final_compile_ok"],
-        "repair_attempted": translation["repair_attempted"],
-        "repair_count": translation["repair_count"],
-        "model_calls": len(translation["attempts"]),
+        "provided_helpers": preparation["provided_helpers"],
+        "status": measured["status"] if measured else preparation["status"],
+        "stage": measured["stage"] if measured else preparation["stage"],
+        "initial_compile_ok": preparation["initial_compile_ok"],
+        "final_compile_ok": preparation["final_compile_ok"],
+        "repair_attempted": preparation["repair_attempted"],
+        "repair_count": preparation["repair_count"],
+        "model_calls": len(preparation["attempts"]),
         **{key: measured.get(key) for key in (
             "attempted", "accepted", "discarded", "passed", "errored", "target_calls",
             "counterexample_input", "counterexample_output")},
-        "exception": measured.get("exception") if measured else translation["exception"],
-        "reason": translation["reason"],
-        "model_seconds": translation["model_seconds"],
-        "interface_ids": translation["interface_ids"],
-        "interface_characters": translation["interface_characters"],
+        "exception": measured.get("exception") if measured else preparation["exception"],
+        "reason": preparation["reason"],
+        "model_seconds": preparation["model_seconds"],
+        "interface_ids": preparation["interface_ids"],
+        "interface_characters": preparation["interface_characters"],
         "pbt_seconds": measured.get("elapsed_seconds"),
         "case_seconds": time.monotonic() - started,
         "started_at": started_at, "finished_at": now(),
-        **{key: compiled.get(key) if compiled else None
+        **{key: artifacts.get(key)
            for key in ("contract_path", "predicate_cm", "module_name")},
         "main_path": measured.get("main_path"),
         "log": str(workdir / "log.txt"),
@@ -247,29 +277,41 @@ def main():
     selection.add_argument("--case", help="run a manifest case after its contract dependencies")
     selection.add_argument("--file", type=Path,
                            help="run a configured source's cases and dependencies, once each")
+    selection.add_argument("--group", help="run the cases with this manifest group")
     args = parser.parse_args()
     config = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
     manifest = (ROOT / config["manifest"]).resolve()
-    resources = load_resources(config)
-    cases = select_cases(resources["cases"], manifest, args.case, args.file)
-    if not cases and (args.case is not None or args.file is not None):
-        parser.error(f"no manifest cases match: {args.case or args.file}")
+    resources = load_resources(config, include_translation=False)
+    cases = select_cases(resources["cases"], manifest, args.case, args.file, args.group)
+    if not cases and (args.case is not None or args.file is not None or args.group is not None):
+        parser.error(f"no manifest cases match: {args.case or args.file or args.group}")
     plan = corpus.plan(resources["cases"], cases, manifest.parent)
+    if any("contract_file" not in node["case"] for node in plan["nodes"].values()):
+        resources.update(load_resources(config))
     stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     run_dir = (ROOT / config["output_dir"]).resolve() / (stamp + "-" + uuid.uuid4().hex[:6])
     run_dir.mkdir(parents=True)
-    snapshots = {}
+    snapshots, contract_snapshots = {}, {}
     for ident in plan["order"]:
         node = plan["nodes"][ident]
         source_path = str((manifest.parent / node["case"]["source"]).resolve())
         if source_path not in snapshots:
+            snapshot_text = node.get("source_snapshot_text", node["source_text"])
             path = run_dir / "sources" / f"source_{len(snapshots)}.sml"
             path.parent.mkdir(exist_ok=True)
-            path.write_text(node["source_text"], encoding="utf-8")
+            path.write_text(snapshot_text, encoding="utf-8")
             snapshots[source_path] = {"snapshot": str(path),
-                "sha256": hashlib.sha256(node["source_text"].encode("utf-8")).hexdigest()}
+                "sha256": hashlib.sha256(snapshot_text.encode("utf-8")).hexdigest()}
+        if "manual_path" in node and node["manual_path"] not in contract_snapshots:
+            snapshot_text = node.get("manual_snapshot_text", node["manual_text"])
+            path = run_dir / "contracts" / f"contract_{len(contract_snapshots)}.sml"
+            path.parent.mkdir(exist_ok=True)
+            path.write_text(snapshot_text, encoding="utf-8")
+            contract_snapshots[node["manual_path"]] = {"snapshot": str(path),
+                "sha256": hashlib.sha256(snapshot_text.encode("utf-8")).hexdigest()}
     dump(run_dir / "run_config.json", {**config, "case_ids": plan["order"],
         "root_case_ids": plan["roots"], "source_snapshots": snapshots,
+        "requested_group": args.group, "contract_snapshots": contract_snapshots,
         "direct_dependencies": {ident: plan["nodes"][ident]["dependencies"] for ident in plan["order"]},
         "dependency_errors": plan["errors"], "generator_implementation": "qcheck-gen-v1"})
     print("Run directory:", run_dir, flush=True)

@@ -1,0 +1,5 @@
+Library
+  structure SymmetryInput
+is
+  $/basis.cm
+  SymmetryType.sml

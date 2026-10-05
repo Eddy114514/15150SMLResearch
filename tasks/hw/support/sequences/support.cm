@@ -1,0 +1,14 @@
+Library
+  signature SEQUENCE
+  structure Seq
+  signature SEQFNS
+  signature UTILS
+  structure SeqSpec
+  structure OrderSpec
+is
+  $/basis.cm
+  ../../../../sequence/sources.cm
+  ../polysort/support.cm
+  SEQFNS.sig
+  UTILS.sig
+  SeqSpec.sml

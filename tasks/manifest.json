@@ -179,6 +179,433 @@
       },
       "data_origin": "synthetic",
       "review_status": "draft"
+    },
+    {
+      "id": "hw_remove",
+      "group": "hw",
+      "source": "hw/induction.sml",
+      "contract_id": "remove",
+      "entrypoint": "remove",
+      "input_type": "int * int list",
+      "output_type": "int list",
+      "input_pattern": "(x,xs)",
+      "interfaces": [],
+      "contract_file": "tasks/hw/induction.sml",
+      "support_cm": "tasks/hw/support/course/sources.cm",
+      "data_adapter": {
+        "file": "tasks/hw/support/induction/Data.sml",
+        "structure": "HwInductionData.Lists"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_heads",
+      "group": "hw",
+      "source": "hw/induction.sml",
+      "contract_id": "heads",
+      "entrypoint": "heads",
+      "input_type": "int * int list",
+      "output_type": "int",
+      "input_pattern": "(x,xs)",
+      "interfaces": [],
+      "contract_file": "tasks/hw/induction.sml",
+      "support_cm": "tasks/hw/support/course/sources.cm",
+      "data_adapter": {
+        "file": "tasks/hw/support/induction/Data.sml",
+        "structure": "HwInductionData.Heads"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_tails",
+      "group": "hw",
+      "source": "hw/induction.sml",
+      "contract_id": "tails",
+      "entrypoint": "tails",
+      "input_type": "int * int list",
+      "output_type": "int list",
+      "input_pattern": "(x,xs)",
+      "interfaces": [],
+      "contract_file": "tasks/hw/induction.sml",
+      "support_cm": "tasks/hw/support/course/sources.cm",
+      "data_adapter": {
+        "file": "tasks/hw/support/induction/Data.sml",
+        "structure": "HwInductionData.Lists"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_sublist_sum",
+      "group": "hw",
+      "source": "hw/sublist_sum.sml",
+      "contract_id": "sublistSum",
+      "entrypoint": "sublistSum",
+      "input_type": "int list * int",
+      "output_type": "int list option",
+      "input_pattern": "(xs,n)",
+      "interfaces": [],
+      "contract_file": "tasks/hw/sublist_sum.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/datatypes/SublistData.sml",
+        "structure": "HwSublistData"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_is_symmetric",
+      "group": "hw",
+      "source": "hw/is_symmetric.sml",
+      "contract_id": "isSymmetric",
+      "entrypoint": "isSymmetric",
+      "input_type": "SymmetryInput.tree",
+      "output_type": "bool",
+      "input_pattern": "tree",
+      "interfaces": [],
+      "contract_file": "tasks/hw/is_symmetric.sml",
+      "support_cm": "tasks/hw/support/datatypes/symmetry-support.cm",
+      "target_wrapper": "tasks/hw/support/datatypes/SymmetryTarget.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/datatypes/SymmetryData.sml",
+        "structure": "HwSymmetryData"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_pivot_split_int",
+      "group": "hw",
+      "source": "hw/polysort.sml",
+      "contract_id": "pivotSplit",
+      "contract_file": "tasks/hw/polysort.sml",
+      "entrypoint": "fn (p,xs) => pivotSplit (Int.compare,p,xs)",
+      "input_type": "int * int list",
+      "output_type": "int list * int list",
+      "input_pattern": "(p,xs)",
+      "support_cm": "tasks/hw/support/polysort/support.cm",
+      "data_adapter": {
+        "file": "tasks/hw/support/polysort/Data.sml",
+        "structure": "PolysortData.PivotInt"
+      },
+      "interfaces": [],
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_pivot_split_key",
+      "group": "hw",
+      "source": "hw/polysort.sml",
+      "contract_id": "pivotSplit",
+      "contract_file": "tasks/hw/polysort.sml",
+      "entrypoint": "fn (p,xs) => pivotSplit (OrderSpec.keyCompare,p,xs)",
+      "input_type": "(int * int) * (int * int) list",
+      "output_type": "(int * int) list * (int * int) list",
+      "input_pattern": "(p,xs)",
+      "support_cm": "tasks/hw/support/polysort/support.cm",
+      "data_adapter": {
+        "file": "tasks/hw/support/polysort/Data.sml",
+        "structure": "PolysortData.PivotKey"
+      },
+      "interfaces": [],
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_quicksort_int",
+      "group": "hw",
+      "source": "hw/polysort.sml",
+      "contract_id": "quicksort",
+      "contract_file": "tasks/hw/polysort.sml",
+      "entrypoint": "fn xs => quicksort (Int.compare,xs)",
+      "input_type": "int list",
+      "output_type": "int list",
+      "input_pattern": "xs",
+      "support_cm": "tasks/hw/support/polysort/support.cm",
+      "data_adapter": {
+        "file": "tasks/hw/support/polysort/Data.sml",
+        "structure": "PolysortData.SortInt"
+      },
+      "interfaces": [],
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_quicksort_key",
+      "group": "hw",
+      "source": "hw/polysort.sml",
+      "contract_id": "quicksort",
+      "contract_file": "tasks/hw/polysort.sml",
+      "entrypoint": "fn xs => quicksort (OrderSpec.keyCompare,xs)",
+      "input_type": "(int * int) list",
+      "output_type": "(int * int) list",
+      "input_pattern": "xs",
+      "support_cm": "tasks/hw/support/polysort/support.cm",
+      "data_adapter": {
+        "file": "tasks/hw/support/polysort/Data.sml",
+        "structure": "PolysortData.SortKey"
+      },
+      "interfaces": [],
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_transpose",
+      "group": "hw",
+      "source": "hw/transpose.sml",
+      "contract_id": "transpose",
+      "contract_file": "tasks/hw/transpose.sml",
+      "entrypoint": "SeqFns.transpose",
+      "input_type": "int Seq.t Seq.t",
+      "output_type": "int Seq.t Seq.t",
+      "input_pattern": "matrix",
+      "support_cm": "tasks/hw/support/sequences/support.cm",
+      "data_adapter": {
+        "file": "tasks/hw/support/sequences/Data.sml",
+        "structure": "HomeworkSequenceData.Transpose"
+      },
+      "interfaces": [],
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_collect_int",
+      "group": "hw",
+      "source": "hw/sequence_utils.sml",
+      "contract_id": "collect",
+      "contract_file": "tasks/hw/sequence_utils.sml",
+      "entrypoint": "Utils.collect Int.compare",
+      "input_type": "int Seq.t",
+      "output_type": "int Seq.t Seq.t",
+      "input_pattern": "xs",
+      "support_cm": "tasks/hw/support/sequences/support.cm",
+      "data_adapter": {
+        "file": "tasks/hw/support/sequences/Data.sml",
+        "structure": "HomeworkSequenceData.CollectInt"
+      },
+      "interfaces": [],
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_collect_key",
+      "group": "hw",
+      "source": "hw/sequence_utils.sml",
+      "contract_id": "collect",
+      "contract_file": "tasks/hw/sequence_utils.sml",
+      "entrypoint": "Utils.collect OrderSpec.keyCompare",
+      "input_type": "(int * int) Seq.t",
+      "output_type": "(int * int) Seq.t Seq.t",
+      "input_pattern": "xs",
+      "support_cm": "tasks/hw/support/sequences/support.cm",
+      "data_adapter": {
+        "file": "tasks/hw/support/sequences/Data.sml",
+        "structure": "HomeworkSequenceData.CollectKey"
+      },
+      "interfaces": [],
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_unique_int",
+      "group": "hw",
+      "source": "hw/sequence_utils.sml",
+      "contract_id": "unique",
+      "contract_file": "tasks/hw/sequence_utils.sml",
+      "entrypoint": "Utils.unique Int.compare",
+      "input_type": "int Seq.t",
+      "output_type": "int Seq.t",
+      "input_pattern": "xs",
+      "support_cm": "tasks/hw/support/sequences/support.cm",
+      "data_adapter": {
+        "file": "tasks/hw/support/sequences/Data.sml",
+        "structure": "HomeworkSequenceData.UniqueInt"
+      },
+      "interfaces": [],
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_book_bind",
+      "group": "hw",
+      "source": "hw/book.sml",
+      "contract_id": "hw_book_bind",
+      "entrypoint": "Book.bind",
+      "input_type": "string list",
+      "output_type": "BookCase.snapshot * BookCase.step list",
+      "input_pattern": "input",
+      "interfaces": [],
+      "contract_file": "tasks/hw/book.sml",
+      "support_cm": "tasks/hw/support/book/support.cm",
+      "target_wrapper": "tasks/hw/support/book/BindTarget.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/book/Data.sml",
+        "structure": "BookData.Bind"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_book_current_page",
+      "group": "hw",
+      "source": "hw/book.sml",
+      "contract_id": "hw_book_current_page",
+      "entrypoint": "Book.currentPage",
+      "input_type": "string list * int",
+      "output_type": "BookCase.view",
+      "input_pattern": "input",
+      "interfaces": [],
+      "contract_file": "tasks/hw/book.sml",
+      "support_cm": "tasks/hw/support/book/support.cm",
+      "target_wrapper": "tasks/hw/support/book/CurrentTarget.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/book/Data.sml",
+        "structure": "BookData.Current"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_book_flip",
+      "group": "hw",
+      "source": "hw/book.sml",
+      "contract_id": "hw_book_flip",
+      "entrypoint": "Book.flip",
+      "input_type": "string list * int * BookCase.direction",
+      "output_type": "BookCase.observedStep",
+      "input_pattern": "input",
+      "interfaces": [],
+      "contract_file": "tasks/hw/book.sml",
+      "support_cm": "tasks/hw/support/book/support.cm",
+      "target_wrapper": "tasks/hw/support/book/FlipTarget.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/book/Data.sml",
+        "structure": "BookData.Flip"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_book_trace",
+      "group": "hw",
+      "source": "hw/book.sml",
+      "contract_id": "hw_book_trace",
+      "entrypoint": "Book.bind/currentPage/flip",
+      "input_type": "string list * BookCase.direction list",
+      "output_type": "BookCase.snapshot * BookCase.observedStep list",
+      "input_pattern": "input",
+      "interfaces": [],
+      "contract_file": "tasks/hw/book.sml",
+      "support_cm": "tasks/hw/support/book/support.cm",
+      "target_wrapper": "tasks/hw/support/book/TraceTarget.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/book/Data.sml",
+        "structure": "BookData.Trace"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_find_one",
+      "group": "hw",
+      "source": "hw/find.sml",
+      "contract_id": "hw_find_one",
+      "entrypoint": "findOne",
+      "input_type": "CpsCase.predicate * CpsCase.tree",
+      "output_type": "int option",
+      "input_pattern": "input",
+      "interfaces": [],
+      "contract_file": "tasks/hw/find.sml",
+      "support_cm": "tasks/hw/support/cps/support.cm",
+      "target_wrapper": "tasks/hw/support/cps/FindOneTarget.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/cps/Data.sml",
+        "structure": "CpsData.FindOne"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_find_n",
+      "group": "hw",
+      "source": "hw/find.sml",
+      "contract_id": "hw_find_n",
+      "entrypoint": "findN",
+      "input_type": "CpsCase.predicate * CpsCase.equality * CpsCase.tree * int",
+      "output_type": "int list option",
+      "input_pattern": "input",
+      "interfaces": [],
+      "contract_file": "tasks/hw/find.sml",
+      "support_cm": "tasks/hw/support/cps/support.cm",
+      "target_wrapper": "tasks/hw/support/cps/FindNTarget.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/cps/Data.sml",
+        "structure": "CpsData.FindN"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_regex_match",
+      "group": "hw",
+      "source": "hw/regex.sml",
+      "contract_id": "hw_regex_match",
+      "entrypoint": "match",
+      "input_type": "RegexCase.regex * char list * bool list",
+      "output_type": "bool",
+      "input_pattern": "input",
+      "interfaces": [],
+      "contract_file": "tasks/hw/regex.sml",
+      "support_cm": "tasks/hw/support/regex/support.cm",
+      "target_wrapper": "tasks/hw/support/regex/MatchTarget.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/regex/Data.sml",
+        "structure": "RegexData.Match"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_regex_accept",
+      "group": "hw",
+      "source": "hw/regex.sml",
+      "contract_id": "hw_regex_accept",
+      "entrypoint": "accept",
+      "input_type": "RegexCase.regex * string",
+      "output_type": "bool",
+      "input_pattern": "input",
+      "interfaces": [],
+      "contract_file": "tasks/hw/regex.sml",
+      "support_cm": "tasks/hw/support/regex/support.cm",
+      "target_wrapper": "tasks/hw/support/regex/AcceptTarget.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/regex/Data.sml",
+        "structure": "RegexData.Accept"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_regex_both",
+      "group": "hw",
+      "source": "hw/regex.sml",
+      "contract_id": "hw_regex_match",
+      "entrypoint": "match",
+      "input_type": "RegexCase.regex * char list * bool list",
+      "output_type": "bool",
+      "input_pattern": "input",
+      "interfaces": [],
+      "contract_file": "tasks/hw/regex.sml",
+      "support_cm": "tasks/hw/support/regex/support.cm",
+      "target_wrapper": "tasks/hw/support/regex/MatchTarget.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/regex/Data.sml",
+        "structure": "RegexData.Both"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
     }
   ]
 }

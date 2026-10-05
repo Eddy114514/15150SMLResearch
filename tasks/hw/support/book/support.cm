@@ -1,0 +1,9 @@
+Library
+  signature BOOK
+  structure BookCase
+  structure BookModel
+is
+  $/basis.cm
+  BOOK.sig
+  Shared.sml
+  Model.sml

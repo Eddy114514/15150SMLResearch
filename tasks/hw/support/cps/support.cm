@@ -1,0 +1,7 @@
+Library
+  structure CpsCase
+  structure CpsModel
+is
+  $/basis.cm
+  Shared.sml
+  Model.sml

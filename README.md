@@ -1,6 +1,6 @@
 # SML Contracts to QCheck/PBT
 
-Marked SML contract + task interface list → Ollama predicates → SML compilation → QCheck generation and testing → saved results.
+Marked SML contract + task interface list → Ollama predicates, or a manual SML contract file → SML compilation → QCheck generation and testing → saved results.
 
 The model receives the original target contract, types, selected interface cards and directly referenced helpers that passed their independent checks in this run. Implementations and test answers are excluded. Generated predicate functors compile separately from the target; the runtime supplies only the admitted helpers. An error in a generated predicate allows one repair using the same conversation, failed JSON and compiler diagnostics, without changing its helper environment.
 
@@ -14,11 +14,7 @@ python3 run.py                               # All registered cases
 python3 run.py --case sublist_sum            # One case
 python3 run.py --case list_max
 python3 run.py --file tasks/sublist_sum/sublist_sum.sml
-python3 run.py --file tasks/all_even/all_even.sml  # Helper first, then main
-python3 run.py --case all_even                   # Includes its helper dependency closure
 ```
-
-Current cases: `flatten`, `isprime`, `sublist_sum`, `list_max`, `is_even`, `all_even`, `tree_is_leaf`, plus five Sequence cases: `seq_reverse_int`, `seq_reverse_bool`, `seq_flatten_int`, `seq_leaf_flags`, `list_to_seq`. Choose either `--case` or `--file`; source files must be registered in the manifest. These options select root cases. Their contract dependencies run first, with each case and concrete type instance checked only once in the run.
 
 Edit [config.json](config.json) for the model, seed, sample counts, timeouts, and paths. Defaults: `qwen3.8:27b-q4_K_M` with `think: "low"`, 1,000 valid samples, 10,000 candidates, 600-second model timeout, and 30-second SML timeout. Runtime settings have no CLI overrides.
 
@@ -29,8 +25,6 @@ Root-level `keep_alive` controls Ollama residency for both initial and repair re
 Local configuration, contract markers, and paths are trusted. Source implementations are assumed to pass syntax checking. Ordinary local errors stop the command.
 
 ## Task Interfaces
-
-Every case in [tasks/manifest.json](tasks/manifest.json) must explicitly provide an `interfaces` list. The existing `is_even` case uses `"interfaces": ["basis.integer"]`; `all_even` independently uses `["spec", "basis.integer"]`. Edit the target case's list, then run its existing `--case` or `--file` command.
 
 To add documentation: write a short English card in `interfaces/`, register its ID and relative filename in [interfaces/index.json](interfaces/index.json), and put that ID in the target case's `interfaces` list. The root [config.json](config.json) specifies only the index location. Card paths resolve relative to the index, independently of the launch directory.
 
