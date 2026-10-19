@@ -3,5 +3,6 @@ Library
   structure RegexModel
 is
   $/basis.cm
+  ../../../../sml/Spec.cm
   Shared.sml
   Model.sml

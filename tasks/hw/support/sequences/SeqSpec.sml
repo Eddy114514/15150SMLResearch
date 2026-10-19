@@ -8,13 +8,13 @@ structure SeqSpec = struct
   fun homogeneous cmp [] = false
     | homogeneous cmp (x :: xs) = List.all (fn y => cmp (x,y) = EQUAL) xs
 
-  fun collect cmp equal input output = let
+  fun collect cmp input output = let
     val xs = Seq.toList input
     val groups = List.map Seq.toList (Seq.toList output)
   in
     List.all (homogeneous cmp) groups andalso
     OrderSpec.strictlyOrdered cmp (List.map List.hd groups) andalso
-    OrderSpec.sameBag equal (xs, List.concat groups)
+    Spec.sameMultiset (xs, List.concat groups)
   end
 
   fun unique cmp input output = let

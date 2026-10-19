@@ -1,4 +1,3 @@
-(* Original solution: 15150HW/HWANS/244101240/code/books/book/Book.sml. *)
 (* @solution *)
 (* Implement your Book structure here! *)
 structure Book :> BOOK =    

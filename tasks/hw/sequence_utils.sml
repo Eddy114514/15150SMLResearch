@@ -1,4 +1,3 @@
-(* Original solution: 15150HW/HWANS/245396288/code/aiv-tracker/utils/Utils.sml. *)
 (* @solution *)
 structure Utils :> UTILS =
 struct
@@ -101,7 +100,7 @@ functor ManualContract (Helpers : sig end) = struct
   type input = int Seq.t
   type output = int Seq.t Seq.t
   fun requires (_ : input) = true
-  fun ensures (xs : input) (groups : output) = SeqSpec.collect Int.compare (op =) xs groups
+  fun ensures (xs : input) (groups : output) = SeqSpec.collect Int.compare xs groups
 end
 (* @manual hw_collect_key *)
 (* @contract collect
@@ -114,7 +113,7 @@ functor ManualContract (Helpers : sig end) = struct
   type output = (int * int) Seq.t Seq.t
   fun requires (_ : input) = true
   fun ensures (xs : input) (groups : output) =
-    SeqSpec.collect OrderSpec.keyCompare (op =) xs groups
+    SeqSpec.collect OrderSpec.keyCompare xs groups
 end
 (* @manual hw_unique_int *)
 (* @contract unique

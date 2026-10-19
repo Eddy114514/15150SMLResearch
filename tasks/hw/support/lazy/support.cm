@@ -1,0 +1,14 @@
+Library
+  signature STREAM
+  signature STREAMFNS
+  structure Stream
+  structure LazyCase
+  structure LazyModel
+  structure LazyObserve
+is
+  $/basis.cm
+  stream.cm
+  STREAMFNS.sig
+  Shared.sml
+  Model.sml
+  Observe.sml

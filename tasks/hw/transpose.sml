@@ -1,4 +1,3 @@
-(* Original solution: 15150HW/HWANS/245396288/code/seqfns/SeqFns.sml. *)
 (* @solution *)
 structure SeqFns :> SEQFNS =
 struct

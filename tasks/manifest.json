@@ -2,7 +2,9 @@
   "cases": [
     {
       "id": "flatten",
-      "interfaces": ["basis.list"],
+      "interfaces": [
+        "basis.list"
+      ],
       "source": "flatten/flatten.sml",
       "contract_id": "flatten",
       "entrypoint": "flatten",
@@ -15,7 +17,10 @@
     },
     {
       "id": "isprime",
-      "interfaces": ["spec", "basis.integer"],
+      "interfaces": [
+        "spec",
+        "basis.integer"
+      ],
       "source": "isprime/isprime.sml",
       "contract_id": "isPrime",
       "entrypoint": "isPrime",
@@ -28,7 +33,11 @@
     },
     {
       "id": "sublist_sum",
-      "interfaces": ["spec", "basis.list", "basis.integer"],
+      "interfaces": [
+        "spec",
+        "basis.list",
+        "basis.integer"
+      ],
       "source": "sublist_sum/sublist_sum.sml",
       "contract_id": "sublistSum",
       "entrypoint": "sublistSum",
@@ -41,7 +50,10 @@
     },
     {
       "id": "list_max",
-      "interfaces": ["spec", "basis.list"],
+      "interfaces": [
+        "spec",
+        "basis.list"
+      ],
       "source": "max/max.sml",
       "contract_id": "maxList",
       "entrypoint": "maxList",
@@ -54,7 +66,9 @@
     },
     {
       "id": "is_even",
-      "interfaces": ["basis.integer"],
+      "interfaces": [
+        "basis.integer"
+      ],
       "source": "all_even/all_even.sml",
       "contract_id": "isEven",
       "entrypoint": "isEven",
@@ -67,7 +81,10 @@
     },
     {
       "id": "all_even",
-      "interfaces": ["spec", "basis.integer"],
+      "interfaces": [
+        "spec",
+        "basis.integer"
+      ],
       "source": "all_even/all_even.sml",
       "contract_id": "allEven",
       "entrypoint": "allEven",
@@ -86,7 +103,9 @@
       "input_type": "Tree.tree",
       "output_type": "bool",
       "input_pattern": "tree",
-      "interfaces": ["user.tree"],
+      "interfaces": [
+        "user.tree"
+      ],
       "support_cm": "tasks/sequence/tree-support.cm",
       "data_adapter": {
         "file": "tasks/sequence/TreeData.sml",
@@ -103,7 +122,10 @@
       "input_type": "int Seq.seq",
       "output_type": "int Seq.seq",
       "input_pattern": "xs",
-      "interfaces": ["cmu150.sequence", "spec"],
+      "interfaces": [
+        "cmu150.sequence",
+        "spec"
+      ],
       "support_cm": "tasks/sequence/support.cm",
       "data_adapter": {
         "file": "tasks/sequence/Data.sml",
@@ -120,7 +142,10 @@
       "input_type": "bool Seq.seq",
       "output_type": "bool Seq.seq",
       "input_pattern": "xs",
-      "interfaces": ["cmu150.sequence", "spec"],
+      "interfaces": [
+        "cmu150.sequence",
+        "spec"
+      ],
       "support_cm": "tasks/sequence/support.cm",
       "data_adapter": {
         "file": "tasks/sequence/Data.sml",
@@ -137,7 +162,10 @@
       "input_type": "int Seq.seq Seq.seq",
       "output_type": "int Seq.seq",
       "input_pattern": "xss",
-      "interfaces": ["cmu150.sequence", "basis.list"],
+      "interfaces": [
+        "cmu150.sequence",
+        "basis.list"
+      ],
       "support_cm": "tasks/sequence/support.cm",
       "data_adapter": {
         "file": "tasks/sequence/Data.sml",
@@ -154,7 +182,11 @@
       "input_type": "Tree.tree Seq.seq",
       "output_type": "bool Seq.seq",
       "input_pattern": "trees",
-      "interfaces": ["cmu150.sequence", "user.tree", "spec"],
+      "interfaces": [
+        "cmu150.sequence",
+        "user.tree",
+        "spec"
+      ],
       "support_cm": "tasks/sequence/support.cm",
       "data_adapter": {
         "file": "tasks/sequence/Data.sml",
@@ -171,7 +203,10 @@
       "input_type": "int list",
       "output_type": "int Seq.seq",
       "input_pattern": "xs",
-      "interfaces": ["cmu150.sequence", "basis.list"],
+      "interfaces": [
+        "cmu150.sequence",
+        "basis.list"
+      ],
       "support_cm": "tasks/sequence/support.cm",
       "data_adapter": {
         "file": "tasks/sequence/Data.sml",
@@ -603,6 +638,264 @@
       "data_adapter": {
         "file": "tasks/hw/support/regex/Data.sml",
         "structure": "RegexData.Both"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_hof_differentiate",
+      "group": "hw",
+      "source": "hw/hof_polynomials.sml",
+      "contract_id": "differentiate",
+      "entrypoint": "differentiate",
+      "input_type": "int list * int list",
+      "output_type": "real list",
+      "input_pattern": "input",
+      "interfaces": [],
+      "contract_file": "tasks/hw/hof_polynomials.sml",
+      "support_cm": "tasks/hw/support/hofs/support.cm",
+      "target_wrapper": "tasks/hw/support/hofs/DifferentiateTarget.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/hofs/PolynomialsData.sml",
+        "structure": "PolynomialsData.Differentiate"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_hof_integrate",
+      "group": "hw",
+      "source": "hw/hof_polynomials.sml",
+      "contract_id": "integrate",
+      "entrypoint": "integrate",
+      "input_type": "int list * int list * int list",
+      "output_type": "real list list",
+      "input_pattern": "input",
+      "interfaces": [],
+      "contract_file": "tasks/hw/hof_polynomials.sml",
+      "support_cm": "tasks/hw/support/hofs/support.cm",
+      "target_wrapper": "tasks/hw/support/hofs/IntegrateTarget.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/hofs/PolynomialsData.sml",
+        "structure": "PolynomialsData.Integrate"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_hof_rose_folds",
+      "group": "hw",
+      "source": "hw/hof_rose_folds.sml",
+      "contract_id": "roseFolds",
+      "entrypoint": "roseFoldl",
+      "input_type": "RoseFoldCase.reducer * string * RoseFoldCase.rose",
+      "output_type": "string * string",
+      "input_pattern": "input",
+      "interfaces": [],
+      "contract_file": "tasks/hw/hof_rose_folds.sml",
+      "support_cm": "tasks/hw/support/hofs/support.cm",
+      "target_wrapper": "tasks/hw/support/hofs/RoseFoldsTarget.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/hofs/RoseFoldsData.sml",
+        "structure": "RoseFoldsData"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_lazy_cycle",
+      "group": "hw",
+      "source": "hw/lazy_streams.sml",
+      "contract_id": "lazy_cycle",
+      "entrypoint": "StreamFns.cycle",
+      "input_type": "LazyCase.source * int",
+      "output_type": "int * int option list",
+      "input_pattern": "(source,probes)",
+      "interfaces": [],
+      "contract_file": "tasks/hw/lazy_streams.sml",
+      "support_cm": "tasks/hw/support/lazy/support.cm",
+      "target_wrapper": "tasks/hw/support/lazy/CycleTarget.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/lazy/Data.sml",
+        "structure": "LazyData.Cycle"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_lazy_interleave",
+      "group": "hw",
+      "source": "hw/lazy_streams.sml",
+      "contract_id": "lazy_interleave",
+      "entrypoint": "StreamFns.interleave",
+      "input_type": "LazyCase.source * LazyCase.source * int",
+      "output_type": "int * int * int option list",
+      "input_pattern": "(left,right,probes)",
+      "interfaces": [],
+      "contract_file": "tasks/hw/lazy_streams.sml",
+      "support_cm": "tasks/hw/support/lazy/support.cm",
+      "target_wrapper": "tasks/hw/support/lazy/InterleaveTarget.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/lazy/Data.sml",
+        "structure": "LazyData.Interleave"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_exception_command",
+      "group": "hw",
+      "source": "hw/exception_command.sml",
+      "contract_id": "runCommand",
+      "entrypoint": "runCommand",
+      "input_type": "CommandCase.bindings * CommandCase.action",
+      "output_type": "CommandCase.outcome",
+      "input_pattern": "(bindings,action)",
+      "interfaces": [],
+      "contract_file": "tasks/hw/exception_command.sml",
+      "support_cm": "tasks/hw/support/exceptions/support.cm",
+      "target_wrapper": "tasks/hw/support/exceptions/CommandTarget.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/exceptions/CommandData.sml",
+        "structure": "CommandData"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_encryption",
+      "group": "hw",
+      "source": "hw/encryption.sml",
+      "contract_id": "new",
+      "entrypoint": "new",
+      "input_type": "EncryptionCase.input",
+      "output_type": "EncryptionCase.output",
+      "input_pattern": "input",
+      "interfaces": [],
+      "contract_file": "tasks/hw/encryption.sml",
+      "support_cm": "tasks/hw/support/encryption/support.cm",
+      "target_wrapper": "tasks/hw/support/encryption/Target.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/encryption/Data.sml",
+        "structure": "EncryptionData"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_find_partition",
+      "group": "hw",
+      "source": "hw/find_partition.sml",
+      "contract_id": "hw_find_partition",
+      "entrypoint": "findPartition",
+      "input_type": "PartitionCase.input",
+      "output_type": "PartitionCase.output",
+      "input_pattern": "input",
+      "interfaces": [],
+      "contract_file": "tasks/hw/find_partition.sml",
+      "support_cm": "tasks/hw/support/find_partition/support.cm",
+      "target_wrapper": "tasks/hw/support/find_partition/Target.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/find_partition/Data.sml",
+        "structure": "PartitionData"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_lazy_tree_map",
+      "group": "hw",
+      "source": "hw/lazy_tree_map.sml",
+      "contract_id": "lazy_tree_map",
+      "entrypoint": "LazyTree.map",
+      "input_type": "EncryptionCase.affine * SymmetryInput.tree",
+      "output_type": "int * int * SymmetryInput.tree",
+      "input_pattern": "(mapper,tree)",
+      "interfaces": [],
+      "contract_file": "tasks/hw/lazy_tree_map.sml",
+      "support_cm": "tasks/hw/support/lazy_tree_map/support.cm",
+      "target_wrapper": "tasks/hw/support/lazy_tree_map/Target.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/lazy_tree_map/Data.sml",
+        "structure": "LazyTreeMapData"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_bbs",
+      "group": "hw",
+      "source": "hw/bbs.sml",
+      "contract_id": "bbs",
+      "entrypoint": "StreamRand.bbs",
+      "input_type": "int * int * int",
+      "output_type": "int option list",
+      "input_pattern": "(modulus,seed,probes)",
+      "interfaces": [],
+      "contract_file": "tasks/hw/bbs.sml",
+      "support_cm": "tasks/hw/support/bbs/support.cm",
+      "target_wrapper": "tasks/hw/support/bbs/Target.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/bbs/Data.sml",
+        "structure": "BbsData"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_find150",
+      "group": "hw",
+      "source": "hw/find150.sml",
+      "contract_id": "hw_find150",
+      "entrypoint": "Find150.is150Book",
+      "input_type": "string list",
+      "output_type": "bool",
+      "input_pattern": "input",
+      "interfaces": [],
+      "contract_file": "tasks/hw/find150.sml",
+      "support_cm": "tasks/hw/support/find150/support.cm",
+      "data_adapter": {
+        "file": "tasks/hw/support/find150/Data.sml",
+        "structure": "Find150Data"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_tracker",
+      "group": "hw",
+      "source": "hw/support/tracker/Source.sml",
+      "contract_id": "tracker_query",
+      "entrypoint": "Tracker.query",
+      "input_type": "int * int list list * int * int",
+      "output_type": "int list",
+      "input_pattern": "(n,chats,source,resolution)",
+      "interfaces": [],
+      "contract_file": "tasks/hw/tracker.sml",
+      "support_cm": "tasks/hw/support/tracker/support.cm",
+      "target_wrapper": "tasks/hw/support/tracker/Target.sml",
+      "data_adapter": {
+        "file": "tasks/hw/support/tracker/Data.sml",
+        "structure": "TrackerData"
+      },
+      "data_origin": "user_provided",
+      "review_status": "manual"
+    },
+    {
+      "id": "hw_flip_one",
+      "group": "hw",
+      "source": "hw/flip_one.sml",
+      "contract_id": "hw_flip_one",
+      "entrypoint": "flipOne",
+      "input_type": "bool list",
+      "output_type": "bool list list",
+      "input_pattern": "input",
+      "interfaces": [],
+      "contract_file": "tasks/hw/flip_one.sml",
+      "support_cm": "tasks/hw/support/course/sources.cm",
+      "data_adapter": {
+        "file": "tasks/hw/support/flip_one/Data.sml",
+        "structure": "FlipOneData"
       },
       "data_origin": "user_provided",
       "review_status": "manual"

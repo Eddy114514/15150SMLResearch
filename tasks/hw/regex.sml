@@ -1,4 +1,3 @@
-(* Original solution: 15150HW/HWANS/240353541/code/intersect/intersect.sml. *)
 (* @solution *)
 datatype regexp =
     Zero
@@ -70,8 +69,7 @@ end
 functor ManualContract (Helpers : sig end) = struct
   type input = RegexCase.regex * char list * bool list
   type output = bool
-  fun requires (r,text,table) = RegexCase.standard r andalso
-    List.length table = List.length text + 1
+  val requires = RegexModel.validMatch
   fun ensures input result = result = RegexModel.matches input
 end
 (* @manual hw_regex_accept *)
@@ -94,7 +92,6 @@ end
 functor ManualContract (Helpers : sig end) = struct
   type input = RegexCase.regex * char list * bool list
   type output = bool
-  fun requires (r,text,table) = RegexCase.standard r andalso
-    List.length table = List.length text + 1
+  val requires = RegexModel.validMatch
   fun ensures input result = result = RegexModel.matches input
 end

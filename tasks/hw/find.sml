@@ -1,4 +1,3 @@
-(* Original solution: 15150HW/HWANS/238860659/code/findn/findn.sml. *)
 (* @solution *)
 datatype 'a shrub = Leaf of 'a
                   | Branch of 'a shrub * 'a shrub
@@ -131,6 +130,6 @@ functor ManualContract (Helpers : sig end) = struct
     in case result of
          NONE => List.length (CpsModel.classes eq candidates) < n
        | SOME xs => List.length xs = n andalso CpsModel.distinct eq xs andalso
-           List.all (fn x => List.exists (fn y => x = y) candidates) xs
+           Spec.subset (xs,candidates)
     end
 end

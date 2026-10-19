@@ -1,4 +1,3 @@
-(* Original solution: 15150HW/HWANS/228020278/code/sublist-sum/sublistSum.sml. *)
 (* @solution *)
 (* sublistSum : int list * int -> int list option
  * REQUIRES: true

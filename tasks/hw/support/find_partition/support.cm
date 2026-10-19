@@ -1,0 +1,9 @@
+Library
+  structure CpsCase
+  structure PartitionCase
+  structure PartitionModel
+is
+  $/basis.cm
+  ../cps/support.cm
+  Shared.sml
+  Model.sml

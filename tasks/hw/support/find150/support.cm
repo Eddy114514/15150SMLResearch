@@ -1,0 +1,21 @@
+Library
+  structure Book
+  structure Polly
+  structure Honk
+  structure Reset
+  functor MkNemesis
+  functor MkCompose
+  functor MkReader
+is
+  $/basis.cm
+  ../book/BOOK.sig
+  ../../../../15150HW/HWANS/244101240/code/books/book/Book.sml
+  STUDENT.sig
+  READER.sig
+  ../../../../15150HW/HWANS/244101240/code/books/student/Polly.sml
+  ../../../../15150HW/HWANS/244101240/code/books/student/MkStudent.fun
+  ../../../../15150HW/HWANS/244101240/code/books/student/Honk.sml
+  ../../../../15150HW/HWANS/244101240/code/books/adv-student/MkNemesis.fun
+  ../../../../15150HW/HWANS/244101240/code/books/adv-student/MkCompose.fun
+  ../../../../15150HW/HWANS/244101240/code/books/adv-student/Reset.sml
+  ../../../../15150HW/HWANS/244101240/code/books/reader/MkReader.fun

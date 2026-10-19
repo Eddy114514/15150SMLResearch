@@ -1,4 +1,3 @@
-(* Original solution: 15150HW/HWANS/228020278/code/tree-rev/isSymmetric.sml. *)
 (* @solution *)
 datatype tree = Empty | Node of tree * int * tree
 
@@ -26,7 +25,6 @@ val true = isSymmetric(Node(Node(Node(Empty,4,Node(Node(Empty,3,Empty),3,Empty))
  * isSymmetric : tree -> bool
  * REQUIRES: true
  * ENSURES: True iff the tree's shape is invariant under reflection.
- * HWANS examples explicitly accept mirror positions with unequal values.
  * Values are retained by the adapter, but are not part of this symmetry rule.
  *)
 functor ManualContract (Helpers : sig end) = struct

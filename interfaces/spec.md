@@ -10,7 +10,7 @@ Spec.subset       : ''a list * ''a list -> bool
 Spec.forallRange  : (int -> bool) -> int * int -> bool
 Spec.existsRange  : (int -> bool) -> int * int -> bool
 Spec.sorted       : int list -> bool
-Spec.sameMultiset : int list * int list -> bool
+Spec.sameMultiset : ''a list * ''a list -> bool
 ```
 
 `forall`/`exists` use Basis list quantifiers: left-to-right short circuit; empty results are true/false respectively. `member` uses SML equality; `''a` requires an equality type, not arbitrary functions or reals. `subset (xs,ys)` checks inclusion, ignoring order and duplicates; it accepts lists, not abstract SET values.

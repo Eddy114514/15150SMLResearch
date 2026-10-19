@@ -1,4 +1,3 @@
-(* Original solution: 15150HW/HWANS/225581107/code/heads-or-tails/heads-or-tails.sml. *)
 (* @solution *)
 (* heads : int * int list -> int
  * REQUIRES: true

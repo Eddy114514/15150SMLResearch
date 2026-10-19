@@ -1,4 +1,3 @@
-(* Original solution: 15150HW/HWANS/231983696/code/poly-quicksort/quicksort.sml. *)
 (* @solution *)
 (* defining type 'a ord *)
 type 'a ord = 'a * 'a -> order
@@ -78,7 +77,7 @@ val check3 = isSorted(String.compare,quicksort(String.compare, [" qwerty ", "fun
  * Original: 'a ord * 'a * 'a list -> 'a list * 'a list.
  * Int.compare is fixed by the entrypoint, so every input is legal.
  * Return all elements < pivot and >= pivot, preserving every occurrence and
- * each partition's original order. Source: polysort/quicksort.sml:32-40.
+ * each partition's original order.
  *)
 functor ManualContract (Helpers : sig end) = struct
   type input = int * int list
@@ -107,7 +106,7 @@ end
 (* @contract quicksort
  * Original: 'a ord * 'a list -> 'a list. Int.compare is fixed.
  * Return a sorted permutation, preserving every occurrence. No stability
- * requirement is added. Source: polysort/quicksort.sml:43-48.
+ * requirement is added.
  *)
 functor ManualContract (Helpers : sig end) = struct
   type input = int list
@@ -127,6 +126,6 @@ functor ManualContract (Helpers : sig end) = struct
   type output = (int * int) list
   fun requires (_ : input) = true
   fun ensures (xs : input) (ys : output) =
-    OrderSpec.ordered OrderSpec.keyCompare ys andalso
-    OrderSpec.sameBag (op =) (xs,ys)
+    Spec.sorted (List.map #1 ys) andalso
+    Spec.sameMultiset (xs,ys)
 end
