@@ -14,6 +14,7 @@ python3 run.py                               # All registered cases
 python3 run.py --case sublist_sum            # One case
 python3 run.py --case list_max
 python3 run.py --file tasks/sublist_sum/sublist_sum.sml
+python3 run.py --group hw                    # All 35 handwritten homework cases
 ```
 
 Edit [config.json](config.json) for the model, seed, sample counts, timeouts, and paths. Defaults: `qwen3.8:27b-q4_K_M` with `think: "low"`, 1,000 valid samples, 10,000 candidates, 600-second model timeout, and 30-second SML timeout. Runtime settings have no CLI overrides.
@@ -144,13 +145,42 @@ The authoritative entry is in `tasks/manifest.json`:
 
 Run `python3 run.py --case tree_is_leaf` or `python3 run.py --file tasks/sequence/tree.sml`. For another type, supply its shared module/CM, a small data adapter and a contract, then register its card and case; no Python or Runner type branch is needed. A signature alone does not specify the target's behavior or input distribution.
 
-`support_cm` is optional; its path and `data_adapter.file` resolve from the project root. `source` keeps its existing manifest-relative rule. Explicit adapters supply all four values and replace the old `generator`/`generator_options` fields. SML checks their types against Contract; Python performs no type inference. Only the input needs a generator; the output needs a printer. Configuration errors stop directly. Data, boundaries, student bodies and test answers do not enter predicate compilation or the prompt.
+`support_cm` is optional; its path and `data_adapter.file` resolve from the project root. `source` keeps its existing manifest-relative rule. Explicit adapters supply all four values and replace the old `generator`/`generator_options` fields. SML checks their types against Contract; Python performs no type inference. Only the input needs a generator; the output needs a printer. Configuration errors stop directly. Runtime data files and boundaries do not enter predicate compilation or the prompt. A support CM is visible to both predicate and runtime compilation, so keep new Target-dependent code out of it.
 
 The reusable combinators are `Generators.sequence fromList (lengthGen, elementGen)` and `Runner.sequence toList showElement`. With a real library, pass `Seq.fromList` and `Seq.toList`. Sampling uses sequential `List.tabulate` before constructing the container because QCheck's callback updates RNG state. Nested lengths and recursive depth are explicit generation budgets, not changes to the contract.
 
 [Sequence examples](tasks/sequence/README.md) cover int, bool, nested sequences, tree elements and list input with sequence output. All five are now in the single active manifest. Run `python3 run.py --case seq_leaf_flags` or `python3 run.py --file tasks/sequence/operations.sml`. Both predicate and runtime CM use `tasks/sequence/support.cm`, which shares the real Seq library and the Tree type. Data remains runtime-only. The former installation fragment was merged and removed.
 
 This example trusts `Tree` as an input representation. If the data structure itself is under test, keep it inside Target and preserve an independent model: for example, generate a plain list of enqueue/dequeue operations, initialize a fresh queue per input, and compare returned observations with a list-based reference. Do not trust that same queue's `fromList`/`toList` as the answer. Public functions need their own contracts and cases; local types must be shared explicitly or tested through a public wrapper. No automatic datatype extraction or state-machine framework is provided.
+
+## Reuse Support in a Handwritten Task
+
+Keep the unchanged answer under `(* @solution *)` and its executable contract under `(* @manual CASE_ID *)`, as in [lazy_tree_map.sml](tasks/hw/lazy_tree_map.sml). Point both `source` and `contract_file` at that task file. Task-specific input bounds, fixed edges, independent models and `requires`/`ensures` remain with the task. Keep `genInput`, `edges`, `showInput` and `showOutput` as the data adapter's public interface.
+
+Reuse the existing facilities before adding helpers:
+
+| Facility | Existing callers and purpose |
+|---|---|
+| `Generators.sample`, `Generators.sequence`, QCheck combinators | Fixed edges followed by seeded samples; sequential container construction. Individual data adapters choose distributions and budgets. |
+| `Runner.list`, `option`, `object`, `quote`, `sequence` | JSON display of printable inputs and observations. |
+| [Affine](sml/Affine.sml) and [Affine.cm](sml/Affine.cm) | Encryption function payloads and lazy-tree mapping share the printable pair `Affine.t = int * int` and `Affine.apply`. Lazy-tree support does not depend on encryption. |
+| [IntegerTreeData](tasks/hw/support/datatypes/TreeData.sml) | Symmetry and lazy-tree mapping share generation/display of `SymmetryInput.tree`. The caller supplies its value generator and node budget. |
+| [TreeDisplay](tasks/sequence/TreeDisplay.sml) | The standalone tree task and sequence-of-tree task share display of the existing `Tree.tree` datatype. Their distinct generators remain separate. |
+| [RegexTarget](tasks/hw/support/regex/RegexTarget.sml), [CpsTarget](tasks/hw/support/cps/CpsTarget.sml), [BookTarget](tasks/hw/support/book/BookTarget.sml) | Runtime-only conversion or observation shared within each task family. Each run binds these modules to its own `Target`. |
+| [LazyObserve.fronts](tasks/hw/support/lazy/Observe.sml) | Cycle, interleave and BBS share prefix observation. `[]` means the budget ended; `[NONE]` records an exposed empty front. |
+
+`target_wrapper` and `data_adapter.file` each accept either one path or an ordered list of paths. For example, the CPS cases use:
+
+```json
+"target_wrapper": [
+  "tasks/hw/support/cps/CpsTarget.sml",
+  "tasks/hw/support/cps/FindOneTarget.sml"
+]
+```
+
+The existing runtime assembler concatenates the listed files into saved `target_wrapper.sml` and `data_adapter.sml` files. These files enter runtime CM only; no new loader or predicate dependency is introduced. For shared tree data, prepend `tasks/hw/support/datatypes/TreeData.sml` to the task's existing data file in the same way. Stable shared types and pure helpers use `support_cm`; generators and Target-dependent converters use these runtime lists. Declare each datatype once to preserve its type identity.
+
+Use `List.map f probes` directly for finite function observations; the task retains its probe order and result shape. Do not replace polynomial coefficient descriptions, valid equivalence relations or CPS-total predicates with arbitrary functions. Lazy and stateful adapters construct fresh runtime inputs per call. Their counters and exception outcomes keep their task-specific meanings: Book's `OutOfBounds`, Cnot control exceptions and encryption's ordinary `exn` values are not interchangeable.
 
 ## Read Results
 

@@ -101,17 +101,23 @@ def plan(cases, roots, tasks_dir):
 
     result = {"order": [], "nodes": {}, "errors": {},
               "roots": list(dict.fromkeys(case["id"] for case in roots))}
-    sources, file_texts, manual_cases, state, stack = {}, {}, {}, {}, []
+    sources, files, contract_parts, manual_cases, state, stack = {}, {}, {}, {}, {}, []
 
-    def read_snapshot(path):
-        if path not in file_texts:
-            file_texts[path] = path.read_text(encoding="utf-8")
-        return file_texts[path]
+    def read_file(path):
+        if path not in files:
+            snapshot = path.read_text(encoding="utf-8")
+            solution, sections = split_task_file(snapshot)
+            files[path] = (snapshot, solution, sections)
+        return files[path]
+
+    def contract_info(contract):
+        if contract not in contract_parts:
+            contract_parts[contract] = (contract, *_parts(contract))
+        return contract_parts[contract]
 
     def source_info(path):
         if path not in sources:
-            snapshot = read_snapshot(path)
-            text, _ = split_task_file(snapshot)
+            snapshot, text, _ = read_file(path)
             contract_texts = [text]
             for case in by_source[path]:
                 if "contract_file" not in case:
@@ -120,29 +126,28 @@ def plan(cases, roots, tasks_dir):
                 if not isinstance(filename, str) or not filename.strip():
                     raise ValueError(f"Case {case['id']}: contract_file must name an SML file")
                 contract_path = (ROOT / filename).resolve()
-                manual_snapshot = read_snapshot(contract_path)
-                _, sections = split_task_file(manual_snapshot)
+                manual_snapshot, _, sections = read_file(contract_path)
                 if contract_path == path and sections is None:
                     raise ValueError(f"Case {case['id']}: shared source and contract_file require @solution/@manual sections")
-                manual_text = manual_text_for_case(manual_snapshot, case["id"])
-                contract = extract_contract(manual_text, case["contract_id"])
-                names, body = _parts(contract)
+                if sections is not None and case["id"] not in sections:
+                    raise ValueError(f"Manual section not found: {case['id']}")
+                manual_text = manual_snapshot if sections is None else sections[case["id"]]
                 manual_cases[case["id"]] = {
                     "path": str(contract_path), "text": manual_text,
                     "snapshot_text": manual_snapshot,
                     "section": case["id"] if sections is not None else None,
-                    "contract": (contract, names, body)}
+                    "contract": contract_info(extract_contract(manual_text, case["contract_id"]))}
                 contract_texts.append(manual_text)
             contracts, declarations, aliases = {}, {}, {}
             for index, contract_text in enumerate(contract_texts):
                 for match in re.finditer(r"\(\*\s*@contract\s+(\S+)\s.*?\*\)", contract_text, re.DOTALL):
                     contract_id, contract = match[1], match[0]
-                    names, body = _parts(contract)
+                    entry = contract_info(contract)
                     # External contracts enrich dependency names, but must not
                     # replace a model case's original source contract.
                     if index == 0:
-                        contracts[contract_id] = (contract, names, body)
-                    for name in names:
+                        contracts[contract_id] = entry
+                    for name in entry[1]:
                         declarations.setdefault(name, []).append(contract_id)
             for case in by_source[path]:
                 entry = manual_cases[case["id"]]["contract"] if case["id"] in manual_cases else \

@@ -108,7 +108,10 @@
       ],
       "support_cm": "tasks/sequence/tree-support.cm",
       "data_adapter": {
-        "file": "tasks/sequence/TreeData.sml",
+        "file": [
+          "tasks/sequence/TreeDisplay.sml",
+          "tasks/sequence/TreeData.sml"
+        ],
         "structure": "TreeLeafData"
       },
       "data_origin": "synthetic",
@@ -128,7 +131,10 @@
       ],
       "support_cm": "tasks/sequence/support.cm",
       "data_adapter": {
-        "file": "tasks/sequence/Data.sml",
+        "file": [
+          "tasks/sequence/TreeDisplay.sml",
+          "tasks/sequence/Data.sml"
+        ],
         "structure": "SequenceCases.ReverseInt"
       },
       "data_origin": "synthetic",
@@ -148,7 +154,10 @@
       ],
       "support_cm": "tasks/sequence/support.cm",
       "data_adapter": {
-        "file": "tasks/sequence/Data.sml",
+        "file": [
+          "tasks/sequence/TreeDisplay.sml",
+          "tasks/sequence/Data.sml"
+        ],
         "structure": "SequenceCases.ReverseBool"
       },
       "data_origin": "synthetic",
@@ -168,7 +177,10 @@
       ],
       "support_cm": "tasks/sequence/support.cm",
       "data_adapter": {
-        "file": "tasks/sequence/Data.sml",
+        "file": [
+          "tasks/sequence/TreeDisplay.sml",
+          "tasks/sequence/Data.sml"
+        ],
         "structure": "SequenceCases.FlattenInt"
       },
       "data_origin": "synthetic",
@@ -189,7 +201,10 @@
       ],
       "support_cm": "tasks/sequence/support.cm",
       "data_adapter": {
-        "file": "tasks/sequence/Data.sml",
+        "file": [
+          "tasks/sequence/TreeDisplay.sml",
+          "tasks/sequence/Data.sml"
+        ],
         "structure": "SequenceCases.LeafFlags"
       },
       "data_origin": "synthetic",
@@ -209,7 +224,10 @@
       ],
       "support_cm": "tasks/sequence/support.cm",
       "data_adapter": {
-        "file": "tasks/sequence/Data.sml",
+        "file": [
+          "tasks/sequence/TreeDisplay.sml",
+          "tasks/sequence/Data.sml"
+        ],
         "structure": "SequenceCases.ListToSeq"
       },
       "data_origin": "synthetic",
@@ -304,7 +322,10 @@
       "support_cm": "tasks/hw/support/datatypes/symmetry-support.cm",
       "target_wrapper": "tasks/hw/support/datatypes/SymmetryTarget.sml",
       "data_adapter": {
-        "file": "tasks/hw/support/datatypes/SymmetryData.sml",
+        "file": [
+          "tasks/hw/support/datatypes/TreeData.sml",
+          "tasks/hw/support/datatypes/SymmetryData.sml"
+        ],
         "structure": "HwSymmetryData"
       },
       "data_origin": "user_provided",
@@ -494,7 +515,10 @@
       "interfaces": [],
       "contract_file": "tasks/hw/book.sml",
       "support_cm": "tasks/hw/support/book/support.cm",
-      "target_wrapper": "tasks/hw/support/book/CurrentTarget.sml",
+      "target_wrapper": [
+        "tasks/hw/support/book/BookTarget.sml",
+        "tasks/hw/support/book/CurrentTarget.sml"
+      ],
       "data_adapter": {
         "file": "tasks/hw/support/book/Data.sml",
         "structure": "BookData.Current"
@@ -514,7 +538,10 @@
       "interfaces": [],
       "contract_file": "tasks/hw/book.sml",
       "support_cm": "tasks/hw/support/book/support.cm",
-      "target_wrapper": "tasks/hw/support/book/FlipTarget.sml",
+      "target_wrapper": [
+        "tasks/hw/support/book/BookTarget.sml",
+        "tasks/hw/support/book/FlipTarget.sml"
+      ],
       "data_adapter": {
         "file": "tasks/hw/support/book/Data.sml",
         "structure": "BookData.Flip"
@@ -534,7 +561,10 @@
       "interfaces": [],
       "contract_file": "tasks/hw/book.sml",
       "support_cm": "tasks/hw/support/book/support.cm",
-      "target_wrapper": "tasks/hw/support/book/TraceTarget.sml",
+      "target_wrapper": [
+        "tasks/hw/support/book/BookTarget.sml",
+        "tasks/hw/support/book/TraceTarget.sml"
+      ],
       "data_adapter": {
         "file": "tasks/hw/support/book/Data.sml",
         "structure": "BookData.Trace"
@@ -554,7 +584,10 @@
       "interfaces": [],
       "contract_file": "tasks/hw/find.sml",
       "support_cm": "tasks/hw/support/cps/support.cm",
-      "target_wrapper": "tasks/hw/support/cps/FindOneTarget.sml",
+      "target_wrapper": [
+        "tasks/hw/support/cps/CpsTarget.sml",
+        "tasks/hw/support/cps/FindOneTarget.sml"
+      ],
       "data_adapter": {
         "file": "tasks/hw/support/cps/Data.sml",
         "structure": "CpsData.FindOne"
@@ -574,7 +607,10 @@
       "interfaces": [],
       "contract_file": "tasks/hw/find.sml",
       "support_cm": "tasks/hw/support/cps/support.cm",
-      "target_wrapper": "tasks/hw/support/cps/FindNTarget.sml",
+      "target_wrapper": [
+        "tasks/hw/support/cps/CpsTarget.sml",
+        "tasks/hw/support/cps/FindNTarget.sml"
+      ],
       "data_adapter": {
         "file": "tasks/hw/support/cps/Data.sml",
         "structure": "CpsData.FindN"
@@ -594,7 +630,10 @@
       "interfaces": [],
       "contract_file": "tasks/hw/regex.sml",
       "support_cm": "tasks/hw/support/regex/support.cm",
-      "target_wrapper": "tasks/hw/support/regex/MatchTarget.sml",
+      "target_wrapper": [
+        "tasks/hw/support/regex/RegexTarget.sml",
+        "tasks/hw/support/regex/MatchTarget.sml"
+      ],
       "data_adapter": {
         "file": "tasks/hw/support/regex/Data.sml",
         "structure": "RegexData.Match"
@@ -614,7 +653,10 @@
       "interfaces": [],
       "contract_file": "tasks/hw/regex.sml",
       "support_cm": "tasks/hw/support/regex/support.cm",
-      "target_wrapper": "tasks/hw/support/regex/AcceptTarget.sml",
+      "target_wrapper": [
+        "tasks/hw/support/regex/RegexTarget.sml",
+        "tasks/hw/support/regex/AcceptTarget.sml"
+      ],
       "data_adapter": {
         "file": "tasks/hw/support/regex/Data.sml",
         "structure": "RegexData.Accept"
@@ -634,7 +676,10 @@
       "interfaces": [],
       "contract_file": "tasks/hw/regex.sml",
       "support_cm": "tasks/hw/support/regex/support.cm",
-      "target_wrapper": "tasks/hw/support/regex/MatchTarget.sml",
+      "target_wrapper": [
+        "tasks/hw/support/regex/RegexTarget.sml",
+        "tasks/hw/support/regex/MatchTarget.sml"
+      ],
       "data_adapter": {
         "file": "tasks/hw/support/regex/Data.sml",
         "structure": "RegexData.Both"
@@ -808,7 +853,7 @@
       "source": "hw/lazy_tree_map.sml",
       "contract_id": "lazy_tree_map",
       "entrypoint": "LazyTree.map",
-      "input_type": "EncryptionCase.affine * SymmetryInput.tree",
+      "input_type": "Affine.t * SymmetryInput.tree",
       "output_type": "int * int * SymmetryInput.tree",
       "input_pattern": "(mapper,tree)",
       "interfaces": [],
@@ -816,7 +861,10 @@
       "support_cm": "tasks/hw/support/lazy_tree_map/support.cm",
       "target_wrapper": "tasks/hw/support/lazy_tree_map/Target.sml",
       "data_adapter": {
-        "file": "tasks/hw/support/lazy_tree_map/Data.sml",
+        "file": [
+          "tasks/hw/support/datatypes/TreeData.sml",
+          "tasks/hw/support/lazy_tree_map/Data.sml"
+        ],
         "structure": "LazyTreeMapData"
       },
       "data_origin": "user_provided",
@@ -892,7 +940,6 @@
       "input_pattern": "input",
       "interfaces": [],
       "contract_file": "tasks/hw/flip_one.sml",
-      "support_cm": "tasks/hw/support/course/sources.cm",
       "data_adapter": {
         "file": "tasks/hw/support/flip_one/Data.sml",
         "structure": "FlipOneData"

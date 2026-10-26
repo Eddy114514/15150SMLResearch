@@ -8,7 +8,7 @@ structure TargetAdapter = struct
           (fn () => (treeForces := !treeForces + 1; T.LEAF))
       | build (SymmetryInput.Node(l,x,r)) = T.delay
           (fn () => (treeForces := !treeForces + 1; T.NODE(build l,x,build r)))
-    fun apply x = (mapperCalls := !mapperCalls + 1; EncryptionCase.affine mapper x)
+    fun apply x = (mapperCalls := !mapperCalls + 1; Affine.apply mapper x)
     fun observe t =
       case T.expose t of T.LEAF => SymmetryInput.Empty
       | T.NODE(l,x,r) => SymmetryInput.Node(observe l,x,observe r)

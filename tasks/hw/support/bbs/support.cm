@@ -2,9 +2,7 @@ Library
   signature STREAMRAND
   structure Stream
   structure LazyObserve
-  structure Test
 is
   $/basis.cm
   ../lazy/support.cm
-  ../course/sources.cm
   STREAMRAND.sig

@@ -87,7 +87,7 @@ structure Runner = struct
     fun next xs = if !stop then NONE else List.getItem xs
     val _ = QCheck.Settings.set (QCheck.Settings.gen_target, SOME validTarget)
   in
-    QCheck.cpsCheck (fn _ => []) QCheck.stats (next, SOME showInput)
+    QCheck.cpsCheck (fn _ => []) QCheck.stats (next, NONE)
       property onStatus finish inputs
     handle RequiresError =>
       (attempted := !attempted + 1;

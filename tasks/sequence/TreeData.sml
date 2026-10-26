@@ -4,11 +4,6 @@
 local
   structure G = QCheck.Gen
   val leafGen = G.map Tree.Leaf Generators.intGen
-  fun showTree (Tree.Leaf value) =
-        Runner.object [("tag", Runner.quote "Leaf"), ("value", Runner.int value)]
-    | showTree (Tree.Node (left, right)) =
-        Runner.object [("tag", Runner.quote "Node"),
-                       ("left", showTree left), ("right", showTree right)]
 in
   structure TreeLeafData = struct
     val genInput : Tree.tree G.gen =
@@ -16,7 +11,7 @@ in
     val edges = [Tree.Leaf 0, Tree.Node (Tree.Leaf 0, Tree.Leaf 1),
                  Tree.Leaf (valOf Int.minInt), Tree.Leaf (valOf Int.maxInt),
                  Tree.Node (Tree.Node (Tree.Leaf ~1, Tree.Leaf 2), Tree.Leaf 0)]
-    val showInput = showTree
+    val showInput = TreeDisplay.show
     val showOutput = Runner.bool
   end
 end

@@ -31,6 +31,13 @@ def _write(path, content):
     return path
 
 
+def _runtime_source(paths):
+    """Join explicitly ordered runtime files without importing them into predicates."""
+    if isinstance(paths, str):
+        paths = [paths]
+    return "\n".join((ROOT / path).read_text(encoding="utf-8") for path in paths)
+
+
 def log(workdir, phase, diagnostics):
     with (workdir / "log.txt").open("a", encoding="utf-8") as handle:
         handle.write(f"\n=== {phase} ===\n{diagnostics}\n")
@@ -151,7 +158,7 @@ def execute(case, contract_path, source, workdir, *,
     source, _ = corpus.split_task_file(source)
     wrapper_files = []
     if "target_wrapper" in case:
-        wrapper_source = (ROOT / case["target_wrapper"]).read_text(encoding="utf-8")
+        wrapper_source = _runtime_source(case["target_wrapper"])
         wrapper_files = [_write(workdir / "target_wrapper.sml", wrapper_source)]
     run_declaration = "" if wrapper_files else \
         f'\nfun run (input : {case["input_type"]}) : {case["output_type"]} = ({case["entrypoint"]}) input\n'
@@ -208,7 +215,8 @@ def execute(case, contract_path, source, workdir, *,
     support = list(dict.fromkeys((ROOT / item["case"]["support_cm"]).resolve()
                                 for item in [*dependencies, {"case": case}]
                                 if item["case"].get("support_cm")))
-    data_files = [ROOT / adapter["file"]] if adapter is not None else []
+    data_files = [_write(workdir / "data_adapter.sml", _runtime_source(adapter["file"]))] \
+        if adapter is not None else []
     cm = _cm(workdir / "runtime.cm", support + libraries + [ROOT / "vendor/qcheck/qcheck.cm", ROOT / "sml/Spec.cm",
               ROOT / "sml/Generators.sml", ROOT / "sml/Runner.sml", target] + wrapper_files +
               [wiring] + data_files + [driver],

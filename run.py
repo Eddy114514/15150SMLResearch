@@ -42,15 +42,12 @@ def select_cases(cases, manifest, case_id, file_path, group=None):
     return cases
 
 
-def load_resources(config, *, include_translation=True):
-    manifest = ROOT / config["manifest"]
-    resources = {"cases": json.loads(manifest.read_text(encoding="utf-8"))["cases"]}
-    if include_translation:
-        resources.update(
-            catalog=interfaces.load(ROOT, config),
-            translate_prompt=(ROOT / "prompts/translate.txt").read_text(encoding="utf-8"),
-            repair_prompt=(ROOT / "prompts/repair.txt").read_text(encoding="utf-8"))
-    return resources
+def load_translation_resources(config):
+    return {
+        "catalog": interfaces.load(ROOT, config),
+        "translate_prompt": (ROOT / "prompts/translate.txt").read_text(encoding="utf-8"),
+        "repair_prompt": (ROOT / "prompts/repair.txt").read_text(encoding="utf-8"),
+    }
 
 
 def translate(case, contract, workdir, config, resources, helpers=()):
@@ -281,13 +278,13 @@ def main():
     args = parser.parse_args()
     config = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
     manifest = (ROOT / config["manifest"]).resolve()
-    resources = load_resources(config, include_translation=False)
-    cases = select_cases(resources["cases"], manifest, args.case, args.file, args.group)
+    all_cases = json.loads(manifest.read_text(encoding="utf-8"))["cases"]
+    cases = select_cases(all_cases, manifest, args.case, args.file, args.group)
     if not cases and (args.case is not None or args.file is not None or args.group is not None):
         parser.error(f"no manifest cases match: {args.case or args.file or args.group}")
-    plan = corpus.plan(resources["cases"], cases, manifest.parent)
-    if any("contract_file" not in node["case"] for node in plan["nodes"].values()):
-        resources.update(load_resources(config))
+    plan = corpus.plan(all_cases, cases, manifest.parent)
+    resources = load_translation_resources(config) if any(
+        "contract_file" not in node["case"] for node in plan["nodes"].values()) else {}
     stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     run_dir = (ROOT / config["output_dir"]).resolve() / (stamp + "-" + uuid.uuid4().hex[:6])
     run_dir.mkdir(parents=True)

@@ -1,5 +1,7 @@
 Library
+  structure Affine
   structure EncryptionCase
 is
   $/basis.cm
+  ../../../../sml/Affine.cm
   Shared.sml

@@ -52,7 +52,7 @@ functor ManualContract (Helpers : sig end) = struct
 
   fun ensures ({integers,strings,lists,functions=(f,g,h),probes} : input)
               (result : output) = let
-    fun observed description = List.map (EncryptionCase.affine description) probes
+    fun observed description = List.map (Affine.apply description) probes
   in
     matches integers (#integers result) andalso
     matches strings (#strings result) andalso

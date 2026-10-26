@@ -45,7 +45,7 @@ end
  * Sampling bounds control test cost and arithmetic; they are not preconditions.
  *)
 functor ManualContract (Helpers : sig end) = struct
-  type input = EncryptionCase.affine * SymmetryInput.tree
+  type input = Affine.t * SymmetryInput.tree
   type output = int * int * SymmetryInput.tree
   fun requires (_ : input) = true
 

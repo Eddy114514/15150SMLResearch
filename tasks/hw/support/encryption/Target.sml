@@ -27,8 +27,7 @@ structure TargetAdapter = struct
     val ints as (_,intSecrets,_) = prepare integers
     val texts as (_,stringSecrets,_) = prepare strings
     val sequences as (_,listSecrets,_) = prepare lists
-    val functions = prepare (EncryptionCase.affine f,EncryptionCase.affine g,
-                             EncryptionCase.affine h)
+    val functions = prepare (Affine.apply f,Affine.apply g,Affine.apply h)
     val (_,functionSecrets,_) = functions
   in
     {integers = observe (fn x => x) ints (stringSecrets @ listSecrets @ functionSecrets),

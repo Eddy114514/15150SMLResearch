@@ -2,10 +2,10 @@ Library
   signature LAZYTREE
   structure Stream
   structure SymmetryInput
-  structure EncryptionCase
+  structure Affine
 is
   $/basis.cm
   ../lazy/stream.cm
   ../datatypes/symmetry-support.cm
-  ../encryption/support.cm
+  ../../../../sml/Affine.cm
   LAZYTREE.sig
