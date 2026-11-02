@@ -37,19 +37,14 @@ structure SequenceCases = struct
     val showOutput = showSequence Runner.int
   end
 
-  fun treeGen 0 = G.map Tree.Leaf intGen
-    | treeGen depth = G.choose
-        #[G.map Tree.Leaf intGen,
-          G.map Tree.Node (G.zip (treeGen (depth - 1), treeGen (depth - 1)))]
-
   structure LeafFlags = struct
-    val genInput : Tree.tree Seq.seq G.gen = sequence (treeGen 3)
+    val genInput : Tree.tree Seq.seq G.gen = sequence (TreeSupport.gen intGen 3)
     val edges = List.map Seq.fromList
       [[], [Tree.Leaf 0], [Tree.Node (Tree.Leaf 1, Tree.Leaf 2)],
        [Tree.Leaf ~1, Tree.Node (Tree.Leaf 0, Tree.Leaf 1), Tree.Leaf 2],
        [Tree.Node (Tree.Node (Tree.Leaf 0, Tree.Leaf 1), Tree.Leaf 2),
         Tree.Leaf (valOf Int.maxInt)]]
-    val showInput = showSequence TreeDisplay.show
+    val showInput = showSequence TreeSupport.show
     val showOutput = showSequence Runner.bool
   end
 

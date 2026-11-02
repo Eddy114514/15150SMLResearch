@@ -12,8 +12,8 @@ structure Runner = struct
         else str c) s ^ "\""
   fun list f xs = "[" ^ String.concatWith "," (List.map f xs) ^ "]"
   fun sequence toList showElement values = list showElement (toList values)
-  fun pair (x, xs) = "[" ^ int x ^ "," ^ list int xs ^ "]"
-  fun listIntPair (xs, x) = "[" ^ list int xs ^ "," ^ int x ^ "]"
+  fun pair (showLeft, showRight) (left, right) =
+    "[" ^ showLeft left ^ "," ^ showRight right ^ "]"
   fun field (k, v) = quote k ^ ":" ^ v
   fun object fields = "{" ^ String.concatWith "," (List.map field fields) ^ "}"
   fun option f NONE = object [("tag", quote "NONE")]

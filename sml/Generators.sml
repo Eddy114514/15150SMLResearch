@@ -2,6 +2,11 @@
 structure Generators = struct
   structure G = QCheck.Gen
 
+  (* Dependent inputs consume the next generator with the advanced state. *)
+  fun bind gen next seed =
+    let val (value, seed') = gen seed
+    in next value seed' end
+
   val intGen : int G.gen = G.range (~100, 100)
   val listGen : int list G.gen =
     G.vector List.tabulate (G.range (0, 20), intGen)
@@ -36,19 +41,4 @@ structure Generators = struct
 
   fun randomList sortLists : int list G.gen =
     if sortLists then G.map (ListMergeSort.sort (op >)) listGen else listGen
-
-  fun ints {seed, count} : int list =
-    sample intEdges intGen {seed=seed, count=count}
-
-  fun lists {seed, count, sortLists} : int list list =
-    sample listEdges (randomList sortLists) {seed=seed, count=count}
-
-  fun pairs {seed, count, sortLists} : (int * int list) list =
-    sample pairEdges (G.zip (intGen, randomList sortLists)) {seed=seed, count=count}
-
-  fun listIntPairs options : (int list * int) list =
-    List.map (fn (x, xs) => (xs, x)) (pairs options)
-
-  fun listLists {seed, count} : int list list list =
-    sample listListEdges listListGen {seed=seed, count=count}
 end

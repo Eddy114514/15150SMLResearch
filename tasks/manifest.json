@@ -109,7 +109,7 @@
       "support_cm": "tasks/sequence/tree-support.cm",
       "data_adapter": {
         "file": [
-          "tasks/sequence/TreeDisplay.sml",
+          "tasks/sequence/TreeSupport.sml",
           "tasks/sequence/TreeData.sml"
         ],
         "structure": "TreeLeafData"
@@ -132,7 +132,7 @@
       "support_cm": "tasks/sequence/support.cm",
       "data_adapter": {
         "file": [
-          "tasks/sequence/TreeDisplay.sml",
+          "tasks/sequence/TreeSupport.sml",
           "tasks/sequence/Data.sml"
         ],
         "structure": "SequenceCases.ReverseInt"
@@ -155,7 +155,7 @@
       "support_cm": "tasks/sequence/support.cm",
       "data_adapter": {
         "file": [
-          "tasks/sequence/TreeDisplay.sml",
+          "tasks/sequence/TreeSupport.sml",
           "tasks/sequence/Data.sml"
         ],
         "structure": "SequenceCases.ReverseBool"
@@ -178,7 +178,7 @@
       "support_cm": "tasks/sequence/support.cm",
       "data_adapter": {
         "file": [
-          "tasks/sequence/TreeDisplay.sml",
+          "tasks/sequence/TreeSupport.sml",
           "tasks/sequence/Data.sml"
         ],
         "structure": "SequenceCases.FlattenInt"
@@ -202,7 +202,7 @@
       "support_cm": "tasks/sequence/support.cm",
       "data_adapter": {
         "file": [
-          "tasks/sequence/TreeDisplay.sml",
+          "tasks/sequence/TreeSupport.sml",
           "tasks/sequence/Data.sml"
         ],
         "structure": "SequenceCases.LeafFlags"
@@ -225,7 +225,7 @@
       "support_cm": "tasks/sequence/support.cm",
       "data_adapter": {
         "file": [
-          "tasks/sequence/TreeDisplay.sml",
+          "tasks/sequence/TreeSupport.sml",
           "tasks/sequence/Data.sml"
         ],
         "structure": "SequenceCases.ListToSeq"
@@ -495,7 +495,10 @@
       "interfaces": [],
       "contract_file": "tasks/hw/book.sml",
       "support_cm": "tasks/hw/support/book/support.cm",
-      "target_wrapper": "tasks/hw/support/book/BindTarget.sml",
+      "target_wrapper": [
+        "tasks/hw/support/book/BookTarget.sml",
+        "tasks/hw/support/book/BindTarget.sml"
+      ],
       "data_adapter": {
         "file": "tasks/hw/support/book/Data.sml",
         "structure": "BookData.Bind"

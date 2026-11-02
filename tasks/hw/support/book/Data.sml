@@ -4,10 +4,8 @@ structure BookData = struct
   val pagesGen = G.vector List.tabulate
     (G.range (0,5),G.select #["", "a", "b", "lambda", "a"])
   val directionGen = G.select #[BookCase.Forward,BookCase.Backward]
-  val stateGen = fn seed =>
-    let val (pages,s1) = pagesGen seed
-        val (i,s2) = G.range (0,List.length pages) s1
-    in ((pages,i),s2) end
+  val stateGen = Generators.bind pagesGen (fn pages =>
+    G.map (fn i => (pages,i)) (G.range (0,List.length pages)))
   fun showDirection BookCase.Forward = Runner.quote "FORWARD"
     | showDirection BookCase.Backward = Runner.quote "BACKWARD"
   val showPages = Runner.list Runner.quote

@@ -7,15 +7,13 @@ structure HomeworkSequenceData = struct
   fun identify xs = ListPair.zip (xs,List.tabulate (List.length xs, fn i => i))
   fun fromRows rows = Seq.fromList (List.map Seq.fromList rows)
   fun showSequence f = Runner.sequence Seq.toList f
-  fun showElement (key,id) = Runner.list Runner.int [key,id]
+  val showElement = Runner.pair (Runner.int,Runner.int)
   val edges = [[], [1], [1,1], [2,1,2,1], [3,1,2], [~3,0,3],
                [valOf Int.minInt,valOf Int.maxInt,valOf Int.minInt]]
 
-  (* Thread the RNG state through dimensions and the dependent row generator. *)
-  fun matrixGen seed = let
-    val ((rows,cols), seed') = G.zip (G.range (0,6),G.range (0,6)) seed
-    val row = G.vector List.tabulate (G.lift cols,value)
-  in G.map fromRows (G.vector List.tabulate (G.lift rows,row)) seed' end
+  val matrixGen = Generators.bind (G.zip (G.range (0,6),G.range (0,6)))
+    (fn (rows,cols) => Generators.sequence Seq.fromList
+      (G.lift rows,Generators.sequence Seq.fromList (G.lift cols,value)))
 
   structure Transpose = struct
     val genInput = matrixGen

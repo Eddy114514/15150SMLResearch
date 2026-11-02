@@ -29,10 +29,9 @@ structure CpsData = struct
     val showOutput = Runner.option Runner.int
   end
   structure FindN = struct
-    val genInput = fn seed =>
-      let val ((p,e,t),s1) = G.zip3 (predicateGen,equalityGen,treeGen 3) seed
-          val (n,s2) = G.range (0,List.length (CpsModel.leaves t)+1) s1
-      in ((p,e,t,n),s2) end
+    val genInput = Generators.bind (G.zip3 (predicateGen,equalityGen,treeGen 3))
+      (fn (p,e,t) => G.map (fn n => (p,e,t,n))
+        (G.range (0,List.length (CpsModel.leaves t)+1)))
     val edges = List.concat (List.map (fn t =>
       List.concat (List.map (fn e => List.map (fn n => (CpsCase.Any,e,t,n))
         [0,1,2,3]) [CpsCase.Exact,CpsCase.Parity])) treeEdges)

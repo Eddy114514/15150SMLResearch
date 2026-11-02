@@ -10,6 +10,6 @@ structure HwSublistData = struct
   val genInput = G.choose #[witness, G.zip(listGen,G.range(~60,60))]
   val edges = [([],0),([],1),([1],1),([1],2),([2,1],1),([2,~1],1),
                ([1,1],2),([0,0],0),([1,3],2),([1,2,3],3),([2,9,1],3)]
-  val showInput = Runner.listIntPair
+  val showInput = Runner.pair (Runner.list Runner.int,Runner.int)
   val showOutput = Runner.option (Runner.list Runner.int)
 end

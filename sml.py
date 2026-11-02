@@ -13,9 +13,10 @@ ROOT = Path(__file__).resolve().parent
 
 PREFIX = "@@SMLPBT@@"
 _SHOW = {"int": "Runner.int", "bool": "Runner.bool",
-         "int list": "Runner.list Runner.int", "int * int list": "Runner.pair",
+         "int list": "Runner.list Runner.int",
+         "int * int list": "Runner.pair (Runner.int, Runner.list Runner.int)",
          "int list list": "Runner.list (Runner.list Runner.int)",
-         "int list * int": "Runner.listIntPair",
+         "int list * int": "Runner.pair (Runner.list Runner.int, Runner.int)",
          "int list option": "Runner.option (Runner.list Runner.int)"}
 
 
@@ -36,6 +37,29 @@ def _runtime_source(paths):
     if isinstance(paths, str):
         paths = [paths]
     return "\n".join((ROOT / path).read_text(encoding="utf-8") for path in paths)
+
+
+def _data_source(case):
+    """Give built-in distributions and explicit adapters the same Data interface."""
+    adapter = case.get("data_adapter")
+    if adapter is not None:
+        return _runtime_source(adapter["file"]) + f'\nstructure Data = {adapter["structure"]}\n'
+    sort_lists = str(case.get("generator_options", {}).get("sort_lists", False)).lower()
+    lists = f"Generators.randomList {sort_lists}"
+    pairs = f"QCheck.Gen.zip (Generators.intGen, {lists})"
+    swap = "(fn (x, xs) => (xs, x))"
+    generator, edges = {
+        "int": ("Generators.intGen", "Generators.intEdges"),
+        "int_list": (lists, "Generators.listEdges"),
+        "int_list_pair": (pairs, "Generators.pairEdges"),
+        "list_int_pair": (f"QCheck.Gen.map {swap} ({pairs})",
+                          f"List.map {swap} Generators.pairEdges"),
+        "int_list_list": ("Generators.listListGen", "Generators.listListEdges"),
+    }[case["generator"]]
+    return ("structure Data = struct\n"
+            f"  val genInput = {generator}\n  val edges = {edges}\n"
+            f'  val showInput = {_SHOW[case["input_type"]]}\n'
+            f'  val showOutput = {_SHOW[case["output_type"]]}\nend\n')
 
 
 def log(workdir, phase, diagnostics):
@@ -183,43 +207,25 @@ def execute(case, contract_path, source, workdir, *,
         libraries.append(Path(dependency["contract_path"]).parent / "predicate.cm")
     wiring = _write(workdir / "bindings.sml", "".join(instances) +
                     f"structure Contract = {contract_module(case)}Result\n")
-    adapter = case.get("data_adapter")
-    if adapter is not None:
-        bindings = (
-            f'structure Data = {adapter["structure"]}\n'
-            'val inputGenerator : Contract.input QCheck.Gen.gen = Data.genInput\n'
-            'val inputEdges : Contract.input list = Data.edges\n'
-            'val showInput : Contract.input -> string = Data.showInput\n'
-            'val showOutput : Contract.output -> string = Data.showOutput\n')
-        sampling = f'Generators.sample inputEdges inputGenerator {{seed={seed}, count={max_attempts}}}'
-        input_show, output_show = "showInput", "showOutput"
-    else:
-        bindings = ""
-        input_show, output_show = _SHOW[case["input_type"]], _SHOW[case["output_type"]]
-        generator = {"int": "Generators.ints", "int_list": "Generators.lists",
-                     "int_list_pair": "Generators.pairs",
-                     "list_int_pair": "Generators.listIntPairs",
-                     "int_list_list": "Generators.listLists"}[case["generator"]]
-        options = f"seed={seed}, count={max_attempts}"
-        if case["generator"] in ("int_list", "int_list_pair", "list_int_pair"):
-            sort_lists = case.get("generator_options", {}).get("sort_lists", False)
-            options += ", sortLists=" + str(sort_lists).lower()
-        sampling = f"{generator} {{{options}}}"
     target_entry = "TargetAdapter.run" if wrapper_files else "Target.run"
-    driver = _write(workdir / "driver.sml", 'structure Driver = struct\n' + bindings + 'fun main () = let\n'
-        f'  val inputs = {sampling}\n'
-        f'  val _ = Runner.writeInputs ({_str(workdir / "inputs.json")}, {input_show}, inputs)\n'
+    driver = _write(workdir / "driver.sml", 'structure Driver = struct\n'
+        'val inputGenerator : Contract.input QCheck.Gen.gen = Data.genInput\n'
+        'val inputEdges : Contract.input list = Data.edges\n'
+        'val showInput : Contract.input -> string = Data.showInput\n'
+        'val showOutput : Contract.output -> string = Data.showOutput\n'
+        'fun main () = let\n'
+        f'  val inputs = Generators.sample inputEdges inputGenerator {{seed={seed}, count={max_attempts}}}\n'
+        f'  val _ = Runner.writeInputs ({_str(workdir / "inputs.json")}, showInput, inputs)\n'
         f'in Runner.run {{requires=Contract.requires, ensures=Contract.ensures, target={target_entry},\n'
-        f'showInput={input_show}, showOutput={output_show}, inputs=inputs, validTarget={valid_target}}}\n'
+        f'showInput=showInput, showOutput=showOutput, inputs=inputs, validTarget={valid_target}}}\n'
         'end\nend\n')
     support = list(dict.fromkeys((ROOT / item["case"]["support_cm"]).resolve()
                                 for item in [*dependencies, {"case": case}]
                                 if item["case"].get("support_cm")))
-    data_files = [_write(workdir / "data_adapter.sml", _runtime_source(adapter["file"]))] \
-        if adapter is not None else []
+    data = _write(workdir / "data_adapter.sml", _data_source(case))
     cm = _cm(workdir / "runtime.cm", support + libraries + [ROOT / "vendor/qcheck/qcheck.cm", ROOT / "sml/Spec.cm",
               ROOT / "sml/Generators.sml", ROOT / "sml/Runner.sml", target] + wrapper_files +
-              [wiring] + data_files + [driver],
+              [wiring, data, driver],
               libraries=["$/smlnj-lib.cm"])
     program = (f'val _ = if CM.make {_str(cm)} then () else OS.Process.exit OS.Process.failure;\n'
                'val _ = Driver.main ();\n'

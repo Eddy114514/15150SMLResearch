@@ -6,5 +6,5 @@ structure TargetAdapter = struct
           | go b (d::rest) =
             let val (next,observation) = BookTarget.step b d
             in observation :: go next rest end
-    in ((B.unbind initial,B.currentPage initial),go initial ds) end
+    in (BookTarget.snapshot initial,go initial ds) end
 end

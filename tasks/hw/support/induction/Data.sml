@@ -11,7 +11,7 @@ structure HwInductionData = struct
     [(1,[1,1,2,1,3]), (2,[1,1,2,1,3]), (3,[1,5,1,5,0]),
      (0,[0,1,0,5,0,1,0,5,0]), (1,[1,2,1]), (0,[1,2]),
      (0,[1,1]), (valOf Int.minInt,[valOf Int.maxInt,valOf Int.minInt])]
-  val showInput = Runner.pair
+  val showInput = Runner.pair (Runner.int,Runner.list Runner.int)
   structure Heads = struct
     val genInput = genInput
     val edges = edges

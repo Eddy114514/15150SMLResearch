@@ -14,10 +14,9 @@ structure RegexData = struct
            G.map RegexCase.Both pair,
            G.map (fn (c,r) => RegexCase.Star (RegexCase.Times (RegexCase.Char c,r)))
              (G.zip (charGen,child))] end
-  fun matchGen rgen seed =
-    let val ((r,text),s1) = G.zip (rgen,textGen) seed
-        val (table,s2) = G.vector List.tabulate (G.lift (List.length text+1),G.flip) s1
-    in ((r,text,table),s2) end
+  fun matchGen rgen = Generators.bind (G.zip (rgen,textGen))
+    (fn (r,text) => G.map (fn table => (r,text,table))
+      (G.vector List.tabulate (G.lift (List.length text+1),G.flip)))
   fun showRegex RegexCase.Zero = Runner.quote "Zero"
     | showRegex RegexCase.One = Runner.quote "One"
     | showRegex (RegexCase.Char c) = Runner.object [("Char",Runner.quote (str c))]
@@ -25,7 +24,7 @@ structure RegexData = struct
     | showRegex (RegexCase.Times (a,b)) = pair "Times" (a,b)
     | showRegex (RegexCase.Both (a,b)) = pair "Both" (a,b)
     | showRegex (RegexCase.Star a) = Runner.object [("Star",showRegex a)]
-  and pair name (a,b) = Runner.object [(name,"[" ^ showRegex a ^ "," ^ showRegex b ^ "]")]
+  and pair name operands = Runner.object [(name,Runner.pair (showRegex,showRegex) operands)]
   val a = RegexCase.Char #"a"
   val b = RegexCase.Char #"b"
   val bothEdges = [

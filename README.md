@@ -33,7 +33,7 @@ Cards load in the task's order; duplicate IDs keep their first occurrence. `[]` 
 
 Basis List/Integer (including `IntInf`) and the small trusted `Spec` library are available at runtime. `Spec` distinguishes list equality, set-like subset and multiset equality; its interval quantifiers short-circuit without building lists, but can still take linear time. These libraries are separate from student helpers, whose use in generated predicates requires the independent checks below.
 
-The Sequence card covers all **36 public functions**, types, exception and views. The user-supplied [Sequence runtime](sequence/README.md) is now loaded through `sequence/sources.cm` and the task's shared support CM. It uses an opaque ArraySlice representation, with generic generation/display adapters and five registered examples. Two integration fixes expose the existing `cons` operation and make extreme invalid `drop` indices raise `Range`. This runtime is sequential; the PDF's parallel work/span is not an execution guarantee. SET still has documentation only. Selecting a card supplies text; its library must separately be declared in `support_cm`.
+The Sequence card covers all **36 public functions**, types, exception and views. The user-supplied [Sequence runtime](sequence/Seq.sml) is now loaded through `sequence/sources.cm` and the task's shared support CM. It uses an opaque ArraySlice representation, with generic generation/display adapters and five registered examples. Two integration fixes expose the existing `cons` operation and make extreme invalid `drop` indices raise `Range`. This runtime is sequential; the PDF's parallel work/span is not an execution guarantee. SET still has documentation only. Selecting a card supplies text; its library must separately be declared in `support_cm`.
 
 ## Add a Task
 
@@ -120,7 +120,7 @@ The runnable `tree_is_leaf` example checks whether the outermost constructor is 
 
 - [Shared.sml](tasks/sequence/Shared.sml) defines `Tree.tree = Leaf of int | Node of tree * tree` once.
 - [tree-support.cm](tasks/sequence/tree-support.cm) exports that shared type to both Contract and Target.
-- [TreeData.sml](tasks/sequence/TreeData.sml) exports `TreeLeafData.genInput`, `edges`, `showInput`, and `showOutput`. It uses native QCheck `map`, `zip`, and `choose`; the printers emit Runner-compatible JSON. Random inputs are leaves or depth-one nodes, with a depth-two boundary example.
+- [TreeData.sml](tasks/sequence/TreeData.sml) exports `TreeLeafData.genInput`, `edges`, `showInput`, and `showOutput`. It selects values and depth for [TreeSupport](tasks/sequence/TreeSupport.sml), which shares QCheck construction and JSON display with the sequence-of-tree task. Random inputs are leaves or depth-one nodes, with a depth-two boundary example.
 - [tree.sml](tasks/sequence/tree.sml) contains the student's function and its marked contract; [tree.md](interfaces/tree.md) describes only the public datatype.
 
 The authoritative entry is in `tasks/manifest.json`:
@@ -137,7 +137,7 @@ The authoritative entry is in `tasks/manifest.json`:
   "interfaces": ["user.tree"],
   "support_cm": "tasks/sequence/tree-support.cm",
   "data_adapter": {
-    "file": "tasks/sequence/TreeData.sml",
+    "file": ["tasks/sequence/TreeSupport.sml", "tasks/sequence/TreeData.sml"],
     "structure": "TreeLeafData"
   }
 }
@@ -149,7 +149,7 @@ Run `python3 run.py --case tree_is_leaf` or `python3 run.py --file tasks/sequenc
 
 The reusable combinators are `Generators.sequence fromList (lengthGen, elementGen)` and `Runner.sequence toList showElement`. With a real library, pass `Seq.fromList` and `Seq.toList`. Sampling uses sequential `List.tabulate` before constructing the container because QCheck's callback updates RNG state. Nested lengths and recursive depth are explicit generation budgets, not changes to the contract.
 
-[Sequence examples](tasks/sequence/README.md) cover int, bool, nested sequences, tree elements and list input with sequence output. All five are now in the single active manifest. Run `python3 run.py --case seq_leaf_flags` or `python3 run.py --file tasks/sequence/operations.sml`. Both predicate and runtime CM use `tasks/sequence/support.cm`, which shares the real Seq library and the Tree type. Data remains runtime-only. The former installation fragment was merged and removed.
+[Sequence examples](tasks/sequence/Data.sml) cover int, bool, nested sequences, tree elements and list input with sequence output. All five are now in the single active manifest. Run `python3 run.py --case seq_leaf_flags` or `python3 run.py --file tasks/sequence/operations.sml`. Both predicate and runtime CM use `tasks/sequence/support.cm`, which shares the real Seq library and the Tree type. Data remains runtime-only. The former installation fragment was merged and removed.
 
 This example trusts `Tree` as an input representation. If the data structure itself is under test, keep it inside Target and preserve an independent model: for example, generate a plain list of enqueue/dequeue operations, initialize a fresh queue per input, and compare returned observations with a list-based reference. Do not trust that same queue's `fromList`/`toList` as the answer. Public functions need their own contracts and cases; local types must be shared explicitly or tested through a public wrapper. No automatic datatype extraction or state-machine framework is provided.
 
@@ -162,10 +162,11 @@ Reuse the existing facilities before adding helpers:
 | Facility | Existing callers and purpose |
 |---|---|
 | `Generators.sample`, `Generators.sequence`, QCheck combinators | Fixed edges followed by seeded samples; sequential container construction. Individual data adapters choose distributions and budgets. |
-| `Runner.list`, `option`, `object`, `quote`, `sequence` | JSON display of printable inputs and observations. |
+| `Generators.bind gen next` | Dependent generation without handling RNG state in Data: regex continuation length, CPS result count, Book cursor and matrix dimensions. |
+| `Runner.list`, `pair (showLeft, showRight)`, `option`, `object`, `quote`, `sequence` | JSON display of printable inputs and observations. |
 | [Affine](sml/Affine.sml) and [Affine.cm](sml/Affine.cm) | Encryption function payloads and lazy-tree mapping share the printable pair `Affine.t = int * int` and `Affine.apply`. Lazy-tree support does not depend on encryption. |
 | [IntegerTreeData](tasks/hw/support/datatypes/TreeData.sml) | Symmetry and lazy-tree mapping share generation/display of `SymmetryInput.tree`. The caller supplies its value generator and node budget. |
-| [TreeDisplay](tasks/sequence/TreeDisplay.sml) | The standalone tree task and sequence-of-tree task share display of the existing `Tree.tree` datatype. Their distinct generators remain separate. |
+| [TreeSupport](tasks/sequence/TreeSupport.sml) | The standalone tree task and sequence-of-tree task share bounded construction and display of `Tree.tree`. Each task chooses its value generator, depth and fixed edges. |
 | [RegexTarget](tasks/hw/support/regex/RegexTarget.sml), [CpsTarget](tasks/hw/support/cps/CpsTarget.sml), [BookTarget](tasks/hw/support/book/BookTarget.sml) | Runtime-only conversion or observation shared within each task family. Each run binds these modules to its own `Target`. |
 | [LazyObserve.fronts](tasks/hw/support/lazy/Observe.sml) | Cycle, interleave and BBS share prefix observation. `[]` means the budget ended; `[NONE]` records an exposed empty front. |
 
@@ -180,7 +181,11 @@ Reuse the existing facilities before adding helpers:
 
 The existing runtime assembler concatenates the listed files into saved `target_wrapper.sml` and `data_adapter.sml` files. These files enter runtime CM only; no new loader or predicate dependency is introduced. For shared tree data, prepend `tasks/hw/support/datatypes/TreeData.sml` to the task's existing data file in the same way. Stable shared types and pure helpers use `support_cm`; generators and Target-dependent converters use these runtime lists. Declare each datatype once to preserve its type identity.
 
+Built-in `generator` entries are assembled into the same four-value `Data` interface as explicit adapters. Both routes use one driver, `Generators.sample`, and `Runner.run`; Data never manages seeds, sample counts or execution loops. For dependent inputs, express the distribution with `Generators.bind`, for example `Generators.bind pagesGen (fn pages => QCheck.Gen.map (fn cursor => (pages,cursor)) (QCheck.Gen.range (0,List.length pages)))`. Use QCheck's `vector List.tabulate`, `option`, `zip` and `zip3` directly for ordinary containers and tuples.
+
 Use `List.map f probes` directly for finite function observations; the task retains its probe order and result shape. Do not replace polynomial coefficient descriptions, valid equivalence relations or CPS-total predicates with arbitrary functions. Lazy and stateful adapters construct fresh runtime inputs per call. Their counters and exception outcomes keep their task-specific meanings: Book's `OutOfBounds`, Cnot control exceptions and encryption's ordinary `exn` values are not interchangeable.
+
+Run `python3 tests/pbt_regression.py` to check all registered adapters and the sortable built-in routes without Ollama. It uses the real handwritten contracts and fixed regression predicates for the model cases, with counts and seed from `config.json`. It also checks runtime file ordering, predicate isolation and helper bindings; `--baseline /path/to/summary.json` compares input hashes, result fields and solution hashes against a saved run. The existing Book flip/trace and lazy interleave counterexamples are expected. Run `python3 tests/book_adapter_checks.py` to check Book observation order, early stopping and exception boundaries against an instrumented target.
 
 ## Read Results
 

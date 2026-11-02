@@ -14,9 +14,7 @@ structure TargetAdapter = struct
   fun observe project (keys,secrets,reused) foreign = let
     val firstKey = hd keys
     fun decrypt key secret =
-      case Target.decrypt key secret of
-        NONE => NONE
-      | SOME value => SOME (project value)
+      Option.map project (Target.decrypt key secret)
   in
     {matrix = List.map (fn key => List.map (decrypt key) secrets) keys,
      reused = List.map (decrypt firstKey) reused,
