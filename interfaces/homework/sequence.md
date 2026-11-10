@@ -1,0 +1,6 @@
+The selected Sequence card describes the actual Seq runtime. Seq.t and Seq.seq are aliases for the same abstract type. The trusted SeqSpec operations use this shared type:
+- SeqSpec.rectangular : 'a Seq.t Seq.t -> bool. True if all rows have equal length, including empty outer sequence. No preconditions.
+- SeqSpec.homogeneous : ('a * 'a -> order) -> 'a list -> bool. Nonempty and all elements cmp-EQUAL to the first; empty is false. Requires total cmp.
+- SeqSpec.collect : (''a * ''a -> order) -> ''a Seq.t -> ''a Seq.t Seq.t -> bool. Checks nonempty homogeneous groups in strictly increasing class order, equal total input/output lengths, and structural membership of every input value somewhere in the output. The original clauses do not preserve occurrence counts or prohibit extra values when duplicate input values leave room. Group-internal order is unrestricted. Requires a total well-behaved comparator; inputs otherwise unrestricted.
+- SeqSpec.unique : ('a * 'a -> order) -> 'a Seq.t -> 'a Seq.t -> bool. Strictly increasing output classes with every input class represented. Additional output classes are allowed. Any equivalent representative is allowed. Requires total well-behaved cmp.
+These project reference predicates do not call Target. They check only the functional clauses; the original work/span requirements are not evaluated by the sequential harness.

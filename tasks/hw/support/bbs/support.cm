@@ -2,7 +2,9 @@ Library
   signature STREAMRAND
   structure Stream
   structure LazyObserve
+  structure BbsModel
 is
   $/basis.cm
   ../lazy/support.cm
   STREAMRAND.sig
+  Model.sml

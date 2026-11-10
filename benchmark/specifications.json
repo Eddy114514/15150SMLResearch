@@ -1,0 +1,750 @@
+{
+  "hw_remove": {
+    "original": {
+      "text": "(* remove : int * int list -> int list\n * REQUIRES: true\n * ENSURES: remove (x, xs) ==> xs' such that xs' does not contain any element\n * y such that y = x, and xs' contains exactly all elements in xs except for x\n * in the same order as they were in xs\n *)",
+      "expected_status": "ok",
+      "reason": "The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/induction.sml",
+        "line_start": 38,
+        "line_end": 43
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: true.\nENSURES: Return exactly the elements of xs whose value differs from x. Preserve their original order and multiplicities; remove every occurrence of x.",
+      "expected_status": "ok",
+      "reason": "Clarifies the cited original contract without adding requirements. The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions."
+    },
+    "degraded": {
+      "text": "REQUIRES: true.\nENSURES: Return xs with the occurrence of x removed. In this API the term occurrence uses the selected removal convention: it means either only the earliest matching position or all matching positions. The convention is fixed for the API, but its selection is not supplied.",
+      "expected_status": "ambiguous",
+      "defect": "ambiguity",
+      "reason": "The missing removal convention changes the required result when x occurs more than once; it is not permission to return either result nondeterministically."
+    }
+  },
+  "hw_heads": {
+    "original": {
+      "text": "(* heads : int * int list -> int\n * REQUIRES: true\n * ENSURES: heads (x, xs) ==> the largest n such that the first n elements of xs\n * are all equal to x\n *)",
+      "expected_status": "ok",
+      "reason": "The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/induction.sml",
+        "line_start": 2,
+        "line_end": 6
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: true.\nENSURES: Return the length of the maximal prefix of xs consisting entirely of x. The result n is between 0 and length xs; all positions before n contain x, and either n = length xs or the next element differs from x.",
+      "expected_status": "ok",
+      "reason": "Clarifies the cited original contract without adding requirements. The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions."
+    },
+    "degraded": {
+      "text": "REQUIRES: true.\nENSURES: The prefix length n is nonnegative and is strictly less than zero.",
+      "expected_status": "ok",
+      "defect": "contradiction",
+      "reason": "The same returned prefix length is required to satisfy n>=0 and n<0, for every allowed input. The original precondition is retained for the concrete input representation. The replacement postcondition is logically false for every well-typed result, so no unobserved cost, complete function, or infinite-stream behavior has to be queried."
+    }
+  },
+  "hw_tails": {
+    "original": {
+      "text": "(* tails : int * int list -> int list\n * REQUIRES: true\n * ENSURES: tails (x, xs) ==> xs with the first k elements removed, where\n * k = heads (x, xs)\n *)",
+      "expected_status": "ok",
+      "reason": "The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/induction.sml",
+        "line_start": 20,
+        "line_end": 24
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: true.\nENSURES: Let k be the actual value returned by the specified heads (x,xs) helper. Return xs with exactly its first k positions removed, preserving the remaining suffix unchanged.",
+      "expected_status": "ok",
+      "reason": "Clarifies the cited original contract without adding requirements. The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions."
+    },
+    "degraded": {
+      "text": "REQUIRES: true.\nENSURES: Return the suffix after the selected run of x has been removed from xs. The configured run selector is either the leading run, or the rightmost maximal run together with everything before it. The selector value is absent from the specification.",
+      "expected_status": "ambiguous",
+      "defect": "ambiguity",
+      "reason": "Which run determines the suffix is unresolved; for lists with separated runs the two fixed selectors require different outputs."
+    }
+  },
+  "hw_sublist_sum": {
+    "original": {
+      "text": "(* sublistSum : int list * int -> int list option\n * REQUIRES: true\n * ENSURES: sublistSum(L,n) ==>* SOME(L') where L' is a sublist of L which sums\n *          to n. sublistSum(L,n) ==>* NONE if there is no such sublist\n *)",
+      "expected_status": "ok",
+      "reason": "The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/sublist_sum.sml",
+        "line_start": 2,
+        "line_end": 6
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: true.\nENSURES: Return SOME ys exactly when ys is an order-preserving subsequence obtained by selecting positions of L and its mathematical sum is n. Any such witness is permitted, including the empty subsequence when n=0. Return NONE if and only if no such subsequence exists.",
+      "expected_status": "ok",
+      "reason": "Clarifies the cited original contract without adding requirements. The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions."
+    },
+    "degraded": {
+      "text": "REQUIRES: true.\nENSURES: The returned option is SOME ys for a sublist ys of L, and that same returned option is NONE.",
+      "expected_status": "ok",
+      "defect": "contradiction",
+      "reason": "SOME and NONE are disjoint constructors; the contradiction does not depend on whether a sum witness exists. The original precondition is retained for the concrete input representation. The replacement postcondition is logically false for every well-typed result, so no unobserved cost, complete function, or infinite-stream behavior has to be queried."
+    }
+  },
+  "hw_is_symmetric": {
+    "original": {
+      "text": "(* isSymmetric : tree -> bool\n * REQUIRES: true\n * ENSURES: isSymmetric T ==>* true iff T is symmetric w.r.t the root\n *)",
+      "expected_status": "ok",
+      "reason": "Shape symmetry ignores node values, as defined in 15150HW/PDF/datatypes.pdf (printed p10; mirrored trees have the same structure). The finite concrete tree makes that value relation executable; the original comment is retained verbatim.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/is_symmetric.sml",
+        "line_start": 4,
+        "line_end": 7
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: true.\nENSURES: Return true if and only if the tree's shape is its mirror image about the root: empty matches empty, and each left subtree shape mirrors the corresponding right subtree shape. Node labels do not affect this shape property.",
+      "expected_status": "ok",
+      "reason": "Clarifies the source comment using the course definition of structural symmetry in 15150HW/PDF/datatypes.pdf, printed p10; no label-equality condition is added."
+    },
+    "degraded": {
+      "text": "REQUIRES: true.\nENSURES: Return true exactly when the documented tree shape is symmetric and the selected reflected-label policy holds. The policy is fixed but not stated: either mirrored labels are unrestricted, or every pair of mirrored labels must be equal.",
+      "expected_status": "ambiguous",
+      "defect": "ambiguity",
+      "reason": "Shape symmetry and the representation are already defined. What is missing is whether the result must additionally enforce equality of mirrored labels; equal-shaped trees with unequal labels distinguish the two policies."
+    }
+  },
+  "hw_pivot_split_int": {
+    "original": {
+      "text": "(* pivotSplit : 'a ord * 'a * 'a list -> 'a list * 'a list\n * REQUIRES: cmp is an order function\n * ENSURES: pivotSplit (cmp,p,L) returns (A,B) such that A @ B is a\n *   permutation of L, where all elements in A are less than p, and all elements\n *   in B are greater than or equal to p. Also, for elements x, y : 'a and\n *   for L : 'a list, if x occurs earlier than y and both x and y are in the\n *   same partition, then x occurs earlier than y in the partition. *)",
+      "expected_status": "ok",
+      "reason": "The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/polysort.sml",
+        "line_start": 33,
+        "line_end": 39
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: cmp is an order function.\nENSURES: Return (A,B). A @ B must be a permutation of L, retaining every occurrence. A contains the elements for which cmp(element,p)=LESS; B contains those for which the comparison is EQUAL or GREATER. Within each partition retain the relative order from L.",
+      "expected_status": "ok",
+      "reason": "Clarifies the cited original contract without adding requirements. The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions."
+    },
+    "degraded": {
+      "text": "REQUIRES: cmp is an order function.\nENSURES: The lower partition A is empty, and that same partition A contains at least one element. The upper partition is B.",
+      "expected_status": "ok",
+      "defect": "contradiction",
+      "reason": "The same partition must have zero and positive length, making the postcondition false on every result. The original precondition is retained for the concrete input representation. The replacement postcondition is logically false for every well-typed result, so no unobserved cost, complete function, or infinite-stream behavior has to be queried."
+    }
+  },
+  "hw_pivot_split_key": {
+    "original": {
+      "text": "(* pivotSplit : 'a ord * 'a * 'a list -> 'a list * 'a list\n * REQUIRES: cmp is an order function\n * ENSURES: pivotSplit (cmp,p,L) returns (A,B) such that A @ B is a\n *   permutation of L, where all elements in A are less than p, and all elements\n *   in B are greater than or equal to p. Also, for elements x, y : 'a and\n *   for L : 'a list, if x occurs earlier than y and both x and y are in the\n *   same partition, then x occurs earlier than y in the partition. *)",
+      "expected_status": "ok",
+      "reason": "The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/polysort.sml",
+        "line_start": 33,
+        "line_end": 39
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: cmp is an order function.\nENSURES: Return (A,B). A @ B must preserve all full input elements and their multiplicities. Put each element with cmp(element,p)=LESS in A and all others in B. Preserve relative input order separately inside A and B, including distinct identities whose keys compare EQUAL.",
+      "expected_status": "ok",
+      "reason": "Clarifies the cited original contract without adding requirements. The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions."
+    },
+    "degraded": {
+      "text": "REQUIRES: cmp is an order function.\nENSURES: Return a stable two-way partition around p, preserving all full elements and their occurrences. The boundary convention is fixed but unspecified: EQUAL elements join either the lower partition (with LESS) or the upper partition (with GREATER).",
+      "expected_status": "ambiguous",
+      "defect": "ambiguity",
+      "reason": "The ownership of pivot-equal elements is missing; the two stable partitions differ even though both preserve input identities."
+    }
+  },
+  "hw_quicksort_int": {
+    "original": {
+      "text": "(* quicksort : 'a ord * 'a list -> 'a list\n * REQUIRES: cmp is an order function\n * ENSURES: quicksort (cmp,L) evaluates to a cmp-sorted permutation of L\n *)",
+      "expected_status": "ok",
+      "reason": "The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/polysort.sml",
+        "line_start": 58,
+        "line_end": 61
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: cmp is an order function.\nENSURES: Return a permutation of L in nondecreasing cmp order. Keep every occurrence. There is no additional requirement to preserve the relative order of cmp-EQUAL elements.",
+      "expected_status": "ok",
+      "reason": "Clarifies the cited original contract without adding requirements. The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions."
+    },
+    "degraded": {
+      "text": "REQUIRES: cmp is an order function.\nENSURES: The returned permutation has exactly length L elements, and has exactly length L plus one elements.",
+      "expected_status": "ok",
+      "defect": "contradiction",
+      "reason": "The two exact cardinalities for one output differ by one, independently of ordering or input contents. The original precondition is retained for the concrete input representation. The replacement postcondition is logically false for every well-typed result, so no unobserved cost, complete function, or infinite-stream behavior has to be queried."
+    }
+  },
+  "hw_quicksort_key": {
+    "original": {
+      "text": "(* quicksort : 'a ord * 'a list -> 'a list\n * REQUIRES: cmp is an order function\n * ENSURES: quicksort (cmp,L) evaluates to a cmp-sorted permutation of L\n *)",
+      "expected_status": "ok",
+      "reason": "The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/polysort.sml",
+        "line_start": 58,
+        "line_end": 61
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: cmp is an order function.\nENSURES: Return a cmp-sorted permutation of the full elements of L, retaining their identities and multiplicities. Distinct elements with equal keys may appear in either relative order; stability is not required.",
+      "expected_status": "ok",
+      "reason": "Clarifies the cited original contract without adding requirements. The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions."
+    },
+    "degraded": {
+      "text": "REQUIRES: cmp is an order function.\nENSURES: Return a permutation ordered by the supplied key comparison. The sort-direction setting is either ascending or descending, fixed for this API; its value has not been provided. Equal-key elements need not be stable.",
+      "expected_status": "ambiguous",
+      "defect": "ambiguity",
+      "reason": "The omitted direction selects two incompatible required orders on inputs with distinct keys; it is not a nondeterministic choice of either order."
+    }
+  },
+  "hw_transpose": {
+    "original": {
+      "text": "(* transpose: 'a Seq.t Seq.t -> 'a Seq.t Seq.t\n   * REQUIRES: S is a well-formed n x m matrix\n   * ENSURES: transpose S ==> S' where\n   *   if n = 0 then S' is the \"trivial\" matrix\n   *   otherwise S' is a well-formed m x n matrix\n   *   and forall i, j: S[i][j] ~= S'[j][i]\n   *  transpose S has O(mn) work\n   *  transpose S has O(1) span\n   *)",
+      "expected_status": "unsupported",
+      "reason": "The original ENSURES includes O(mn) work and O(1) span. The adapter exposes matrix values only and has no cost or parallel-span observation.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/transpose.sml",
+        "line_start": 20,
+        "line_end": 28
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: S is a well-formed n by m matrix.\nENSURES: If n=0, return the trivial empty matrix. Otherwise return an m by n matrix S' with S'[j][i] equal to S[i][j] at every valid pair of indices. The operation must also have O(m*n) work and O(1) span; those cost requirements are part of this specification, not optional annotations.",
+      "expected_status": "unsupported",
+      "reason": "Clarifies the cited original contract without adding requirements. The original ENSURES includes O(mn) work and O(1) span. The adapter exposes matrix values only and has no cost or parallel-span observation."
+    },
+    "degraded": {
+      "text": "REQUIRES: S is a well-formed n by m matrix.\nENSURES: The outer sequence of the returned transpose is empty and is nonempty.",
+      "expected_status": "ok",
+      "defect": "contradiction",
+      "reason": "The same outer matrix is required both to have zero rows and at least one row, including the empty-input case. The original precondition is retained for the concrete input representation. The replacement postcondition is logically false for every well-typed result, so no unobserved cost, complete function, or infinite-stream behavior has to be queried."
+    }
+  },
+  "hw_collect_int": {
+    "original": {
+      "text": "(* collect: ('a * 'a -> order) -> 'a Seq.t -> 'a Seq.t Seq.t\n   * REQUIRES:\n   *    cmp is \"well-behaved\"\n   *    cmp is total\n   *    cmp has O(1) work/span\n   * ENSURES: collect cmp S ==> C where\n   *    Every element in S appears in some sequence of C\n   *    If you sum the lengths of the sequences in C, you get the length of S\n   *    Elements in each sequence in C are cmp-EQUAL\n   *    Elements in earlier sequences in C are cmp-LESS than elements in\n   *      later sequences in C\n   *    No sequence in C is empty\n   *    collect cmp S has O(|S|log|S|) work\n   *    collect cmp S has O(log^2|S|) span\n   *)",
+      "expected_status": "unsupported",
+      "reason": "The original ENSURES requires asymptotic work and span. The grouped values do not contain the information needed to check those costs; comparator totality is supplied by the concrete adapter, not the blocker.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/sequence_utils.sml",
+        "line_start": 4,
+        "line_end": 18
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: cmp is well-behaved, total, and has O(1) work and span.\nENSURES: Return a sequence C of nonempty sequences. Every input value occurs in at least one group of C; the sum of the group lengths equals length S. All elements of a group compare EQUAL. Each element of an earlier group compares LESS than each element of a later group. These clauses do not additionally require matching the multiplicity of each distinct input value, or prohibit extra values when all the stated clauses still hold. The operation must have O(|S| log |S|) work and O(log^2 |S|) span.",
+      "expected_status": "unsupported",
+      "reason": "Clarifies the cited original contract without adding requirements. The original ENSURES requires asymptotic work and span. The grouped values do not contain the information needed to check those costs; comparator totality is supplied by the concrete adapter, not the blocker."
+    },
+    "degraded": {
+      "text": "REQUIRES: cmp is well-behaved, total, and has O(1) work and span.\nENSURES: Return groups of equal input values, with every input occurrence retained. The group-direction setting is fixed but missing: it is either increasing or decreasing under cmp. Each group is nonempty.",
+      "expected_status": "ambiguous",
+      "defect": "ambiguity",
+      "reason": "The relative order of distinct groups depends on an absent direction setting. This degraded replacement intentionally removes the cost clauses and leaves an observable grouping ambiguity."
+    }
+  },
+  "hw_collect_key": {
+    "original": {
+      "text": "(* collect: ('a * 'a -> order) -> 'a Seq.t -> 'a Seq.t Seq.t\n   * REQUIRES:\n   *    cmp is \"well-behaved\"\n   *    cmp is total\n   *    cmp has O(1) work/span\n   * ENSURES: collect cmp S ==> C where\n   *    Every element in S appears in some sequence of C\n   *    If you sum the lengths of the sequences in C, you get the length of S\n   *    Elements in each sequence in C are cmp-EQUAL\n   *    Elements in earlier sequences in C are cmp-LESS than elements in\n   *      later sequences in C\n   *    No sequence in C is empty\n   *    collect cmp S has O(|S|log|S|) work\n   *    collect cmp S has O(log^2|S|) span\n   *)",
+      "expected_status": "unsupported",
+      "reason": "The original ENSURES requires asymptotic work and span. Full element identities and group values do not expose cost measurements. The functional clauses are also weaker than a multiset equality.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/sequence_utils.sml",
+        "line_start": 4,
+        "line_end": 18
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: cmp is well-behaved, total, and has O(1) work and span.\nENSURES: Return nonempty groups C. Every full element present in S must appear in some group, and the total number of output elements must equal length S. Elements within each group compare EQUAL by key; groups are strictly increasing by key. No order inside an equal-key group is prescribed. Do not add a per-value multiplicity equation or an independent ban on extra elements beyond the stated coverage and total-length clauses. The operation must have O(|S| log |S|) work and O(log^2 |S|) span.",
+      "expected_status": "unsupported",
+      "reason": "Clarifies the cited original contract without adding requirements. The original ENSURES requires asymptotic work and span. Full element identities and group values do not expose cost measurements. The functional clauses are also weaker than a multiset equality."
+    },
+    "degraded": {
+      "text": "REQUIRES: cmp is well-behaved, total, and has O(1) work and span.\nENSURES: The sum of the lengths of all output groups is exactly length S, and the same sum is exactly length S plus one.",
+      "expected_status": "ok",
+      "defect": "contradiction",
+      "reason": "The grouping's total output size is assigned incompatible exact values; no multiplicity interpretation can satisfy both. The original precondition is retained for the concrete input representation. The replacement postcondition is logically false for every well-typed result, so no unobserved cost, complete function, or infinite-stream behavior has to be queried."
+    }
+  },
+  "hw_unique_int": {
+    "original": {
+      "text": "(* unique: ('a * 'a -> order) -> 'a Seq.t -> 'a Seq.t\n   * REQUIRES:\n   *    cmp is \"well-behaved\" (it is reflexive, anti-symmetric, and transitive)\n   *    cmp is total and has O(1) work and span\n   * ENSURES: unique cmp S ==> T where\n   *    Each element of S has an EQUAL element in T\n   *    The elements of T are in strictly increasing order (this prevents\n   *      the existence of duplicates)\n   *    unique cmp S has O(|S| log |S|) work and O(log^2 |S|) span\n   *)",
+      "expected_status": "unsupported",
+      "reason": "Asymptotic work and span are part of the original ENSURES but absent from observed values. The functional coverage clause is deliberately one-way and must not be strengthened into output-subset equality.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/sequence_utils.sml",
+        "line_start": 64,
+        "line_end": 73
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: cmp is reflexive, anti-symmetric, transitive, total, and has O(1) work and span.\nENSURES: Return T such that every element of S has a cmp-EQUAL element in T and T is strictly increasing under cmp. These are one-way coverage and ordering conditions: the specification does not say every output element must have an equivalent input element. The operation must have O(|S| log |S|) work and O(log^2 |S|) span.",
+      "expected_status": "unsupported",
+      "reason": "Clarifies the cited original contract without adding requirements. Asymptotic work and span are part of the original ENSURES but absent from observed values. The functional coverage clause is deliberately one-way and must not be strengthened into output-subset equality."
+    },
+    "degraded": {
+      "text": "REQUIRES: cmp is reflexive, anti-symmetric, transitive, total, and has O(1) work and span.\nENSURES: Return one cmp-equivalence representative per input class, without repeated classes. The selected representative-order convention is either increasing under cmp or first-occurrence order in S; the convention is not specified.",
+      "expected_status": "ambiguous",
+      "defect": "ambiguity",
+      "reason": "For unsorted inputs the omitted convention changes the result sequence. The degraded text deliberately changes the original weak coverage relation and leaves that convention unresolved."
+    }
+  },
+  "hw_book_bind": {
+    "original": {
+      "text": "(* REQUIRES: true\n   * ENSURES: bind l = b, such that\n   *   - b encodes all pages in l\n   *   - b is opened to the first page in l, if one exists\n   *   - b preserves the order of the pages in l\n   *)\n  val bind : page list -> book",
+      "expected_status": "ok",
+      "reason": "Only the bind operation contract is extracted from BOOK.sig. Its all-pages and order clauses do not say only or exactly: the input pages must occur as an order-preserving subsequence of the initial contents, and nonempty input requires its first page value to be current. Book.page is string; no separate page-occurrence identity is specified. Extra pages are allowed, empty input need not produce an empty book, and the atBeginning flag and later walk steps are not additional obligations. These value-level conditions are available in the initial snapshot.",
+      "source": {
+        "kind": "course_signature",
+        "path": "tasks/hw/support/book/BOOK.sig",
+        "line_start": 9,
+        "line_end": 15
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: true.\nENSURES: The returned book encodes every page in l in the same order as in l. Under the public string-valued page observation, l is an order-preserving subsequence of the initial contents, and when l is nonempty the current page value is SOME of its first element. The wording does not exclude additional pages. Empty l imposes no requirement that the book itself be empty. It specifies no occurrence identity for equal page strings and adds no condition on the atBeginning flag or the later adapter-recorded walk steps.",
+      "expected_status": "ok",
+      "reason": "Clarifies the cited bind contract without adding exact-content equality, an empty-book condition, a page-occurrence identity, or contracts for later operations. The initial contents and current page value express the stated weak conditions; no atBeginning or walk-step restriction is introduced."
+    },
+    "degraded": {
+      "text": "REQUIRES: true.\nENSURES: The initial snapshot's contents are exactly the page list l, and the number of pages in those same initial contents differs from the number of pages in l.",
+      "expected_status": "ok",
+      "defect": "contradiction",
+      "reason": "Exact list equality forces equal lengths, while the second clause requires unequal lengths. The original precondition is retained for the concrete input representation. The replacement postcondition is logically false for every well-typed result, so no unobserved cost, complete function, or infinite-stream behavior has to be queried."
+    }
+  },
+  "hw_book_current_page": {
+    "original": {
+      "text": "(* REQUIRES: true\n   * ENSURES:\n   *   - currentPage b = (true,  NONE) iff b is empty\n   *   - currentPage b = (true,  SOME p) iff b is opened to page p\n   *       and p is the first page in b\n   *   - currentPage b = (false, NONE) iff b is non-empty\n   *       and encodes the end of the book\n   *   - currentPage b = (false,  SOME p) iff b is opened to page p\n   *       and p is not the first page in b\n   *)\n  val currentPage : book -> bool * page option",
+      "expected_status": "ok",
+      "reason": "The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions.",
+      "source": {
+        "kind": "course_signature",
+        "path": "tasks/hw/support/book/BOOK.sig",
+        "line_start": 24,
+        "line_end": 34
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: true, for the original Book.book argument.\nENSURES: Return (true,NONE) exactly for an empty book; (true,SOME p) exactly when the current page p is the first page; (false,NONE) exactly for a nonempty book positioned at its end; and (false,SOME p) exactly when p is current and is not the first page. These four cases are exhaustive for a valid Book.book.",
+      "expected_status": "ok",
+      "reason": "Clarifies the cited original contract without adding requirements. The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions."
+    },
+    "degraded": {
+      "text": "REQUIRES: true, for the original Book.book argument.\nENSURES: The output uses the documented (atBeginning,currentPage) view without changing either field meaning. Validate that ordinary current-page view and also the selected page-name policy. The policy is fixed but unspecified: either an empty string is an acceptable current page or an empty string is forbidden as a current page. A NONE current page is permitted under either policy.",
+      "expected_status": "ambiguous",
+      "defect": "ambiguity",
+      "reason": "The Boolean field still means atBeginning. The missing requirement is an additional page-name admissibility policy: a valid view containing SOME \"\" passes one policy and fails the other. The specification does not give a nondeterministic choice between policies."
+    }
+  },
+  "hw_find_one": {
+    "original": {
+      "text": "(* findOne : ('a -> bool) -> 'a shrub -> ('a -> 'b) -> (unit -> 'b) -> 'b\n * REQUIRES: p is total\n * ENSURES:  findOne p T sc fc ==> sc x if x is in T and p x ==> true.\n *           If no such x exists, this evalutes to fc () instead.\n *           If more than one such x exists,\n *           findOne p T sc fc evaluates the leftmost such x.\n *)",
+      "expected_status": "ok",
+      "reason": "The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/find.sml",
+        "line_start": 5,
+        "line_end": 11
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: p is total.\nENSURES: If a leaf of T satisfies p, invoke sc on the leftmost such leaf value in the left-to-right traversal of T. If no leaf satisfies p, invoke fc (). The existence of several matching leaves does not permit choosing a later one.",
+      "expected_status": "ok",
+      "reason": "Clarifies the cited original contract without adding requirements. The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions."
+    },
+    "degraded": {
+      "text": "REQUIRES: p is total.\nENSURES: The observation of the continuation result is SOME x and is NONE for the same invocation.",
+      "expected_status": "ok",
+      "defect": "contradiction",
+      "reason": "The same observed success/failure option must use two disjoint constructors; no search or predicate behavior can satisfy it. The original precondition is retained for the concrete input representation. The replacement postcondition is logically false for every well-typed result, so no unobserved cost, complete function, or infinite-stream behavior has to be queried."
+    }
+  },
+  "hw_regex_match": {
+    "original": {
+      "text": "(* match : regexp -> char list -> (char list -> bool) -> bool\n * REQUIRES:  r is in standard form, k is total.\n * ENSURES: match r cs k == true iff there is a split p@s==cs such that\n *            p is in language of r and k s == true.\n *)",
+      "expected_status": "ok",
+      "reason": "The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/regex.sml",
+        "line_start": 11,
+        "line_end": 15
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: r is in standard form and k is total.\nENSURES: Return true exactly when cs can be split as p @ s with p in the language denoted by r and k s=true. The same suffix s is used in the split and continuation call. Otherwise return false.",
+      "expected_status": "ok",
+      "reason": "Clarifies the cited original contract without adding requirements. The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions."
+    },
+    "degraded": {
+      "text": "REQUIRES: r is in standard form and k is total.\nENSURES: Use the documented consumed-prefix indexing of the continuation table. Consider every split cs=p@s whose prefix p belongs to the language of r. If no such split exists, return false. Otherwise the continuation-aggregation policy is fixed but unspecified: return true when at least one such split has continuation value true, or only when every such split has continuation value true.",
+      "expected_status": "ambiguous",
+      "defect": "ambiguity",
+      "reason": "The table layout is not ambiguous. The missing semantic decision is existential versus universal aggregation of the continuation over language-accepted splits; mixed true/false continuation values distinguish the policies."
+    }
+  },
+  "hw_regex_accept": {
+    "original": {
+      "text": "(* accept : regexp -> string -> bool\n * REQUIRES: r is in standard form.\n * ENSURES: accept r s   evaluates to true if and only if s is in the\n *          language of r *)",
+      "expected_status": "ok",
+      "reason": "The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/regex.sml",
+        "line_start": 44,
+        "line_end": 47
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: r is in standard form.\nENSURES: Return true exactly when the entire string s belongs to the language denoted by r. Matching only a proper prefix does not satisfy this condition.",
+      "expected_status": "ok",
+      "reason": "Clarifies the cited original contract without adding requirements. The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions."
+    },
+    "degraded": {
+      "text": "REQUIRES: r is in standard form.\nENSURES: The returned Boolean is true and is false for the same regular expression and string.",
+      "expected_status": "ok",
+      "defect": "contradiction",
+      "reason": "The result is required to have both Boolean values, so its postcondition is identically false. The original precondition is retained for the concrete input representation. The replacement postcondition is logically false for every well-typed result, so no unobserved cost, complete function, or infinite-stream behavior has to be queried."
+    }
+  },
+  "hw_regex_both": {
+    "original": {
+      "text": "(* match : regexp -> char list -> (char list -> bool) -> bool\n * REQUIRES:  r is in standard form, k is total.\n * ENSURES: match r cs k == true iff there is a split p@s==cs such that\n *            p is in language of r and k s == true.\n *)",
+      "expected_status": "ok",
+      "reason": "The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/regex.sml",
+        "line_start": 11,
+        "line_end": 15
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: r is in standard form and k is total.\nENSURES: Return true exactly when there is one split cs = p @ s such that p belongs to the language of r and k s=true. In an intersection Both(r1,r2), the same prefix p must belong to both languages; separate successful prefixes do not suffice.",
+      "expected_status": "ok",
+      "reason": "Clarifies the cited original contract without adding requirements. The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions."
+    },
+    "degraded": {
+      "text": "REQUIRES: r is in standard form and k is total.\nENSURES: Use the documented language of r, including the same-prefix intersection meaning of Both, and the documented continuation table. Count the splits cs=p@s for which p belongs to that language and k s is true. The acceptance policy is fixed but omitted: success requires either at least one such split or exactly one such split.",
+      "expected_status": "ambiguous",
+      "defect": "ambiguity",
+      "reason": "Both retains its documented intersection semantics. What is missing is the acceptance multiplicity policy for successful splits; inputs with two successful splits distinguish the policies."
+    }
+  },
+  "hw_hof_differentiate": {
+    "original": {
+      "text": "(* differentiate : poly -> poly\n * REQUIRES: p is a valid polynomial (i.e. p n = 0.0 for n<0 and p n = 0.0 for\n * all but finitely many n)\n * ENSURES: differentiate p = p', where p' is the derivative of p\n *)",
+      "expected_status": "unsupported",
+      "reason": "The result of the original operation is a complete coefficient function. The adapter retains only finitely many coefficient values, so it loses values at unqueried exponents required by the original derivative equality.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/hof_polynomials.sml",
+        "line_start": 4,
+        "line_end": 8
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: p maps every negative exponent to 0.0 and maps all but finitely many exponents to 0.0.\nENSURES: Return the derivative polynomial p'. For every exponent n, its coefficient is the derivative coefficient of p: zero for negative n and (n+1)*p(n+1) for nonnegative n. This equality describes the complete returned function, not merely coefficients at a finite probe list.",
+      "expected_status": "unsupported",
+      "reason": "Clarifies the cited original contract without adding requirements. The result of the original operation is a complete coefficient function. The adapter retains only finitely many coefficient values, so it loses values at unqueried exponents required by the original derivative equality."
+    },
+    "degraded": {
+      "text": "REQUIRES: p maps every negative exponent to 0.0 and maps all but finitely many exponents to 0.0.\nENSURES: The list of observed derivative coefficients has exactly as many elements as the exponent-probe list, and has strictly fewer elements than that same probe list.",
+      "expected_status": "ok",
+      "defect": "contradiction",
+      "reason": "Equality and strict inequality against the same probe-list length are incompatible, including when the probes are empty. The original precondition is retained for the concrete input representation. The replacement postcondition is logically false for every well-typed result, so no unobserved cost, complete function, or infinite-stream behavior has to be queried."
+    }
+  },
+  "hw_hof_integrate": {
+    "original": {
+      "text": "(* integrate : poly -> (real -> poly)\n * REQUIRES: p is a valid polynomial (i.e. p n = 0.0 for n<0 and p n = 0.0 for\n * all but finitely many n)\n * ENSURES: integrate p = P, where P(c) is the antiderivative of p with constant\n * of integration c\n * Alternatively, you could say differentiate ((integrate p) c) = p for all\n * c : real\n *)",
+      "expected_status": "unsupported",
+      "reason": "The original result is an entire family indexed by all real constants, with complete polynomial functions. The adapter retains only integer constants and finitely many exponent values; those observations cannot establish the full original relation.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/hof_polynomials.sml",
+        "line_start": 12,
+        "line_end": 19
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: p maps every negative exponent to 0.0 and maps all but finitely many exponents to 0.0.\nENSURES: Return a family P of antiderivative polynomials. For every real constant c, P c has constant coefficient c, has coefficient p(n-1)/n at every positive exponent n, and has zero coefficients at negative exponents. Thus differentiate (P c) = p for every c. These requirements quantify over the complete returned family and all exponents, not only the supplied observations.",
+      "expected_status": "unsupported",
+      "reason": "Clarifies the cited original contract without adding requirements. The original result is an entire family indexed by all real constants, with complete polynomial functions. The adapter retains only integer constants and finitely many exponent values; those observations cannot establish the full original relation."
+    },
+    "degraded": {
+      "text": "REQUIRES: p maps every negative exponent to 0.0 and maps all but finitely many exponents to 0.0.\nENSURES: Use the documented input=(coefficients,constants,probes) and return the observed coefficient matrix, with one row per supplied number c and one column per exponent probe. Each row is an antiderivative of the input polynomial. The boundary-value convention for c is fixed but not stated: c specifies either the constant coefficient P(0), or the value of the antiderivative polynomial at x=1.",
+      "expected_status": "ambiguous",
+      "defect": "ambiguity",
+      "reason": "The tuple layout is fully specified. The missing decision is which boundary condition the supplied c imposes. P(0)=c and P(1)=c yield different constant coefficients for a nonzero input polynomial. Only the finite matrix observation is requested in this degraded replacement; the full unobservable function-family clause is removed."
+    }
+  },
+  "hw_hof_rose_folds": {
+    "original": {
+      "text": "r os eF ol dl : ( ’ a * ’b -> ’b ) -> ’b -> ’a rose -> ’b\nREQUIRES: true\nENSURES: ro se Fo ld l f z r ∼= List . foldl f z ( r o s e P r e o r d r )\n\nr os eF ol dr : ( ’ a * ’b -> ’b ) -> ’b -> ’a rose -> ’b\nREQUIRES: true\nENSURES: ro se Fo ld r f z r ∼= List . foldr f z ( r o s e P r e o r d r )",
+      "expected_status": "ok",
+      "reason": "The course handout specifies both scalar fold equalities. The supplied finite tree and concrete reducer allow those equalities to be checked; implementation-style constraints outside REQUIRES/ENSURES are not included in this contract dataset.",
+      "source": {
+        "kind": "course_pdf_text",
+        "path": "15150HW/PDF/hofs.pdf",
+        "pages": [
+          13
+        ],
+        "note": "Two verbatim signature/REQUIRES/ENSURES excerpts, joined by a blank line. PDF extraction spacing is retained; these are course handout words, not student-authored comments."
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: true.\nENSURES: Let preorder r list the root first and then the preorder traversals of its children from left to right. roseFoldl f z r equals List.foldl f z (preorder r); roseFoldr f z r equals List.foldr f z (preorder r). Use each list fold's own accumulation order, without assuming f is associative or commutative.",
+      "expected_status": "ok",
+      "reason": "Clarifies the cited original contract without adding requirements. The course handout specifies both scalar fold equalities. The supplied finite tree and concrete reducer allow those equalities to be checked; implementation-style constraints outside REQUIRES/ENSURES are not included in this contract dataset."
+    },
+    "degraded": {
+      "text": "REQUIRES: true.\nENSURES: The observed left-fold string equals the observed right-fold string, and those same two strings differ.",
+      "expected_status": "ok",
+      "defect": "contradiction",
+      "reason": "Equality and disequality are required of the same pair of fold observations; properties of the reducer do not resolve the contradiction. The original precondition is retained for the concrete input representation. The replacement postcondition is logically false for every well-typed result, so no unobserved cost, complete function, or infinite-stream behavior has to be queried."
+    }
+  },
+  "hw_lazy_cycle": {
+    "original": {
+      "text": "(* cycle: 'a Stream.t -> 'a Stream.t\n   * REQUIRES: s is productive\n   * ENSURES:\n   *     - cycle s is productive\n   *     - cycle s = s', a stream formed by infinitely repeating the elements of s\n   *     - if s = Stream.empty, then cycle s = Stream.empty\n   *     - cycle s is maximally lazy (evaluating cycle s never exposes any\n   *       elements of s).\n   *)",
+      "expected_status": "unsupported",
+      "reason": "The original ENSURES includes productivity and the infinite stream relation. A finite front list and captured construction counter do not reveal all future demands or future divergence.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/lazy_streams.sml",
+        "line_start": 6,
+        "line_end": 14
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: s is productive.\nENSURES: Return a productive stream obtained by repeatedly cycling through s. Empty input yields the empty stream. A nonempty finite source repeats forever; an infinite source supplies its elements without reaching a restart. The result must be productive and satisfy the stream relation at every demand, not only a finite prefix. The construction is maximally lazy: evaluating cycle s does not expose any input element.",
+      "expected_status": "unsupported",
+      "reason": "Clarifies the cited original contract without adding requirements. The original ENSURES includes productivity and the infinite stream relation. A finite front list and captured construction counter do not reveal all future demands or future divergence."
+    },
+    "degraded": {
+      "text": "REQUIRES: s is productive.\nENSURES: Return construction force counts and observed fronts of repeated finite-source cycling. The initial-phase rule is fixed but unspecified: the first observed element is either source position 0 or, for a nonempty source, source position 1 modulo its length. Empty sources remain empty.",
+      "expected_status": "ambiguous",
+      "defect": "ambiguity",
+      "reason": "The missing initial phase changes observed values for sources of period at least two. The degraded text concerns only observable fronts and intentionally does not demand a full productivity proof."
+    }
+  },
+  "hw_exception_command": {
+    "original": {
+      "text": "(* runCommand: environment -> command -> environment\n * REQUIRES: runCommand will only be invoked during the interpretation of a\n *           well-formed Cnot program\n * ENSURES: runCommand env cmd either\n *            - Evaluates to env', where env' is the result of updating env\n *              according to cmd\n *            - Raises an exception as specified in the handout\n *)",
+      "expected_status": "unsupported",
+      "reason": "The original precondition refers to the enclosing well-formed Cnot program, including its initialization and control-flow context. The adapter supplies only a current binding history and action; it cannot recover that enclosing program. Its counted-command validity rule is only a sufficient executable subset, not the original precondition.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/exception_command.sml",
+        "line_start": 91,
+        "line_end": 98
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: runCommand is invoked during interpretation of a well-formed Cnot program.\nENSURES: Interpret cmd in env using the Cnot command semantics. A normal completion returns the environment updated by cmd. A control-transfer command raises exactly the exception and payload prescribed by the handout. Preserve the distinction between normal completion and each specified exception; do not replace exception outcomes by a normal environment.",
+      "expected_status": "unsupported",
+      "reason": "Clarifies the cited original contract without adding requirements. The original precondition refers to the enclosing well-formed Cnot program, including its initialization and control-flow context. The adapter supplies only a current binding history and action; it cannot recover that enclosing program. Its counted-command validity rule is only a sufficient executable subset, not the original precondition."
+    },
+    "degraded": {
+      "text": "REQUIRES: runCommand is invoked during interpretation of a well-formed Cnot program.\nENSURES: The observed command outcome is a Completed environment and is a Returned integer in the same execution.",
+      "expected_status": "unsupported",
+      "defect": "contradiction",
+      "reason": "Completed and Returned are disjoint, so the postcondition alone is identically false. However, the unchanged original requires depends on an unavailable enclosing well-formed Cnot program; a false postcondition does not make that precondition expressible. The complete pair therefore remains unsupported."
+    }
+  },
+  "hw_encryption": {
+    "original": {
+      "text": "(* new : unit -> 'a key\n * REQUIRES: true\n * ENSURES: new () ==> k such that (decrypt k o encrypt k) = SOME\n *          and for all k' /= k we have\n *          (decrypt k' o encrypt k) = (decrypt k o encrypt k') = fn _ => NONE\n *)",
+      "expected_status": "unsupported",
+      "reason": "The original ENSURES quantifies over all payloads and distinct keys. The adapter exposes finitely many keys and function probe values, losing complete function identity and behavior of unobserved instances. Its bounded affine samples also do not resolve the unrestricted arithmetic-domain issue.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/encryption.sml",
+        "line_start": 4,
+        "line_end": 9
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: true.\nENSURES: Each call to new returns a key k such that, for every payload x of its type, decrypt k (encrypt k x) = SOME x. Every distinct key k' rejects secrets encrypted with k, and k rejects secrets encrypted with k': both cross-key compositions return NONE on every payload. This includes keys from separate calls and complete payload identity, including functional payloads; it is not merely a claim about the finitely observed key instances or probes.",
+      "expected_status": "unsupported",
+      "reason": "Clarifies the cited original contract without adding requirements. The original ENSURES quantifies over all payloads and distinct keys. The adapter exposes finitely many keys and function probe values, losing complete function identity and behavior of unobserved instances. Its bounded affine samples also do not resolve the unrestricted arithmetic-domain issue."
+    },
+    "degraded": {
+      "text": "REQUIRES: true.\nENSURES: Use the documented key-creation order, matrix indices, and reuse/foreign fields. This specification constrains the int, string, and int-list groups only; the function group is unconstrained. Own-key recovery and first-key reuse must recover the supplied payloads, and foreign-type secrets must be rejected. The same-type compatibility policy is fixed but unspecified: distinct keys must either reject each other, or all three keys in a group must be able to decrypt each other's secrets.",
+      "expected_status": "ambiguous",
+      "defect": "ambiguity",
+      "reason": "The representation and payload order remain fixed. The missing semantic policy is isolation versus within-group key compatibility, which changes observable off-diagonal entries. The complete all-payload/key quantification and function-probe requirements are intentionally replaced by finite ordinary-data observations, preventing their unsupported clauses from masking this ambiguity."
+    }
+  },
+  "hw_find_partition": {
+    "original": {
+      "text": "(* findPartition :\n *  'e list ->\n *  ('e list -> ('l -> 'a) -> (unit -> 'a) -> 'a) ->\n *  ('e list -> ('r -> 'a) -> (unit -> 'a) -> 'a) ->\n *  ('l * 'r -> 'a) ->\n *  (unit -> 'a) ->\n *  'a\n * REQUIRES: pL and pR are CPS-total\n * ENSURES: findPartition A pL pR sc fc ==>\n *  sc (evL, evR) if there exists a partition (L, R) of A\n *  such that pL accepts L with evL and pR accepts R with evR.\n *  fc () otherwise.\n *)",
+      "expected_status": "ok",
+      "reason": "The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/find_partition.sml",
+        "line_start": 2,
+        "line_end": 14
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: pL and pR are CPS-total.\nENSURES: If A admits an order-preserving partition into L and R accepted respectively by pL and pR with evidence evL and evR, invoke sc (evL,evR) for any such valid partition and evidence. Invoke fc () if and only if no accepted partition exists. Do not impose a particular search order or unique witness.",
+      "expected_status": "ok",
+      "reason": "Clarifies the cited original contract without adding requirements. The value relation is executable for the supplied concrete instance. Ordinary quantification over calls is not itself treated as a request to prove all executions."
+    },
+    "degraded": {
+      "text": "REQUIRES: pL and pR are CPS-total.\nENSURES: The observed partition result is NONE and is SOME (evL,evR) in the same invocation.",
+      "expected_status": "ok",
+      "defect": "contradiction",
+      "reason": "Failure and success are simultaneously required using disjoint option constructors; the original CPS-total preconditions remain unchanged. The original precondition is retained for the concrete input representation. The replacement postcondition is logically false for every well-typed result, so no unobserved cost, complete function, or infinite-stream behavior has to be queried."
+    }
+  },
+  "hw_lazy_tree_map": {
+    "original": {
+      "text": "(* map: ('a -> 'b) -> 'a lazyTree -> 'b lazyTree\n   * REQUIRES: true\n   * ENSURES: map f t = t' where\n   *     - t' has the same shape as t\n   *     - Each x in t is replaced with f x in t'\n   *     - map f t is maximally lazy (Evaluating map f t never calls f or exposes\n   *       any elements of the tree)\n   *)",
+      "expected_status": "ok",
+      "reason": "The actual adapter supplies a finite concrete tree, fully observes the mapped output tree, and records both input-forcing and mapper-call counts during construction. Those observations express the source shape/value relation and its parenthetical maximal-laziness requirement: evaluating map f t itself neither calls f nor exposes an input tree element. No unforced infinite output or separate every-demand trace is part of this concrete instance, and no such obligation is inferred.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/lazy_tree_map.sml",
+        "line_start": 10,
+        "line_end": 17
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: true.\nENSURES: The mapped tree has the same shape as the input tree, with the value at every corresponding node equal to f applied to that input node value. Evaluating map f t itself neither calls f nor exposes an input tree element: both recorded construction counters must be zero. The concrete adapter supplies a finite tree and fully observes the mapped output, so these shape and value conditions cover all nodes of this instance. The original parenthetical defines the stated laziness condition at construction; no further demand-trace obligation is added.",
+      "expected_status": "ok",
+      "reason": "Clarifies the unchanged source shape, mapped-value, and construction-laziness clauses for the finite fully observed adapter instance. Both zero construction counters and every output node are observable; the wording does not add an obligation to check every later demand trace."
+    },
+    "degraded": {
+      "text": "REQUIRES: true.\nENSURES: Use the documented affine mapper and ordinary finite-tree representation. The mapped output has the original tree shape. The mapping-depth policy is fixed but unspecified: each node value becomes either f(x), or f(f(x)), where f is that same documented mapper. Construction counters must show no input forcing and no mapper calls before the output is demanded.",
+      "expected_status": "ambiguous",
+      "defect": "ambiguity",
+      "reason": "The Affine.t pair retains its documented a*x+b meaning. The missing semantic policy is one versus two applications per node, which changes finite observed output values. The construction counters remain fully specified; this is a changed mapping requirement, not a claim that the fixed representation or an infinite output is undocumented."
+    }
+  },
+  "hw_bbs": {
+    "original": {
+      "text": "2.1 The Blum-Blum-Shub PRNG\nIn this question, you’ll implement the Blum-Blum-Shub PRNG. This PRNG is quite good, given\nits simplicity. Suppose x0 is your seed to the PRNG, and m = pq, where p and q are large primes.\nThe ith random number in the sequence (1-indexed) is deﬁned as\nxi = x2\ni−1 mod m\nIn practice, we would take some transformation of this number, perhaps the exclusive-or (XOR) of\nits bits, or some subset of its digits. But for this assignment, we’ll take xi as-is.\nTask 2.1. (5 points)\nIn the structure S t r e a m R a n d o min the ﬁle code/bbs/StreamRand.sml, deﬁne the function\nbbs : int -> int -> int Stream . t\nREQUIRES: m is the product of two primes\nENSURES: bbs m s ∼= a stream of integers representing a Blum-Blum-Shub PRNG with\nmodulus m and seed s. The ﬁrst element in the stream is x1 as deﬁned above.",
+      "expected_status": "unsupported",
+      "reason": "The original PRNG denotes the stream at all indices. The adapter observes a finite list of fronts and cannot distinguish the intended stream from one that stops, diverges, or changes later.",
+      "source": {
+        "kind": "course_pdf_text",
+        "path": "15150HW/PDF/lazy-1.pdf",
+        "pages": [
+          3
+        ],
+        "note": "Verbatim section 2.1 through its ENSURES, including the recurrence referred to by the specification. PDF extraction spacing is retained; no original contract comment exists in the extracted student source."
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: m is the product of two primes.\nENSURES: Let x0=s and, for each i>=1, let xi=(x(i-1)*x(i-1)) mod m. Return the Blum-Blum-Shub stream x1,x2,... with no finite end. The first element is the first squared residue, not the seed itself. The stream relation applies at every index, not only the finite observed prefix.",
+      "expected_status": "unsupported",
+      "reason": "Clarifies the cited original contract without adding requirements. The original PRNG denotes the stream at all indices. The adapter observes a finite list of fronts and cannot distinguish the intended stream from one that stops, diverges, or changes later."
+    },
+    "degraded": {
+      "text": "REQUIRES: m is the product of two primes.\nENSURES: The list of observed stream fronts is empty and contains at least one front.",
+      "expected_status": "ok",
+      "defect": "contradiction",
+      "reason": "The same finite observation must have zero and positive length, independently of the modulus, seed or requested number of probes. The original precondition is retained for the concrete input representation. The replacement postcondition is logically false for every well-typed result, so no unobserved cost, complete function, or infinite-stream behavior has to be queried."
+    }
+  },
+  "hw_find150": {
+    "original": {
+      "text": "(* is150Book : Book.page list -> bool\n   * REQUIRES: true\n   * ENSURES:\n   *   is150Book b = true iff b contains at least three instance of\n   *   the word \"lambda\" and no instances of the word \"pointer\"\n   *)",
+      "expected_status": "ok",
+      "reason": "The finite page-list predicate is executable. 15150HW/PDF/modules-1.pdf, printed p15, defines a page as one printed word, supporting whole-page equality with lambda/pointer rather than substring counting.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/find150.sml",
+        "line_start": 10,
+        "line_end": 15
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: true.\nENSURES: Return true if and only if the page list contains at least three entries equal to the word lambda and no entry equal to pointer. Otherwise return false. Page entries are the words described by the task; no unspecified word ordering is required.",
+      "expected_status": "ok",
+      "reason": "Clarifies the unchanged source predicate using the course page-as-one-word definition (15150HW/PDF/modules-1.pdf, printed p15); no substring or tokenization requirement is added."
+    },
+    "degraded": {
+      "text": "REQUIRES: true.\nENSURES: Return true when the book meets the lambda threshold and has no pointer entry. The configured threshold mode is either at least three lambda entries or exactly three lambda entries. The active threshold mode is not given.",
+      "expected_status": "ambiguous",
+      "defect": "ambiguity",
+      "reason": "Books with four lambda entries and no pointer distinguish two fixed but unspecified threshold definitions."
+    }
+  },
+  "hw_tracker": {
+    "original": {
+      "text": "(* query: tracker -> mascot -> int -> mascot Seq.t\n   * REQUIRES:\n   *    The mascot has an index from 0 to n-1\n   *    The resolution is non-negative\n   *    T can be produced through calls to empty and addChat\n   * ENSURES: query T m r ==> A\n   *    A contains every mascot from 0 to n − 1 such that there exists mascots\n   *      s0, s1, . . . , sr where s0 = m and for all 0 ≤ i < r, si and\n   *      s(i+1) share a chat or si = s(i+1)\n   *    O(r n^2 log n) work and O(r * log^2 n) span\n   *)",
+      "expected_status": "unsupported",
+      "reason": "The original ENSURES includes asymptotic work and span, absent from the returned list. Its source wording also omits any relation between the output mascot being quantified and sr. As written, the all-source chain satisfies the existential condition for every mascot, so functional coverage is all 0..n-1, not just the intended reachable set. Do not repair that omission or add an only/uniqueness condition.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/tracker.sml",
+        "line_start": 56,
+        "line_end": 66
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: The source mascot index is between 0 and n-1 inclusive, the resolution is non-negative, and T can be produced through calls to empty and addChat.\nENSURES: A contains every mascot v in 0..n-1 such that there exist mascots s0,...,sr with s0=m and, at each step, consecutive mascots sharing a chat or being equal. The written condition never relates v to sr or to any other position in that chain. Preserve that omission: the all-m chain satisfies the stated existence condition for every eligible v, so every mascot in 0..n-1 must occur in A. No separate ban on extra elements or repeated entries is stated. Also require O(r*n^2*log n) work and O(r*log^2 n) span.",
+      "expected_status": "unsupported",
+      "reason": "Clarifies the source exactly as written, including its missing connection from the quantified output mascot to the chain endpoint; it does not silently insert sr=v. The full contract remains unsupported because asymptotic work and span cannot be recovered from the observed list."
+    },
+    "degraded": {
+      "text": "REQUIRES: The source mascot index is between 0 and n-1 inclusive, the resolution is non-negative, and T can be produced through calls to empty and addChat.\nENSURES: The result contains the source mascot m, and the same result does not contain m.",
+      "expected_status": "ok",
+      "defect": "contradiction",
+      "reason": "Source membership and non-membership contradict one another on every input satisfying the unchanged valid-source precondition. The original precondition is retained for the concrete input representation. The replacement postcondition is logically false for every well-typed result, so no unobserved cost, complete function, or infinite-stream behavior has to be queried."
+    }
+  },
+  "hw_flip_one": {
+    "original": {
+      "text": "(* flipOne: bool list -> bool list list\n * REQUIRES: true\n * ENSURES: flipOne L ==>* An ordered list containing all the ways to flip exactly\n *          one true to false.\n *)",
+      "expected_status": "ok",
+      "reason": "The source says an ordered list but specifies no output sorting relation or exactly-once clause. Treat this as a list of all legal one-position flips, covering every eligible position while permitting repeated legal results; do not add a stable outer order.",
+      "source": {
+        "kind": "source_comment",
+        "path": "tasks/hw/flip_one.sml",
+        "line_start": 10,
+        "line_end": 14
+      }
+    },
+    "optimized": {
+      "text": "REQUIRES: true.\nENSURES: Return a list containing all legal results of changing exactly one true position of L to false and leaving every other position unchanged. Every eligible position must be covered. The word ordered refers to the list data structure; no particular order of these results and no exactly-once condition on repeated legal results is specified.",
+      "expected_status": "ok",
+      "reason": "Clarifies the cited original contract without adding requirements. The source says an ordered list but specifies no output sorting relation or exactly-once clause. Treat this as a list of all legal one-position flips, covering every eligible position while permitting repeated legal results; do not add a stable outer order."
+    },
+    "degraded": {
+      "text": "REQUIRES: true.\nENSURES: Return all lists made by changing one selected Boolean position and leaving all others unchanged. The permitted flip direction is configured as either true-to-false or false-to-true; the selected direction is omitted.",
+      "expected_status": "ambiguous",
+      "defect": "ambiguity",
+      "reason": "The missing direction changes both eligible positions and output values; it is not an explicitly weak permission to choose either direction."
+    }
+  }
+}

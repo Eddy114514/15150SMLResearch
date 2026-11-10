@@ -32,8 +32,10 @@ fun decrypt ((_, dec) : 'a key) = dec
  * REQUIRES: true.
  * ENSURES: A matching key recovers the original payload. Distinct calls create
  * keys that reject each other's secrets, even at the same payload type.
- * The observations also check repeated use and preservation of earlier secrets
- * after later key creation. Function payloads are observed at finite probes.
+ * Functional projection only: observations check repeated use and preservation
+ * of earlier secrets after later key creation. Function payloads are sampled
+ * at finite probes. These records do not establish the original universal
+ * statement about every key and payload or arbitrary function equality.
  *)
 functor ManualContract (Helpers : sig end) = struct
   type input = EncryptionCase.input
@@ -52,11 +54,20 @@ functor ManualContract (Helpers : sig end) = struct
 
   fun ensures ({integers,strings,lists,functions=(f,g,h),probes} : input)
               (result : output) = let
-    fun observed description = List.map (Affine.apply description) probes
+    (* Compare mathematical values without invoking a possibly overflowing
+     * supplied payload function inside the checker. This agrees with Affine
+     * whenever the observed host-int calls return normally; requires stays true. *)
+    fun observed (a,b) = List.map
+      (fn x => IntInf.fromInt a * IntInf.fromInt x + IntInf.fromInt b) probes
+    fun lift values = List.map IntInf.fromInt values
+    fun lifted ({matrix,reused,foreign} : int list EncryptionCase.observations) =
+      {matrix = List.map (List.map (Option.map lift)) matrix,
+       reused = List.map (Option.map lift) reused,
+       foreign = List.map (Option.map lift) foreign}
   in
     matches integers (#integers result) andalso
     matches strings (#strings result) andalso
     matches lists (#lists result) andalso
-    matches (observed f,observed g,observed h) (#functions result)
+    matches (observed f,observed g,observed h) (lifted (#functions result))
   end
 end

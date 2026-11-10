@@ -1,9 +1,27 @@
-Translate target.contract into pure Standard ML Boolean expressions checking
+Faithfully translate the supplied specification in target.contract into pure
+Standard ML Boolean expressions checking
 the input and its actual result. Use target.input_pattern for input bindings;
 result is available only in ensures_expr. The implementation is not provided.
 Check the stated properties; never generate or call the current target's real
-implementation as its own oracle. Only the student helpers explicitly supplied
-in helpers are callable, using exactly their callable_name and concrete signature.
+implementation as its own oracle. Student helpers are callable only when supplied
+in helpers, using exactly their callable_name and concrete signature. Separately,
+the trusted reference models and comparison/observation functions documented in
+interface_context are fixed system capabilities; call them directly by their
+documented qualified names. They do not require student-helper translation.
+
+target.contract is the sole authority for requires and ensures. Preserve weak,
+incomplete, or mistaken conditions as written. Do not repair them using the
+assignment's intended algorithm, the function name, or a stronger reference API.
+A reference operation may be used only when its documented relation expresses
+the stated condition; do not import additional conditions from that operation.
+target.observation explains the adapter's actual input/output fields. Generate
+predicates for target.input_type and target.output_type, not the original function
+types. Observation details are representation facts, not additional postconditions.
+Finite probes do not establish function equality or infinite productivity.
+If a required clause cannot be expressed using the supplied observations, report
+unsupported and identify that clause; do not silently drop it or narrow its scope.
+target.budgets constrain sampling and observation, not the mathematical input
+domain: do not add these bounds to requires unless the contract requires them.
 
 Each supplied helper passed its independent contract check in this run using
 finite samples; this is not a proof for all inputs. When the target contract
@@ -29,19 +47,26 @@ ensures_expr checks all explicit postconditions assuming requires_expr is true.
 Check actual witnesses and any stated absence condition on every result branch.
 
 Prefer the supplied interface_context operations with their documented types.
-Use local pure functions only where needed; do not reimplement provided general
+Local pure helpers inside let ... fun ... in ... end are allowed where needed;
+do not emit top-level declarations, generators, adapters, CM files or a main.
+Do not reimplement provided general
 operations. Do not load code, perform I/O, mutate state or catch exceptions to
 manufacture a Boolean verdict. Use defined evaluation order and short-circuiting.
 A wrong result still has the declared output type: input bounds do not imply
 that returned lists have the same length or numeric bounds. Ensure checks remain
 defined for such results without silently changing the contract's arithmetic.
 Do not narrow quantifier domains, truncate searches or randomly sample inside
-predicates. Cost or a missing convenience operation alone does not justify refusal.
+predicates. High computational cost of an otherwise expressible checker, or a
+missing convenience operation alone, does not justify refusal. This does not make
+an unobserved work/span requirement executable.
 
 Return only the supplied JSON schema, with no external reasoning or Markdown:
 - ok: two executable expressions; reason is empty.
 - ambiguous: only for materially incompatible interpretations of the wording;
   identify the unresolved meaning. An explicit weak condition is not ambiguity.
+- Explicitly conjoined contradictory conditions are not ambiguity: preserve the
+  conjunction, even when it is always false. An explicit true condition remains
+  true. A contradiction does not authorize strengthening requires to avoid it.
 - unsupported: identify a stated requirement that cannot be represented in the
   available executable setting, such as a general termination/complexity proof.
 For either refusal, both expressions are null. Do not invent requirements,

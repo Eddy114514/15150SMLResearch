@@ -2,7 +2,9 @@ Library
   structure RoseFoldCase
   structure PolynomialInput
   structure PolynomialsSpec
+  structure RoseModel
 is
   $/basis.cm
   Shared.sml
   PolynomialsSpec.sml
+  RoseModel.sml

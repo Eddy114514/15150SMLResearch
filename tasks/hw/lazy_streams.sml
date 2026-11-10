@@ -41,7 +41,9 @@ end
  * REQUIRES: The input stream is productive; every LazyCase.source is productive.
  * ENSURES: Repeat a nonempty finite input forever; preserve an infinite input;
  * empty input stays empty. Construction exposes no input front.
- * This int instance observes at most max(0,probes) output fronts, stopping at Empty.
+ * Functional projection only: observe max(0,probes) output fronts, stopping
+ * at Empty. This cannot establish productivity, infinite equality, or laziness
+ * beyond the recorded construction event.
  *)
 functor ManualContract (Helpers : sig end) = struct
   type input = LazyCase.source * int

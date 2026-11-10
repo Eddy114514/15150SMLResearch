@@ -30,10 +30,8 @@ functor ManualContract (Helpers : sig end) = struct
   type input = RoseFoldCase.reducer * string * RoseFoldCase.rose
   type output = string * string
   fun requires (_ : input) = true
-  fun preorder (RoseFoldCase.Rose(x,children)) =
-    x :: List.concat (List.map preorder children)
   fun ensures (reducer,initial,tree) (left,right) =
-    let val values = preorder tree
+    let val values = RoseModel.preorder tree
         val f = RoseFoldCase.apply reducer
     in left = List.foldl f initial values andalso
        right = List.foldr f initial values

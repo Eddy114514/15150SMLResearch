@@ -22,8 +22,9 @@ fun flipOne ([] : bool list) : bool list list = []
  * flipOne : bool list -> bool list list
  * REQUIRES: true
  * ENSURES: Each output flips exactly one true input position to false and
- * preserves every other position. Each eligible position occurs exactly once.
- * The original PDF permits any order of the output lists.
+ * preserves every other position. Every eligible position must occur.
+ * The original comment imposes no specified ordering relation or uniqueness
+ * of listed ways: repeated legal results and any result order are permitted.
  *)
 functor ManualContract (Helpers : sig end) = struct
   type input = bool list
@@ -46,5 +47,6 @@ functor ManualContract (Helpers : sig end) = struct
         val eligible = List.mapPartial
           (fn (i,b) => if b then SOME (SOME i) else NONE)
           (ListPair.zip (positions,xs))
-    in Spec.sameMultiset (List.map (changedIndex xs) result,eligible) end
+        val observed = List.map (changedIndex xs) result
+    in Spec.subset (observed,eligible) andalso Spec.subset (eligible,observed) end
 end

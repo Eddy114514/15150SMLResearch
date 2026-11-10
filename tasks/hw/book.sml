@@ -36,16 +36,23 @@ structure Book :> BOOK =
 (* @manual hw_book_bind *)
 (* @contract hw_book_bind
  * Original: Book.bind : string list -> Book.book.
- * Observe initial unbind/currentPage and every cursor through end of book.
+ * The initial snapshot records contents and currentPage after bind.
+ * All input page occurrences must remain in input order, but the bind comment
+ * does not say only those pages may be encoded. If input is nonempty, observe
+ * its first page as current. No beginning flag, empty-book condition for empty
+ * input, or requirement on later flip observations is added.
  *)
 functor ManualContract (Helpers : sig end) = struct
   type input = string list
   type output = BookCase.snapshot * BookCase.step list
   fun requires (_ : input) = true
-  fun ensures pages (initial,steps) =
-    initial = (pages,BookModel.view pages 0) andalso
-    steps = List.tabulate (List.length pages,
-      fn i => BookCase.Moved (BookModel.view pages (i+1)))
+  fun subsequence [] _ = true
+    | subsequence _ [] = false
+    | subsequence (wanted as p::ps) (q::qs) =
+        if p = q then subsequence ps qs else subsequence wanted qs
+  fun ensures pages ((contents,(_,current)),_) =
+    subsequence pages contents andalso
+    (case pages of [] => true | first::_ => current = SOME first)
 end
 (* @manual hw_book_current_page *)
 (* @contract hw_book_current_page

@@ -1,5 +1,4 @@
 """Generate and run the fixed SML contract compiler and QCheck adapter."""
-import hashlib
 import json
 from pathlib import Path
 import re
@@ -7,17 +6,10 @@ import subprocess
 import sys
 import time
 
-import corpus
-
 ROOT = Path(__file__).resolve().parent
+EVALUATIONS = ROOT / "tasks/hw/evaluation"
 
 PREFIX = "@@SMLPBT@@"
-_SHOW = {"int": "Runner.int", "bool": "Runner.bool",
-         "int list": "Runner.list Runner.int",
-         "int * int list": "Runner.pair (Runner.int, Runner.list Runner.int)",
-         "int list list": "Runner.list (Runner.list Runner.int)",
-         "int list * int": "Runner.pair (Runner.list Runner.int, Runner.int)",
-         "int list option": "Runner.option (Runner.list Runner.int)"}
 
 
 def _str(value):
@@ -40,26 +32,9 @@ def _runtime_source(paths):
 
 
 def _data_source(case):
-    """Give built-in distributions and explicit adapters the same Data interface."""
-    adapter = case.get("data_adapter")
-    if adapter is not None:
-        return _runtime_source(adapter["file"]) + f'\nstructure Data = {adapter["structure"]}\n'
-    sort_lists = str(case.get("generator_options", {}).get("sort_lists", False)).lower()
-    lists = f"Generators.randomList {sort_lists}"
-    pairs = f"QCheck.Gen.zip (Generators.intGen, {lists})"
-    swap = "(fn (x, xs) => (xs, x))"
-    generator, edges = {
-        "int": ("Generators.intGen", "Generators.intEdges"),
-        "int_list": (lists, "Generators.listEdges"),
-        "int_list_pair": (pairs, "Generators.pairEdges"),
-        "list_int_pair": (f"QCheck.Gen.map {swap} ({pairs})",
-                          f"List.map {swap} Generators.pairEdges"),
-        "int_list_list": ("Generators.listListGen", "Generators.listListEdges"),
-    }[case["generator"]]
-    return ("structure Data = struct\n"
-            f"  val genInput = {generator}\n  val edges = {edges}\n"
-            f'  val showInput = {_SHOW[case["input_type"]]}\n'
-            f'  val showOutput = {_SHOW[case["output_type"]]}\nend\n')
+    """Load the task's runtime data adapter and expose its Data interface."""
+    adapter = case["data_adapter"]
+    return _runtime_source(adapter["file"]) + f'\nstructure Data = {adapter["structure"]}\n'
 
 
 def log(workdir, phase, diagnostics):
@@ -86,9 +61,9 @@ def run_sml(program, workdir, timeout, phase):
     try:
         result = json.loads(next(line.split(PREFIX, 1)[1]
                                  for line in diagnostics.splitlines() if PREFIX in line))
-    except (StopIteration, json.JSONDecodeError):
+    except (StopIteration, json.JSONDecodeError) as exc:
         print(diagnostics, file=sys.stderr)
-        raise
+        raise RuntimeError(f"SML {phase} did not produce a valid completion record; see {workdir / 'log.txt'}") from exc
     result.update(elapsed_seconds=time.monotonic() - started, diagnostics=diagnostics)
     return result
 
@@ -100,9 +75,19 @@ def _cm(path, files, exports=None, libraries=()):
                   "".join("  " + _str(Path(f).resolve()) + "\n" for f in files))
 
 
-def contract_module(case):
+def _link_and_run(workdir, files, *, cm_name, main_name, timeout, phase):
+    """Link the ordered runtime files and invoke their shared Driver entrypoint."""
+    cm = _cm(workdir / cm_name, files, libraries=["$/smlnj-lib.cm"])
+    program = (f'val _ = if CM.make {_str(cm)} then () else OS.Process.exit OS.Process.failure;\n'
+               'val _ = Driver.main ();\n'
+               'val _ = OS.Process.exit OS.Process.success;\n')
+    _write(workdir / main_name, program)
+    return run_sml(program, workdir, timeout, phase)
+
+
+def contract_module(case, role=""):
     """Stable SML identifiers for concrete manifest cases, independent of paths."""
-    return "Contract_" + hashlib.sha256(case["id"].encode()).hexdigest()[:16] + "Fn"
+    return f"Contract_{role}_{case['id']}Fn"
 
 
 def _helper_parameters(helpers):
@@ -110,76 +95,51 @@ def _helper_parameters(helpers):
                    for helper in helpers)
 
 
-def _compile_predicate(case, path, workdir, timeout, helpers, checks=()):
-    module = contract_module(case)
+def _compile_predicate(case, path, workdir, timeout, helpers, role=""):
+    module = contract_module(case, role)
     # Helpers may require shared types even when the caller's types do not.
-    support = list(dict.fromkeys((ROOT / item["support_cm"]).resolve()
-                   for item in [case, *helpers] if item.get("support_cm")))
-    # CM prunes unexported, unreferenced compilation units. Export the manual
-    # check functor too so its type ascription is actually elaborated.
-    exports = [f"functor {module}"] + ([f"functor {module}Check"] if checks else [])
-    cm = _cm(workdir / "predicate.cm", support + [ROOT / "sml/Spec.cm", path, *checks], exports)
-    success = json.dumps({"status": "compiled", "stage": "predicate", "compile_ok": True})
-    failure = json.dumps({"status": "compile_error", "stage": "predicate", "compile_ok": False})
+    support = list(dict.fromkeys(path for item in [case, *helpers]
+                                for path in item["_context"]["support_libraries"]))
+    cm = _cm(workdir / "predicate.cm", support + [ROOT / "sml/Spec.cm", path],
+             [f"functor {module}"])
+    success = json.dumps({"status": "compiled", "stage": "predicate"})
+    failure = json.dumps({"status": "compile_error", "stage": "predicate"})
     program = (
         f'val ok = CM.make {_str(cm)};\n'
         f'val message = if ok then {_str(success)} else {_str(failure)};\n'
         f'val _ = print ("\\n" ^ {_str(PREFIX)} ^ message ^ "\\n");\n'
         'val _ = OS.Process.exit OS.Process.success;\n')
     result = run_sml(program, workdir, timeout, "predicate")
-    result.update(contract_path=str(path), predicate_cm=str(cm), module_name=module)
+    result.update(contract_path=str(path), module_name=module)
     return result
 
 
 def compile_contract(case, requires_expr, ensures_expr, workdir, *, attempt, timeout,
-                     helpers=()):
+                     helpers=(), role=""):
     """Compile with shared support, never the target or its data adapter."""
     filename = "initial_contract.sml" if attempt == 0 else "repaired_contract.sml"
     input_type, output_type, pattern = case["input_type"], case["output_type"], case["input_pattern"]
-    module = contract_module(case)
+    module = contract_module(case, role)
     parameters = _helper_parameters(helpers)
     declarations = (f"functor {module} (Helpers : sig\n{parameters}end) = struct\n"
                     f"  type input = {input_type}\n  type output = {output_type}\n")
-    predicate_line = declarations.count("\n") + 1
     path = _write(workdir / filename, declarations +
         f"  fun requires (input : input) : bool = let val {pattern} = input in ({requires_expr}) end\n"
         f"  fun ensures (input : input) (result : output) : bool = let val {pattern} = input in ({ensures_expr}) end\nend\n")
-    result = _compile_predicate(case, path, workdir, timeout, helpers)
-    # Task type declarations and support-library failures are configuration errors.
-    # Only errors in generated predicate bodies can use the one model repair.
-    if result["status"] == "compile_error":
-        errors = re.findall(r"(?m)^(.+?):(\d+)[^\n]*\bError:", result["diagnostics"])
-        if not errors or any(Path(file).name != filename or int(line) < predicate_line
-                             for file, line in errors):
-            raise RuntimeError(result["diagnostics"])
-    return result
+    return _compile_predicate(case, path, workdir, timeout, helpers, role=role)
 
 
-def compile_manual_contract(case, source_text, workdir, *, timeout, helpers=()):
-    """Compile a snapshotted ManualContract functor without Target or model repair."""
-    source_text = corpus.manual_text_for_case(source_text, case["id"])
-    module = contract_module(case)
-    renamed, count = re.subn(r"(?m)^(\s*functor\s+)ManualContract\b",
-                             lambda match: match[1] + module, source_text)
-    if count != 1:
-        raise ValueError(f"Case {case['id']}: contract_file must declare one functor ManualContract")
+def compile_manual_contract(case, source_text, workdir, *, timeout, helpers=(), role=""):
+    """Compile the selected ManualContract section without Target or model repair."""
+    module = contract_module(case, role)
+    renamed = re.sub(r"(?m)^(\s*functor\s+)ManualContract\b",
+                     lambda match: match[1] + module, source_text)
     path = _write(workdir / "manual_contract.sml", renamed)
-    # Type-check the public contract and admitted helper environment without
-    # instantiating it with student functions or loading any runtime adapter.
-    check = _write(workdir / "contract_check.sml",
-        f"functor {module}Check (Helpers : sig\n{_helper_parameters(helpers)}end) = struct\n"
-        "  structure Checked : sig\n"
-        f"    type input = {case['input_type']}\n"
-        f"    type output = {case['output_type']}\n"
-        "    val requires : input -> bool\n"
-        "    val ensures : input -> output -> bool\n"
-        f"  end = {module} (Helpers)\nend\n")
-    return _compile_predicate(case, path, workdir, timeout, helpers, [check])
+    return _compile_predicate(case, path, workdir, timeout, helpers, role=role)
 
 
-def execute(case, contract_path, source, workdir, *,
-            seed, valid_target, max_attempts, timeout, helpers=(), dependencies=()):
-    source, _ = corpus.split_task_file(source)
+def _target_files(case, source, workdir):
+    """Wrap the selected student solution and its runtime-only observation adapters."""
     wrapper_files = []
     if "target_wrapper" in case:
         wrapper_source = _runtime_source(case["target_wrapper"])
@@ -188,13 +148,17 @@ def execute(case, contract_path, source, workdir, *,
         f'\nfun run (input : {case["input_type"]}) : {case["output_type"]} = ({case["entrypoint"]}) input\n'
     target = _write(workdir / "Target.sml", "structure Target = struct\n" + source +
                     "\n" + run_declaration + "end\n")
+    return [target, *wrapper_files], "TargetAdapter.run" if wrapper_files else "Target.run"
+
+
+def _contract_instances(contracts):
     # Each library was compiled without Target. Only these runtime instances can
     # see real functions, guarded by the corresponding admitted helper requires.
     instances = []
     libraries = []
-    for dependency in [*dependencies, {"case": case, "contract_path": contract_path,
-                                      "helpers": helpers}]:
-        module = contract_module(dependency["case"])
+    for dependency in contracts:
+        module = dependency.get("module_name") or contract_module(
+            dependency["case"], dependency.get("role", ""))
         arguments = []
         for helper in dependency["helpers"]:
             checked = contract_module({"id": helper["case_id"]}) + "Result"
@@ -205,9 +169,22 @@ def execute(case, contract_path, source, workdir, *,
         instances.append(f"structure {module}Result = {module} (struct\n" +
                          "".join(arguments) + "end)\n")
         libraries.append(Path(dependency["contract_path"]).parent / "predicate.cm")
-    wiring = _write(workdir / "bindings.sml", "".join(instances) +
-                    f"structure Contract = {contract_module(case)}Result\n")
-    target_entry = "TargetAdapter.run" if wrapper_files else "Target.run"
+    return "".join(instances), list(dict.fromkeys(libraries))
+
+
+def _runtime_support(cases):
+    return list(dict.fromkeys(path for case in cases
+                              for path in case["_context"]["runtime_support_libraries"]))
+
+
+def execute(case, contract_path, source, workdir, *,
+            seed, valid_target, max_attempts, timeout, helpers=(), dependencies=(), role=""):
+    target_files, target_entry = _target_files(case, source, workdir)
+    instances, libraries = _contract_instances(
+        [*dependencies, {"case": case, "contract_path": contract_path,
+                         "helpers": helpers, "role": role}])
+    wiring = _write(workdir / "bindings.sml", instances +
+                    f"structure Contract = {contract_module(case, role)}Result\n")
     driver = _write(workdir / "driver.sml", 'structure Driver = struct\n'
         'val inputGenerator : Contract.input QCheck.Gen.gen = Data.genInput\n'
         'val inputEdges : Contract.input list = Data.edges\n'
@@ -219,18 +196,39 @@ def execute(case, contract_path, source, workdir, *,
         f'in Runner.run {{requires=Contract.requires, ensures=Contract.ensures, target={target_entry},\n'
         f'showInput=showInput, showOutput=showOutput, inputs=inputs, validTarget={valid_target}}}\n'
         'end\nend\n')
-    support = list(dict.fromkeys((ROOT / item["case"]["support_cm"]).resolve()
-                                for item in [*dependencies, {"case": case}]
-                                if item["case"].get("support_cm")))
+    support = _runtime_support([item["case"] for item in dependencies] + [case])
     data = _write(workdir / "data_adapter.sml", _data_source(case))
-    cm = _cm(workdir / "runtime.cm", support + libraries + [ROOT / "vendor/qcheck/qcheck.cm", ROOT / "sml/Spec.cm",
-              ROOT / "sml/Generators.sml", ROOT / "sml/Runner.sml", target] + wrapper_files +
+    return _link_and_run(workdir, support + libraries + [ROOT / "vendor/qcheck/qcheck.cm", ROOT / "sml/Spec.cm",
+              ROOT / "sml/Generators.sml", ROOT / "sml/Runner.sml"] + target_files +
               [wiring, data, driver],
-              libraries=["$/smlnj-lib.cm"])
-    program = (f'val _ = if CM.make {_str(cm)} then () else OS.Process.exit OS.Process.failure;\n'
-               'val _ = Driver.main ();\n'
-               'val _ = OS.Process.exit OS.Process.success;\n')
-    main = _write(workdir / "main.sml", program)
-    result = run_sml(program, workdir, timeout, "execution")
-    result["main_path"] = str(main)
-    return result
+              cm_name="runtime.cm", main_name="main.sml", timeout=timeout, phase="execution")
+
+
+def evaluate_semantics(case, compiled, workdir, *, timeout, source="",
+                       helpers=(), dependencies=(), contradiction=False):
+    """Score the supplied predicates directly against fresh fixed-label values."""
+    fixtures_path = EVALUATIONS / f"{case['id']}.sml"
+    workdir.mkdir(parents=True, exist_ok=True)
+    contracts = [*dependencies, {"case": case, **compiled, "helpers": helpers}]
+    instances, libraries = _contract_instances(contracts)
+    instances += f'structure Contract = {compiled["module_name"]}Result\n'
+    target_files, support = [], case["_context"]["support_libraries"]
+    if helpers:
+        target_files, _ = _target_files(case, source, workdir)
+        support = _runtime_support([item["case"] for item in dependencies] + [case])
+    wiring = _write(workdir / "semantic_bindings.sml", instances)
+    data = _write(workdir / "data_adapter.sml", _data_source(case))
+    fixtures = _write(workdir / "evaluation.sml", Path(fixtures_path).read_text(encoding="utf-8"))
+    ensures_cases = ("List.map (fn (label,make,_) => (label,make,false)) Evaluation.ensuresCases"
+                     if contradiction else "Evaluation.ensuresCases")
+    driver = _write(workdir / "semantic_driver.sml", 'structure Driver = struct\n'
+        'fun main () = SemanticEvaluation.run {\n'
+        '  requires=Contract.requires, ensures=Contract.ensures,\n'
+        f'  requiresCases=Evaluation.requiresCases, ensuresCases={ensures_cases},\n'
+        '  showInput=Data.showInput, showOutput=Data.showOutput'
+        '\n}\nend\n')
+    return _link_and_run(workdir, support + libraries +
+        [ROOT / "vendor/qcheck/qcheck.cm", ROOT / "sml/Spec.cm",
+         ROOT / "sml/Generators.sml", ROOT / "sml/Runner.sml",
+         ROOT / "sml/SemanticEvaluation.sml"] + target_files + [wiring, data, fixtures, driver],
+        cm_name="semantic.cm", main_name="semantic_main.sml", timeout=timeout, phase="semantic")

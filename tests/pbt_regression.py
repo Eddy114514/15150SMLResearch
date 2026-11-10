@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
-"""Exercise the active manifest without Ollama and compare deterministic results.
+"""Exercise all active cases with manual predicates and no model requests.
 
-Run with Python and SML/NJ from any directory. Defaults come from config.json.
-Use --baseline /path/to/summary.json to compare candidates and observable results
-from a previous checkout. Artifacts, including all candidate inputs, stay in runs/.
-The twelve model cases use fixed regression predicates, not model translations.
+Artifacts, including candidate inputs and fixed-label outcomes, stay in runs/.
 """
 import argparse
 from collections import Counter
-import hashlib
 import json
 from pathlib import Path
 import sys
@@ -16,46 +12,21 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-import corpus
 import model
 import run
 import sml
 
 
-FIXED = {
-    "flatten": ("true", "result = List.concat LL"),
-    "isprime": ("true", "result = (x >= 2 andalso Spec.forallRange (fn d => x mod d <> 0) (2, x div 2))"),
-    "sublist_sum": ("true", """let
-      fun subseq [] _ = true
-        | subseq _ [] = false
-        | subseq (ys as y::rest) (x::xs) =
-            if y = x then subseq rest xs else subseq ys xs
-      fun possible [] k = k = 0
-        | possible (x::xs) k = possible xs k orelse possible xs (k - IntInf.fromInt x)
-    in case result of
-      NONE => not (possible L (IntInf.fromInt n))
-    | SOME ys => subseq ys L andalso
-        List.foldl (fn (x,s) => IntInf.fromInt x + s) 0 ys = IntInf.fromInt n
-    end"""),
-    "list_max": ("not (null xs)", "List.all (fn x => result >= x) xs andalso Spec.member result xs"),
-    "is_even": ("true", "result = (x mod 2 = 0)"),
-    "all_even": ("true", "result = List.all Helpers.isEven xs"),
-    "tree_is_leaf": ("true", "result = (case tree of Tree.Leaf _ => true | Tree.Node _ => false)"),
-    "seq_reverse_int": ("true", "Seq.toList result = List.rev (Seq.toList xs)"),
-    "seq_reverse_bool": ("true", "Seq.toList result = List.rev (Seq.toList xs)"),
-    "seq_flatten_int": ("true", "Seq.toList result = List.concat (List.map Seq.toList (Seq.toList xss))"),
-    "seq_leaf_flags": ("true", "Seq.toList result = List.map (fn Tree.Leaf _ => true | Tree.Node _ => false) (Seq.toList trees)"),
-    "list_to_seq": ("true", "Seq.toList result = xs"),
-}
 RESULT_FIELDS = (
     "status", "stage", "attempted", "accepted", "passed", "discarded", "errored",
     "target_calls", "counterexample_input", "counterexample_output", "exception",
 )
-KNOWN_COUNTEREXAMPLES = {"hw_book_flip", "hw_book_trace", "hw_lazy_interleave"}
 
-
-def digest(data):
-    return hashlib.sha256(data).hexdigest()
+# The submitted tracker postcondition omits linking its chain endpoint to the
+# output member. Its literal value condition requires every valid mascot.
+# The unchanged implementation returns only reachable members: detecting this
+# mismatch is the expected PBT result, independently of reference fidelity.
+EXPECTED_PBT = {"hw_tracker": "counterexample"}
 
 
 def runtime_files(paths):
@@ -64,7 +35,9 @@ def runtime_files(paths):
 
 def inspect_artifacts(case, directory, result, config):
     """Check actual assembled files, ordering, isolation and candidate count."""
-    assert result.get("model_calls", 0) == 0
+    preparation = result["preparation"]
+    assert preparation["mode"] == "manual" and not preparation.get("attempts")
+    assert run.compilation(preparation)["status"] == "compiled"
     assert not (directory / "translation.json").exists()
     predicate = (directory / "predicate.cm").read_text()
     for name in ("Target.sml", "target_wrapper.sml", "data_adapter.sml", "driver.sml"):
@@ -84,35 +57,19 @@ def inspect_artifacts(case, directory, result, config):
             assert assembled in runtime and assembled not in predicate
     inputs = (directory / "inputs.json").read_bytes()
     assert len(json.loads(inputs)) == config["max_attempts"]
-    return {**{key: result.get(key) for key in RESULT_FIELDS}, "inputs_sha256": digest(inputs)}
-
-
-def execute_fixed(case, source, predicates, directory, config, *, helpers=(), dependencies=()):
-    directory.mkdir()
-    compiled = sml.compile_contract(case, *predicates, directory, attempt=0,
-                                    timeout=config["sml_timeout"], helpers=helpers)
-    assert compiled["status"] == "compiled", case["id"]
-    result = sml.execute(case, compiled["contract_path"], source, directory,
-        seed=config["seed"], valid_target=config["valid_target"],
-        max_attempts=config["max_attempts"], timeout=config["sml_timeout"],
-        helpers=helpers, dependencies=dependencies)
-    assert result["status"] == "passed_sampled_tests", (case["id"], result["status"])
-    run.dump(directory / "result.json", {key: result.get(key) for key in RESULT_FIELDS})
-    return {**result, "contract_path": compiled["contract_path"]}
+    return {key: result["pbt"].get(key) for key in RESULT_FIELDS}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--baseline", type=Path)
     parser.add_argument("--output", type=Path, help="new directory for complete artifacts")
     args = parser.parse_args()
-    config = json.loads((ROOT / "config.json").read_text())
-    manifest = ROOT / config["manifest"]
-    cases = json.loads(manifest.read_text())["cases"]
-    by_id = {case["id"]: case for case in cases}
-    manual = [case for case in cases if "contract_file" in case]
-    automatic = [case for case in cases if "contract_file" not in case]
-    assert {case["id"] for case in automatic} == FIXED.keys(), "Update fixed predicates for changed manifest cases"
+    config, all_cases, plan = run.load_plan()
+    cases = [plan["nodes"][ident]["case"] for ident in plan["roots"]]
+    excluded = {case["id"] for case in all_cases if case.get("enabled", True) is False}
+    by_id = {case["id"]: case for case in all_cases}
+    assert all("manual_text" in node for node in plan["nodes"].values())
+    semantic_cases = [case for case in cases if case.get("group") == "hw"]
     if args.output:
         output = args.output.resolve()
         output.mkdir(parents=True)
@@ -121,58 +78,54 @@ def main():
         output = Path(tempfile.mkdtemp(prefix="pbt-regression-", dir=ROOT / "runs"))
     summary = {
         "settings": {key: config[key] for key in ("seed", "valid_target", "max_attempts")},
-        "cases": {}, "sorted_builtins": {}, "solutions": {},
+        "cases": {},
     }
 
     # Fail before a request could escape: observation only, no production monkeypatch.
-    forbidden = {model.call_ollama.__code__, run.translate.__code__}
+    forbidden = {model.call_model.__code__, model.call_ollama.__code__, run.translate.__code__}
+    manual_compiles, semantic_checks = Counter(), Counter()
     def no_model(frame, event, arg):
         if event == "call" and frame.f_code in forbidden:
             raise AssertionError("Regression checks must never request a model")
+        if event == "call" and frame.f_code == sml.compile_manual_contract.__code__:
+            manual_compiles[frame.f_locals["case"]["id"]] += 1
+        if event == "call" and frame.f_code in (sml.compile_manual_contract.__code__, sml.compile_contract.__code__):
+            ident = frame.f_locals["case"]["id"]
+            assert ident not in excluded, f"Disabled case must not be compiled: {ident}"
+        if event == "call" and frame.f_code == sml.evaluate_semantics.__code__:
+            ident = frame.f_locals["case"]["id"]
+            assert ident not in excluded, f"Disabled case must not be evaluated: {ident}"
+            semantic_checks[ident] += 1
     sys.setprofile(no_model)
     try:
+        _, _, model_plan = run.load_plan(property_source="model")
+        assert model_plan["order"] == plan["order"]
+        assert model_plan["errors"] == plan["errors"]
+        for ident, node in model_plan["nodes"].items():
+            assert node["property_source"] == "model"
+            for key in ("contract", "dependencies", "helpers"):
+                assert node[key] == plan["nodes"][ident][key], (ident, key)
         manual_dir = output / "manual"
         manual_dir.mkdir()
-        plan = corpus.plan(cases, manual, manifest.parent)
-        results = run.run_plan(plan, manual_dir, config, {})
+        results = run.run_plan(plan, manual_dir, config)
         for ident, result in results.items():
-            expected = "counterexample" if ident in KNOWN_COUNTEREXAMPLES else "passed_sampled_tests"
-            assert result["status"] == expected, (ident, result["status"])
-            assert result["final_compile_ok"] is True
+            assert result["status"] == EXPECTED_PBT.get(ident, "passed_sampled_tests"), (ident, result["status"])
             summary["cases"][ident] = inspect_artifacts(by_id[ident], manual_dir / ident, result, config)
-
-        fixtures = output / "fixed"
-        fixtures.mkdir()
-        fixed_plan = corpus.plan(cases, automatic, manifest.parent)
-        fixed_results = {}
-        for ident in fixed_plan["order"]:
-            node = fixed_plan["nodes"][ident]
-            assert not fixed_plan["errors"].get(ident)
-            result = execute_fixed(node["case"], node["source_text"], FIXED[ident],
-                fixtures / ident, config, helpers=run.provided_helpers(node, fixed_results),
-                dependencies=run.runtime_dependencies(ident, fixed_plan, fixed_results))
-            fixed_results[ident] = result
-            summary["cases"][ident] = inspect_artifacts(node["case"], fixtures / ident, result, config)
-
-        # All sortable builtins, including the pair route absent from model cases.
-        for generator, input_type, expression in (
-            ("int_list", "int list", "List.length input"),
-            ("int_list_pair", "int * int list", "#1 input"),
-            ("list_int_pair", "int list * int", "#2 input"),
-        ):
-            case = {"id": "sorted_" + generator, "entrypoint": "echo",
-                    "input_type": input_type, "output_type": "int", "input_pattern": "input",
-                    "generator": generator, "generator_options": {"sort_lists": True}}
-            directory = fixtures / case["id"]
-            result = execute_fixed(case,
-                f"fun echo (input : {input_type}) = {expression}\n",
-                ("true", f"result = ({expression})"), directory, config)
-            summary["sorted_builtins"][generator] = inspect_artifacts(case, directory, result, config)
-            samples = json.loads((directory / "inputs.json").read_text())
-            lists = samples if generator == "int_list" else [
-                sample[1] if generator == "int_list_pair" else sample[0] for sample in samples]
-            assert lists[6 if generator == "int_list" else 7] == [3, 2, 1]
-            assert all(xs == sorted(xs) for xs in lists[11:]), generator
+            compiled = run.compilation(result["preparation"])
+            node = plan["nodes"][ident]
+            if node["case"].get("group") != "hw":
+                continue
+            semantic_dir = manual_dir / ident / "semantic"
+            semantic = sml.evaluate_semantics(node["case"], compiled, semantic_dir,
+                timeout=config["sml_timeout"],
+                source=node["source_text"], helpers=run.provided_helpers(node, results),
+                dependencies=run.runtime_dependencies(ident, plan, results))
+            assert semantic["status"] == "passed_semantic_checks", (ident, semantic)
+            assert semantic["requires_checked"] == semantic["requires_valid"] + semantic["requires_invalid"]
+            assert semantic["ensures_checked"] == semantic["ensures_positive"] + semantic["ensures_negative"]
+            run.dump(semantic_dir / "result.json", semantic)
+        assert manual_compiles == Counter({case["id"]: 1 for case in cases}), manual_compiles
+        assert semantic_checks == Counter({case["id"]: 1 for case in semantic_cases}), semantic_checks
 
         isolation = output / "predicate_isolation"
         isolation.mkdir()
@@ -186,25 +139,13 @@ def main():
     finally:
         sys.setprofile(None)
 
-    for case in cases:
-        text = (manifest.parent / case["source"]).read_text()
-        solution, _ = corpus.split_task_file(text)
-        summary["solutions"][case["source"]] = digest(solution.encode())
     run.dump(output / "summary.json", summary)
-    if args.baseline:
-        baseline = json.loads(args.baseline.read_text())
-        differences = []
-        for section, actual in summary.items():
-            old = baseline.get(section)
-            if isinstance(actual, dict) and isinstance(old, dict):
-                differences += [f"{section}.{key}" for key in actual.keys() | old.keys()
-                                if actual.get(key) != old.get(key)]
-            elif actual != old:
-                differences.append(section)
-        assert not differences, f"Baseline differences: {', '.join(differences)}; inspect {output}"
     counts = dict(Counter(item["status"] for item in summary["cases"].values()))
     print(json.dumps({"summary": str(output / "summary.json"), "cases": counts,
-                      "model_calls": 0, "baseline_equal": bool(args.baseline)}, indent=2))
+                      "manual_compiles": sum(manual_compiles.values()),
+                      "standard_label_checks": sum(semantic_checks.values()),
+                      "excluded_case_ids": sorted(excluded),
+                      "model_calls": 0}, indent=2))
 
 
 if __name__ == "__main__":

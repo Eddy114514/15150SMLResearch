@@ -49,7 +49,8 @@ end
  * REQUIRES: rectangular finite input. ENSURES: dimensions swap and every
  * S[i][j] equals T[j][i]. The accepted baseline resolves "trivial" to empty;
  * both empty outer input and nonzero rows of zero columns produce empty.
- * No dimension/generator budget restricts requires; costs are not checked.
+ * Functional projection only: the original work/span clauses are not checked.
+ * No dimension or generator budget restricts requires.
  *)
 functor ManualContract (Helpers : sig end) = struct
   type input = int Seq.t Seq.t

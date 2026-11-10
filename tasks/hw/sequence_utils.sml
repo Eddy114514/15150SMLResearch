@@ -91,10 +91,11 @@ end
 (* @manual hw_collect_int *)
 (* @contract collect
  * Original: ('a * 'a -> order) -> 'a Seq.t -> 'a Seq.t Seq.t.
- * Int.compare is fixed. All input occurrences appear exactly once in nonempty
- * homogeneous groups, whose keys are strictly increasing. Group-internal
- * order is not imposed. Full content preservation is explicit in this study's
- * user requirements; the abbreviated starter wording alone omitted it.
+ * Functional projection only: work/span clauses are not checked.
+ * Int.compare is fixed. Every input value must appear somewhere in the output;
+ * total output length equals input length. Groups are nonempty, homogeneous,
+ * and strictly increasing. The original clauses do not preserve multiplicities
+ * or forbid extra values when repeated input values leave room for them.
  *)
 functor ManualContract (Helpers : sig end) = struct
   type input = int Seq.t
@@ -105,8 +106,10 @@ end
 (* @manual hw_collect_key *)
 (* @contract collect
  * Original: ('a * 'a -> order) -> 'a Seq.t -> 'a Seq.t Seq.t.
- * Compare (key,id) by key. Preserve complete pair occurrences, grouping by
- * equivalence class and ordering the groups. Equal-key members may be reordered.
+ * Functional projection only: work/span clauses are not checked.
+ * Compare (key,id) by key. Each full input pair appears in some output group,
+ * and total output length is unchanged. Nonempty groups are homogeneous and
+ * strictly ordered by key. Neither occurrence counts nor member order are fixed.
  *)
 functor ManualContract (Helpers : sig end) = struct
   type input = (int * int) Seq.t
@@ -118,9 +121,10 @@ end
 (* @manual hw_unique_int *)
 (* @contract unique
  * Original: ('a * 'a -> order) -> 'a Seq.t -> 'a Seq.t.
- * Int.compare is fixed. Output classes exactly cover input classes, with no
- * extra class or repeated class, in strictly increasing order. No particular
- * representative is forced; in this int instance equivalence is equality.
+ * Functional projection only: work/span clauses are not checked.
+ * Int.compare is fixed. Every input value has an equal output value, and
+ * output values are strictly increasing. Additional values are permitted;
+ * the original ENSURES has no reverse membership condition.
  *)
 functor ManualContract (Helpers : sig end) = struct
   type input = int Seq.t

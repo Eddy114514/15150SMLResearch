@@ -42,6 +42,9 @@ end
  * int trees and affine int -> int functions from printable descriptions.
  * ENSURES: The output has the same shape and each value is transformed by f.
  * Constructing the result neither exposes the input tree nor calls f.
+ * The finite instance is fully observed. The original parenthesis defines
+ * maximal laziness at construction, exactly when these counters are captured.
+ * No requirement about later demand traces is added.
  * Sampling bounds control test cost and arithmetic; they are not preconditions.
  *)
 functor ManualContract (Helpers : sig end) = struct

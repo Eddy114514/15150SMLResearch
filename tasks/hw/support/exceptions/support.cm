@@ -1,5 +1,7 @@
 Library
   structure CommandCase
+  structure CommandModel
 is
   $/basis.cm
   CommandCase.sml
+  Model.sml

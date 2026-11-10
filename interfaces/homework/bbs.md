@@ -1,0 +1,4 @@
+Original bbs returns int Stream.t. Adapted input is (modulus,seed,probes); adapted output is int option list, containing at most max(0,probes) observed fronts.
+- BbsModel.prime : int -> bool. Mathematical primality for host integers; false below 2. No preconditions; trial division.
+- BbsModel.semiprime : int -> bool. True exactly for products of two primes, allowing equal primes. No preconditions.
+The specification does not require distinct primes, primes congruent to 3 mod 4, or a coprime seed. First value is seed squared modulo modulus; subsequent values repeat squaring modulo modulus. Use IntInf arithmetic when checking this recurrence. Output NONE denotes actual stream termination; [] can denote exhausted observation budget and does not prove an empty stream. Each call creates a fresh stream. Sampling uses small arithmetic; probes is an observation budget, not an added bbs precondition. No productivity proof follows from the finite prefix.

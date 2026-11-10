@@ -17,22 +17,15 @@ end
  * REQUIRES: The modulus is the product of two primes.
  * ENSURES: The stream is infinite, starts with seed squared modulo modulus,
  * and each next value is the preceding value squared modulo modulus.
- * The wrapper observes max(0, probes) fronts; probes is not a bbs precondition.
+ * Functional projection only: the wrapper observes max(0, probes) fronts.
+ * These observations do not establish infinitude or general productivity.
+ * The probe count is not a bbs precondition.
  *)
 functor ManualContract (Helpers : sig end) = struct
   type input = int * int * int
   type output = int option list
 
-  fun prime n = n >= 2 andalso
-    let fun check d = d > n div d orelse
-          (n mod d <> 0 andalso check (d+1))
-    in check 2 end
-  fun semiprime m = m >= 4 andalso
-    let fun factor d = d <= m div d andalso
-          (if m mod d = 0 then prime d andalso prime (m div d)
-           else factor (d+1))
-    in factor 2 end
-  fun requires (m,_,_) = semiprime m
+  fun requires (m,_,_) = BbsModel.semiprime m
 
   fun ensures (m,seed,probes) fronts =
     let

@@ -6,6 +6,8 @@ setup/*.log
 setup/ollama-install.sh
 corpora/
 evaluation/
+!tasks/hw/evaluation/
+!tasks/hw/evaluation/*.sml
 15150HW/
 tmp/
 reports/

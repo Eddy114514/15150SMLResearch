@@ -92,8 +92,12 @@ end
  * REQUIRES: n >= 0; each chat contains distinct indices in 0..n-1;
  * the source has a valid index; resolution >= 0. The adapter constructs
  * the tracker only through empty and addChat, as required by the assignment.
- * ENSURES: The result contains exactly the mascots reachable from the source
- * in at most resolution shared-chat steps. Result order is not specified.
+ * Functional projection only: work/span clauses are not checked.
+ * ENSURES: Include every index from 0 through n-1. The original comment
+ * never connects its existential chain endpoint sr to the mascot required
+ * in the output. A chain consisting only of the source satisfies its written
+ * condition for every index; do not repair the omitted endpoint condition.
+ * Additional values, duplicates, and any result order are permitted.
  *)
 functor ManualContract (Helpers : sig end) = struct
   type input = int * int list list * int * int
@@ -108,7 +112,6 @@ functor ManualContract (Helpers : sig end) = struct
        andalso List.all validChat chats
     end
 
-  fun ensures input result =
-    let val expected = TrackerModel.receivers input
-    in Spec.subset (result,expected) andalso Spec.subset (expected,result) end
+  fun ensures (n,_,_,_) result =
+    Spec.forallRange (fn mascot => Spec.member mascot result) (0,n-1)
 end

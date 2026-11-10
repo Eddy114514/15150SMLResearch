@@ -3,7 +3,7 @@
  * bodies terminate here even though the course matcher excludes them. *)
 structure RegexModel = struct
   fun validMatch (r,text,table) = RegexCase.standard r andalso
-    List.length table = List.length text + 1
+    List.length table >= List.length text + 1
   fun unique xs = List.foldl (fn (x,ys) => if Spec.member x ys then ys else x::ys) [] xs
   fun positions expression text =
     let val n = List.length text

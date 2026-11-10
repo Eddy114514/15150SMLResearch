@@ -1,8 +1,85 @@
 {
-  "spec": "spec.md",
-  "basis.list": "list.md",
-  "basis.integer": "integer.md",
-  "cmu150.sequence": "sequence_cmu150.md",
-  "cmu150.set": "set_cmu150.md",
-  "user.tree": "tree.md"
+  "spec": {
+    "file": "spec.md"
+  },
+  "basis.list": {
+    "file": "list.md"
+  },
+  "basis.integer": {
+    "file": "integer.md"
+  },
+  "cmu150.sequence": {
+    "file": "sequence_cmu150.md",
+    "support_cm": "sequence/sources.cm"
+  },
+  "cmu150.set": {
+    "file": "set_cmu150.md"
+  },
+  "user.tree": {
+    "file": "tree.md",
+    "support_cm": "tasks/sequence/tree-support.cm"
+  },
+  "hw.sublist": {
+    "file": "homework/sublist.md",
+    "support_cm": "tasks/hw/support/datatypes/sublist-support.cm"
+  },
+  "hw.symmetry": {
+    "file": "homework/symmetry.md",
+    "support_cm": "tasks/hw/support/datatypes/symmetry-support.cm"
+  },
+  "hw.ordering": {
+    "file": "homework/ordering.md",
+    "support_cm": "tasks/hw/support/polysort/support.cm"
+  },
+  "hw.sequence": {
+    "file": "homework/sequence.md",
+    "support_cm": "tasks/hw/support/sequences/support.cm"
+  },
+  "hw.book": {
+    "file": "homework/book.md",
+    "support_cm": "tasks/hw/support/book/support.cm"
+  },
+  "hw.cps": {
+    "file": "homework/cps.md",
+    "support_cm": "tasks/hw/support/cps/support.cm"
+  },
+  "hw.regex": {
+    "file": "homework/regex.md",
+    "support_cm": "tasks/hw/support/regex/support.cm"
+  },
+  "hw.polynomials": {
+    "file": "homework/polynomials.md",
+    "support_cm": "tasks/hw/support/hofs/support.cm"
+  },
+  "hw.rose": {
+    "file": "homework/rose.md",
+    "support_cm": "tasks/hw/support/hofs/support.cm"
+  },
+  "hw.lazy": {
+    "file": "homework/lazy.md",
+    "support_cm": "tasks/hw/support/lazy/support.cm"
+  },
+  "hw.commands": {
+    "file": "homework/commands.md",
+    "support_cm": "tasks/hw/support/exceptions/support.cm"
+  },
+  "hw.encryption": {
+    "file": "homework/encryption.md",
+    "support_cm": "tasks/hw/support/encryption/support.cm"
+  },
+  "hw.partition": {
+    "file": "homework/partition.md",
+    "support_cm": "tasks/hw/support/find_partition/support.cm"
+  },
+  "hw.lazy_tree": {
+    "file": "homework/lazy_tree.md",
+    "support_cm": "tasks/hw/support/lazy_tree_map/support.cm"
+  },
+  "hw.bbs": {
+    "file": "homework/bbs.md",
+    "support_cm": "tasks/hw/support/bbs/support.cm"
+  },
+  "hw.tracker": {
+    "file": "homework/tracker.md"
+  }
 }

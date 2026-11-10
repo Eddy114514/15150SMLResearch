@@ -119,73 +119,28 @@ and runCommands env cmds = foldl (fn (c, e) => runCommand e c) env cmds
 (* @manual hw_exception_command *)
 (* @contract runCommand
  * runCommand : environment -> command -> environment
- * Study slice: constant Assign/Return, Break/Continue, boolean If, counted Loop.
- * Bindings are prior assignments. Uncaught Break/Continue describe statements
- * in an enclosing loop body; complete programs and parsing are not checked.
- * REQUIRES: Loop counts are nonnegative. A loop body cannot assign its counter
- * or use it as a nested loop counter. Every nested action is valid as well.
- * ENSURES: The outcome tag and all visible bindings (or returned integer)
- * match the independent finite model. Loops initialize their counter to zero
- * and increment before each body, so Continue cannot prevent progress.
+ * Functional reference for a declared finite subset, not the full contract.
+ * The original REQUIRES concerns an enclosing well-formed program, including
+ * eventual Return; that program is absent from this observation interface.
+ * Reference domain: constant Assign/Return, Break/Continue, boolean If, counted
+ * Loop with a body that never assigns or reuses that loop counter, recursively.
+ * Negative counts execute zero iterations. These restrictions are sufficient
+ * for this reference, not equivalent to the original well-formedness predicate.
+ * Bindings are assignment history. Break/Continue are signals for an enclosing
+ * loop. Compare outcome tags and visible bindings (or returned integer).
+ * Loops start counter=0 and increment before each body, so Continue progresses.
  *)
 functor ManualContract (Helpers : sig end) = struct
   type input = CommandCase.bindings * CommandCase.action
   type output = CommandCase.outcome
   open CommandCase
 
-  fun writes name (Assign (key,_)) = name = key
-    | writes name (If (_,yes,no)) = List.exists (writes name) (yes @ no)
-    | writes name (Loop (counter,_,body)) =
-        name = counter orelse List.exists (writes name) body
-    | writes _ _ = false
-
-  fun valid (If (_,yes,no)) = List.all valid (yes @ no)
-    | valid (Loop (counter,count,body)) =
-        count >= 0 andalso not (List.exists (writes counter) body)
-        andalso List.all valid body
-    | valid _ = true
-
-  (* This model appends assignment history and uses data for control signals.
-   * It does not call Target or reproduce the solution's exception handlers. *)
-  fun expected bindings action =
-    case action of
-      Assign binding => Completed (bindings @ [binding])
-    | Break => Broke bindings
-    | Continue => Continued bindings
-    | Return value => Returned value
-    | If (condition,yes,no) => commands bindings (if condition then yes else no)
-    | Loop (counter,count,body) =>
-        let
-          fun repeat remaining history =
-            if remaining = 0 then Completed history
-            else
-              case commands (history @ [(counter,count-remaining+1)]) body of
-                Completed next => repeat (remaining-1) next
-              | Continued next => repeat (remaining-1) next
-              | Broke next => Completed next
-              | Returned value => Returned value
-        in repeat count (bindings @ [(counter,0)]) end
-  and commands bindings [] = Completed bindings
-    | commands bindings (action::rest) =
-        case expected bindings action of
-          Completed next => commands next rest
-        | signal => signal
-
-  fun matches bindings actual = let
-    (* get observes the first binding, independent of shadowed representation.
-     * Input descriptions are assignment histories, so their latest value wins. *)
-    fun lookup entries name = Option.map (fn (_,value) => value)
-      (List.find (fn (key,_) => key = name) entries)
-    val names = List.map (fn (name,_) => name) (bindings @ actual)
-  in
-    List.all (fn name => lookup actual name = lookup (List.rev bindings) name) names
-  end
-  fun requires ((_,action) : input) = valid action
+  fun requires ((_,action) : input) = CommandModel.valid action
   fun ensures ((bindings,action) : input) (result : output) =
-    case (expected bindings action,result) of
-      (Completed history,Completed actual) => matches history actual
-    | (Broke history,Broke actual) => matches history actual
-    | (Continued history,Continued actual) => matches history actual
+    case (CommandModel.expected bindings action,result) of
+      (Completed history,Completed actual) => CommandModel.matches history actual
+    | (Broke history,Broke actual) => CommandModel.matches history actual
+    | (Continued history,Continued actual) => CommandModel.matches history actual
     | (Returned value,Returned actual) => actual = value
     | _ => false
 end

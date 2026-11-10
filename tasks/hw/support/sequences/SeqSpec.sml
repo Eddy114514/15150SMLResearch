@@ -11,10 +11,12 @@ structure SeqSpec = struct
   fun collect cmp input output = let
     val xs = Seq.toList input
     val groups = List.map Seq.toList (Seq.toList output)
+    val members = List.concat groups
   in
     List.all (homogeneous cmp) groups andalso
     OrderSpec.strictlyOrdered cmp (List.map List.hd groups) andalso
-    Spec.sameMultiset (xs, List.concat groups)
+    List.length members = List.length xs andalso
+    List.all (fn x => List.exists (fn y => x = y) members) xs
   end
 
   fun unique cmp input output = let
@@ -23,7 +25,6 @@ structure SeqSpec = struct
     fun equivalentMember x values = List.exists (fn y => cmp (x,y) = EQUAL) values
   in
     OrderSpec.strictlyOrdered cmp ys andalso
-    List.all (fn x => equivalentMember x ys) xs andalso
-    List.all (fn y => equivalentMember y xs) ys
+    List.all (fn x => equivalentMember x ys) xs
   end
 end

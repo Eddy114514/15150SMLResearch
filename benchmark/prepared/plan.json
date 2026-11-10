@@ -1,0 +1,65 @@
+{
+  "prepared_at": "2026-11-10T03:21:25.632811+00:00",
+  "session": "/home/SMLResearch/15150SMLResearch/runs/benchmark-prepare-7d11d685c6",
+  "case_ids": [
+    "hw_remove",
+    "hw_heads",
+    "hw_tails",
+    "hw_sublist_sum",
+    "hw_is_symmetric",
+    "hw_pivot_split_int",
+    "hw_pivot_split_key",
+    "hw_quicksort_int",
+    "hw_quicksort_key",
+    "hw_transpose",
+    "hw_collect_int",
+    "hw_collect_key",
+    "hw_unique_int",
+    "hw_book_bind",
+    "hw_book_current_page",
+    "hw_find_one",
+    "hw_regex_match",
+    "hw_regex_accept",
+    "hw_regex_both",
+    "hw_hof_differentiate",
+    "hw_hof_integrate",
+    "hw_hof_rose_folds",
+    "hw_lazy_cycle",
+    "hw_exception_command",
+    "hw_encryption",
+    "hw_find_partition",
+    "hw_lazy_tree_map",
+    "hw_bbs",
+    "hw_find150",
+    "hw_tracker",
+    "hw_flip_one"
+  ],
+  "versions": [
+    "original",
+    "optimized",
+    "degraded"
+  ],
+  "prompts": "/home/SMLResearch/15150SMLResearch/runs/benchmark-prepare-7d11d685c6/prompts",
+  "helpers": "/home/SMLResearch/15150SMLResearch/runs/benchmark-prepare-7d11d685c6/helper_results.json",
+  "models": {
+    "GPT-Luna": {
+      "name": "gpt-6-luna",
+      "provider": "openai",
+      "reasoning_effort": "medium"
+    },
+    "GPT-Terra": {
+      "name": "gpt-6.1-terra",
+      "provider": "openai",
+      "reasoning_effort": "medium"
+    },
+    "DeepSeek-1017": {
+      "name": "deepseek-flash",
+      "provider": "deepseek",
+      "reasoning_effort": "high"
+    }
+  },
+  "generation_seeds": [
+    15001,
+    15002
+  ]
+}

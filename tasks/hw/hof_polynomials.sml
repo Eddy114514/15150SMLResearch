@@ -27,19 +27,16 @@ fun integrate (p : poly) : real -> poly =
  * differentiate : (int -> real) -> (int -> real)
  * REQUIRES: The original polynomial has finite support and maps negative
  * exponents to zero. The finite coefficient description guarantees both.
- * ENSURES: At every supplied exponent, the returned coefficient is that of
- * the derivative. Compare real coefficients with absolute error < 0.01.
- * This is finite observation of returned functions, not function equality.
+ * Functional projection only: at each supplied exponent, compare the returned
+ * coefficient to the derivative using Real.==. The original gives no numeric
+ * tolerance. Finite probes cannot establish the original function equality.
  *)
 functor ManualContract (Helpers : sig end) = struct
   type input = int list * int list
   type output = real list
   fun requires (_ : input) = true
-  fun derivative cs n =
-    if n < 0 orelse n >= List.length cs - 1 then 0.0
-    else real (List.nth(cs,n+1)) * real (n+1)
   fun ensures (cs,probes) result =
-    PolynomialsSpec.sameValues(result,List.map (derivative cs) probes)
+    PolynomialsSpec.sameValues(result,List.map (PolynomialsSpec.derivative cs) probes)
 end
 
 (* @manual hw_hof_integrate *)
@@ -47,21 +44,16 @@ end
  * integrate : (int -> real) -> (real -> (int -> real))
  * REQUIRES: The original polynomial has finite support and maps negative
  * exponents to zero. The finite coefficient description guarantees both.
- * ENSURES: For each supplied constant, the returned row contains the
+ * Functional projection only: each supplied constant gives one row of
  * antiderivative coefficients at the supplied exponents, including that
- * constant at exponent zero. Absolute error must be < 0.01.
- * This is finite observation of returned functions, not function equality.
+ * constant at exponent zero. Use Real.==; the original gives no tolerance.
+ * Finite probes cannot establish equality at all exponents and constants.
  *)
 functor ManualContract (Helpers : sig end) = struct
   type input = int list * int list * int list
   type output = real list list
   fun requires (_ : input) = true
-  fun integral cs c n =
-    if n < 0 then 0.0
-    else if n = 0 then real c
-    else if n > List.length cs then 0.0
-    else real (List.nth(cs,n-1)) / real n
   fun ensures (cs,constants,probes) result =
     ListPair.allEq PolynomialsSpec.sameValues
-      (result,List.map (fn c => List.map (integral cs c) probes) constants)
+      (result,List.map (fn c => List.map (PolynomialsSpec.integral cs c) probes) constants)
 end
