@@ -1,0 +1,285 @@
+{
+  "hw_remove": {
+    "text": "(* remove : int * int list -> int list\n * REQUIRES: true\n * ENSURES: remove (x, xs) ==> xs' such that xs' does not contain any element\n * y such that y = x, and xs' contains exactly all elements in xs except for x\n * in the same order as they were in xs\n *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/induction.sml",
+      "line_start": 38,
+      "line_end": 43
+    }
+  },
+  "hw_heads": {
+    "text": "(* heads : int * int list -> int\n * REQUIRES: true\n * ENSURES: heads (x, xs) ==> the largest n such that the first n elements of xs\n * are all equal to x\n *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/induction.sml",
+      "line_start": 2,
+      "line_end": 6
+    }
+  },
+  "hw_tails": {
+    "text": "(* tails : int * int list -> int list\n * REQUIRES: true\n * ENSURES: tails (x, xs) ==> xs with the first k elements removed, where\n * k = heads (x, xs)\n *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/induction.sml",
+      "line_start": 20,
+      "line_end": 24
+    }
+  },
+  "hw_sublist_sum": {
+    "text": "(* sublistSum : int list * int -> int list option\n * REQUIRES: true\n * ENSURES: sublistSum(L,n) ==>* SOME(L') where L' is a sublist of L which sums\n *          to n. sublistSum(L,n) ==>* NONE if there is no such sublist\n *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/sublist_sum.sml",
+      "line_start": 2,
+      "line_end": 6
+    }
+  },
+  "hw_is_symmetric": {
+    "text": "(* isSymmetric : tree -> bool\n * REQUIRES: true\n * ENSURES: isSymmetric T ==>* true iff T is symmetric w.r.t the root\n *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/is_symmetric.sml",
+      "line_start": 4,
+      "line_end": 7
+    }
+  },
+  "hw_pivot_split_int": {
+    "text": "(* pivotSplit : 'a ord * 'a * 'a list -> 'a list * 'a list\n * REQUIRES: cmp is an order function\n * ENSURES: pivotSplit (cmp,p,L) returns (A,B) such that A @ B is a\n *   permutation of L, where all elements in A are less than p, and all elements\n *   in B are greater than or equal to p. Also, for elements x, y : 'a and\n *   for L : 'a list, if x occurs earlier than y and both x and y are in the\n *   same partition, then x occurs earlier than y in the partition. *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/polysort.sml",
+      "line_start": 33,
+      "line_end": 39
+    }
+  },
+  "hw_pivot_split_key": {
+    "text": "(* pivotSplit : 'a ord * 'a * 'a list -> 'a list * 'a list\n * REQUIRES: cmp is an order function\n * ENSURES: pivotSplit (cmp,p,L) returns (A,B) such that A @ B is a\n *   permutation of L, where all elements in A are less than p, and all elements\n *   in B are greater than or equal to p. Also, for elements x, y : 'a and\n *   for L : 'a list, if x occurs earlier than y and both x and y are in the\n *   same partition, then x occurs earlier than y in the partition. *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/polysort.sml",
+      "line_start": 33,
+      "line_end": 39
+    }
+  },
+  "hw_quicksort_int": {
+    "text": "(* quicksort : 'a ord * 'a list -> 'a list\n * REQUIRES: cmp is an order function\n * ENSURES: quicksort (cmp,L) evaluates to a cmp-sorted permutation of L\n *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/polysort.sml",
+      "line_start": 58,
+      "line_end": 61
+    }
+  },
+  "hw_quicksort_key": {
+    "text": "(* quicksort : 'a ord * 'a list -> 'a list\n * REQUIRES: cmp is an order function\n * ENSURES: quicksort (cmp,L) evaluates to a cmp-sorted permutation of L\n *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/polysort.sml",
+      "line_start": 58,
+      "line_end": 61
+    }
+  },
+  "hw_transpose": {
+    "text": "(* transpose: 'a Seq.t Seq.t -> 'a Seq.t Seq.t\n   * REQUIRES: S is a well-formed n x m matrix\n   * ENSURES: transpose S ==> S' where\n   *   if n = 0 then S' is the \"trivial\" matrix\n   *   otherwise S' is a well-formed m x n matrix\n   *   and forall i, j: S[i][j] ~= S'[j][i]\n   *  transpose S has O(mn) work\n   *  transpose S has O(1) span\n   *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/transpose.sml",
+      "line_start": 20,
+      "line_end": 28
+    }
+  },
+  "hw_collect_int": {
+    "text": "(* collect: ('a * 'a -> order) -> 'a Seq.t -> 'a Seq.t Seq.t\n   * REQUIRES:\n   *    cmp is \"well-behaved\"\n   *    cmp is total\n   *    cmp has O(1) work/span\n   * ENSURES: collect cmp S ==> C where\n   *    Every element in S appears in some sequence of C\n   *    If you sum the lengths of the sequences in C, you get the length of S\n   *    Elements in each sequence in C are cmp-EQUAL\n   *    Elements in earlier sequences in C are cmp-LESS than elements in\n   *      later sequences in C\n   *    No sequence in C is empty\n   *    collect cmp S has O(|S|log|S|) work\n   *    collect cmp S has O(log^2|S|) span\n   *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/sequence_utils.sml",
+      "line_start": 4,
+      "line_end": 18
+    }
+  },
+  "hw_collect_key": {
+    "text": "(* collect: ('a * 'a -> order) -> 'a Seq.t -> 'a Seq.t Seq.t\n   * REQUIRES:\n   *    cmp is \"well-behaved\"\n   *    cmp is total\n   *    cmp has O(1) work/span\n   * ENSURES: collect cmp S ==> C where\n   *    Every element in S appears in some sequence of C\n   *    If you sum the lengths of the sequences in C, you get the length of S\n   *    Elements in each sequence in C are cmp-EQUAL\n   *    Elements in earlier sequences in C are cmp-LESS than elements in\n   *      later sequences in C\n   *    No sequence in C is empty\n   *    collect cmp S has O(|S|log|S|) work\n   *    collect cmp S has O(log^2|S|) span\n   *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/sequence_utils.sml",
+      "line_start": 4,
+      "line_end": 18
+    }
+  },
+  "hw_unique_int": {
+    "text": "(* unique: ('a * 'a -> order) -> 'a Seq.t -> 'a Seq.t\n   * REQUIRES:\n   *    cmp is \"well-behaved\" (it is reflexive, anti-symmetric, and transitive)\n   *    cmp is total and has O(1) work and span\n   * ENSURES: unique cmp S ==> T where\n   *    Each element of S has an EQUAL element in T\n   *    The elements of T are in strictly increasing order (this prevents\n   *      the existence of duplicates)\n   *    unique cmp S has O(|S| log |S|) work and O(log^2 |S|) span\n   *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/sequence_utils.sml",
+      "line_start": 64,
+      "line_end": 73
+    }
+  },
+  "hw_book_bind": {
+    "text": "(* REQUIRES: true\n   * ENSURES: bind l = b, such that\n   *   - b encodes all pages in l\n   *   - b is opened to the first page in l, if one exists\n   *   - b preserves the order of the pages in l\n   *)\n  val bind : page list -> book",
+    "source": {
+      "kind": "course_signature",
+      "path": "tasks/hw/support/book/BOOK.sig",
+      "line_start": 9,
+      "line_end": 15
+    }
+  },
+  "hw_book_current_page": {
+    "text": "(* REQUIRES: true\n   * ENSURES:\n   *   - currentPage b = (true,  NONE) iff b is empty\n   *   - currentPage b = (true,  SOME p) iff b is opened to page p\n   *       and p is the first page in b\n   *   - currentPage b = (false, NONE) iff b is non-empty\n   *       and encodes the end of the book\n   *   - currentPage b = (false,  SOME p) iff b is opened to page p\n   *       and p is not the first page in b\n   *)\n  val currentPage : book -> bool * page option",
+    "source": {
+      "kind": "course_signature",
+      "path": "tasks/hw/support/book/BOOK.sig",
+      "line_start": 24,
+      "line_end": 34
+    }
+  },
+  "hw_find_one": {
+    "text": "(* findOne : ('a -> bool) -> 'a shrub -> ('a -> 'b) -> (unit -> 'b) -> 'b\n * REQUIRES: p is total\n * ENSURES:  findOne p T sc fc ==> sc x if x is in T and p x ==> true.\n *           If no such x exists, this evalutes to fc () instead.\n *           If more than one such x exists,\n *           findOne p T sc fc evaluates the leftmost such x.\n *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/find.sml",
+      "line_start": 5,
+      "line_end": 11
+    }
+  },
+  "hw_regex_match": {
+    "text": "(* match : regexp -> char list -> (char list -> bool) -> bool\n * REQUIRES:  r is in standard form, k is total.\n * ENSURES: match r cs k == true iff there is a split p@s==cs such that\n *            p is in language of r and k s == true.\n *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/regex.sml",
+      "line_start": 11,
+      "line_end": 15
+    }
+  },
+  "hw_regex_accept": {
+    "text": "(* accept : regexp -> string -> bool\n * REQUIRES: r is in standard form.\n * ENSURES: accept r s   evaluates to true if and only if s is in the\n *          language of r *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/regex.sml",
+      "line_start": 44,
+      "line_end": 47
+    }
+  },
+  "hw_regex_both": {
+    "text": "(* match : regexp -> char list -> (char list -> bool) -> bool\n * REQUIRES:  r is in standard form, k is total.\n * ENSURES: match r cs k == true iff there is a split p@s==cs such that\n *            p is in language of r and k s == true.\n *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/regex.sml",
+      "line_start": 11,
+      "line_end": 15
+    }
+  },
+  "hw_hof_differentiate": {
+    "text": "(* differentiate : poly -> poly\n * REQUIRES: p is a valid polynomial (i.e. p n = 0.0 for n<0 and p n = 0.0 for\n * all but finitely many n)\n * ENSURES: differentiate p = p', where p' is the derivative of p\n *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/hof_polynomials.sml",
+      "line_start": 4,
+      "line_end": 8
+    }
+  },
+  "hw_hof_integrate": {
+    "text": "(* integrate : poly -> (real -> poly)\n * REQUIRES: p is a valid polynomial (i.e. p n = 0.0 for n<0 and p n = 0.0 for\n * all but finitely many n)\n * ENSURES: integrate p = P, where P(c) is the antiderivative of p with constant\n * of integration c\n * Alternatively, you could say differentiate ((integrate p) c) = p for all\n * c : real\n *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/hof_polynomials.sml",
+      "line_start": 12,
+      "line_end": 19
+    }
+  },
+  "hw_hof_rose_folds": {
+    "text": "r os eF ol dl : ( ’ a * ’b -> ’b ) -> ’b -> ’a rose -> ’b\nREQUIRES: true\nENSURES: ro se Fo ld l f z r ∼= List . foldl f z ( r o s e P r e o r d r )\n\nr os eF ol dr : ( ’ a * ’b -> ’b ) -> ’b -> ’a rose -> ’b\nREQUIRES: true\nENSURES: ro se Fo ld r f z r ∼= List . foldr f z ( r o s e P r e o r d r )",
+    "source": {
+      "kind": "course_pdf_text",
+      "path": "15150HW/PDF/hofs.pdf",
+      "pages": [
+        13
+      ],
+      "note": "Two verbatim signature/REQUIRES/ENSURES excerpts, joined by a blank line. PDF extraction spacing is retained; these are course handout words, not student-authored comments."
+    }
+  },
+  "hw_lazy_cycle": {
+    "text": "(* cycle: 'a Stream.t -> 'a Stream.t\n   * REQUIRES: s is productive\n   * ENSURES:\n   *     - cycle s is productive\n   *     - cycle s = s', a stream formed by infinitely repeating the elements of s\n   *     - if s = Stream.empty, then cycle s = Stream.empty\n   *     - cycle s is maximally lazy (evaluating cycle s never exposes any\n   *       elements of s).\n   *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/lazy_streams.sml",
+      "line_start": 6,
+      "line_end": 14
+    }
+  },
+  "hw_exception_command": {
+    "text": "(* runCommand: environment -> command -> environment\n * REQUIRES: runCommand will only be invoked during the interpretation of a\n *           well-formed Cnot program\n * ENSURES: runCommand env cmd either\n *            - Evaluates to env', where env' is the result of updating env\n *              according to cmd\n *            - Raises an exception as specified in the handout\n *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/exception_command.sml",
+      "line_start": 91,
+      "line_end": 98
+    }
+  },
+  "hw_encryption": {
+    "text": "(* new : unit -> 'a key\n * REQUIRES: true\n * ENSURES: new () ==> k such that (decrypt k o encrypt k) = SOME\n *          and for all k' /= k we have\n *          (decrypt k' o encrypt k) = (decrypt k o encrypt k') = fn _ => NONE\n *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/encryption.sml",
+      "line_start": 4,
+      "line_end": 9
+    }
+  },
+  "hw_find_partition": {
+    "text": "(* findPartition :\n *  'e list ->\n *  ('e list -> ('l -> 'a) -> (unit -> 'a) -> 'a) ->\n *  ('e list -> ('r -> 'a) -> (unit -> 'a) -> 'a) ->\n *  ('l * 'r -> 'a) ->\n *  (unit -> 'a) ->\n *  'a\n * REQUIRES: pL and pR are CPS-total\n * ENSURES: findPartition A pL pR sc fc ==>\n *  sc (evL, evR) if there exists a partition (L, R) of A\n *  such that pL accepts L with evL and pR accepts R with evR.\n *  fc () otherwise.\n *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/find_partition.sml",
+      "line_start": 2,
+      "line_end": 14
+    }
+  },
+  "hw_lazy_tree_map": {
+    "text": "(* map: ('a -> 'b) -> 'a lazyTree -> 'b lazyTree\n   * REQUIRES: true\n   * ENSURES: map f t = t' where\n   *     - t' has the same shape as t\n   *     - Each x in t is replaced with f x in t'\n   *     - map f t is maximally lazy (Evaluating map f t never calls f or exposes\n   *       any elements of the tree)\n   *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/lazy_tree_map.sml",
+      "line_start": 10,
+      "line_end": 17
+    }
+  },
+  "hw_bbs": {
+    "text": "2.1 The Blum-Blum-Shub PRNG\nIn this question, you’ll implement the Blum-Blum-Shub PRNG. This PRNG is quite good, given\nits simplicity. Suppose x0 is your seed to the PRNG, and m = pq, where p and q are large primes.\nThe ith random number in the sequence (1-indexed) is deﬁned as\nxi = x2\ni−1 mod m\nIn practice, we would take some transformation of this number, perhaps the exclusive-or (XOR) of\nits bits, or some subset of its digits. But for this assignment, we’ll take xi as-is.\nTask 2.1. (5 points)\nIn the structure S t r e a m R a n d o min the ﬁle code/bbs/StreamRand.sml, deﬁne the function\nbbs : int -> int -> int Stream . t\nREQUIRES: m is the product of two primes\nENSURES: bbs m s ∼= a stream of integers representing a Blum-Blum-Shub PRNG with\nmodulus m and seed s. The ﬁrst element in the stream is x1 as deﬁned above.",
+    "source": {
+      "kind": "course_pdf_text",
+      "path": "15150HW/PDF/lazy-1.pdf",
+      "pages": [
+        3
+      ],
+      "note": "Verbatim section 2.1 through its ENSURES, including the recurrence referred to by the specification. PDF extraction spacing is retained; no original contract comment exists in the extracted student source."
+    }
+  },
+  "hw_find150": {
+    "text": "(* is150Book : Book.page list -> bool\n   * REQUIRES: true\n   * ENSURES:\n   *   is150Book b = true iff b contains at least three instance of\n   *   the word \"lambda\" and no instances of the word \"pointer\"\n   *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/find150.sml",
+      "line_start": 10,
+      "line_end": 15
+    }
+  },
+  "hw_tracker": {
+    "text": "(* query: tracker -> mascot -> int -> mascot Seq.t\n   * REQUIRES:\n   *    The mascot has an index from 0 to n-1\n   *    The resolution is non-negative\n   *    T can be produced through calls to empty and addChat\n   * ENSURES: query T m r ==> A\n   *    A contains every mascot from 0 to n − 1 such that there exists mascots\n   *      s0, s1, . . . , sr where s0 = m and for all 0 ≤ i < r, si and\n   *      s(i+1) share a chat or si = s(i+1)\n   *    O(r n^2 log n) work and O(r * log^2 n) span\n   *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/tracker.sml",
+      "line_start": 56,
+      "line_end": 66
+    }
+  },
+  "hw_flip_one": {
+    "text": "(* flipOne: bool list -> bool list list\n * REQUIRES: true\n * ENSURES: flipOne L ==>* An ordered list containing all the ways to flip exactly\n *          one true to false.\n *)",
+    "source": {
+      "kind": "source_comment",
+      "path": "tasks/hw/flip_one.sml",
+      "line_start": 10,
+      "line_end": 14
+    }
+  }
+}

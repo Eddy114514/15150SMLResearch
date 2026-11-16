@@ -66,7 +66,7 @@ def check_tools(report, timeout):
 def check_sources(report, config):
     manifest = ROOT / config["manifest"]
     cases = json.loads(manifest.read_text(encoding="utf-8"))["cases"]
-    required = [ROOT / "benchmark/specifications.json", ROOT / "interfaces/index.json",
+    required = [ROOT / "tasks/contracts.json", ROOT / "interfaces/index.json",
                 ROOT / "prompts/translate.txt", ROOT / "prompts/repair.txt"]
     required.extend(manifest.parent / case["source"] for case in cases)
     homework = set()
@@ -155,14 +155,14 @@ def check_sml(report, qcheck_ready, timeout):
 
 
 def select_models(config, args):
-    configured = config.get("benchmark", {}).get("models", {})
+    configured = config.get("models", {})
     if args.offline:
         return []
     if args.all_local_models:
         selected = [(label, item) for label, item in configured.items()
                     if item.get("provider", "ollama") == "ollama"]
         if not selected:
-            raise ValueError("No Ollama models configured in benchmark.models")
+            raise ValueError("No Ollama models configured in models")
         return selected
     if args.model:
         return [(label, configured[label]) for label in dict.fromkeys(args.model)]
@@ -230,7 +230,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     selection = parser.add_mutually_exclusive_group()
     selection.add_argument("--offline", action="store_true", help="skip all model/server/key checks")
-    selection.add_argument("--model", action="append", help="configured benchmark label; repeat to select models")
+    selection.add_argument("--model", action="append", help="configured model label; repeat to select models")
     selection.add_argument("--all-local-models", action="store_true", help="check all configured Ollama models")
     parser.add_argument("--timeout", type=float, default=60, help="compiler/tool timeout in seconds (default: 60)")
     args = parser.parse_args()

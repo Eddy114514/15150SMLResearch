@@ -34,24 +34,6 @@
       }
     },
     {
-      "id": "sublist_sum",
-      "interfaces": [
-        "spec",
-        "basis.list",
-        "basis.integer"
-      ],
-      "source": "sublist_sum/sublist_sum.sml",
-      "contract_id": "sublistSum",
-      "entrypoint": "sublistSum",
-      "input_type": "int list * int",
-      "output_type": "int list option",
-      "input_pattern": "(L, n)",
-      "data_adapter": {
-        "file": "tasks/basic/Data.sml",
-        "structure": "BasicData.SublistSum"
-      }
-    },
-    {
       "id": "list_max",
       "interfaces": [
         "spec",
@@ -246,17 +228,14 @@
         "structure": "HwInductionData.Lists"
       },
       "runtime_support_cm": "tasks/hw/support/course/sources.cm",
-      "benchmark": {
-        "topic": "induction",
-        "observation": "Input (x,xs); result is the directly returned int list. No values are hidden by this representation.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_list_length_max": 40,
-          "random_values": [
-            -3,
-            3
-          ]
-        }
+      "observation": "Input (x,xs); result is the directly returned int list. No values are hidden by this representation.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_list_length_max": 40,
+        "random_values": [
+          -3,
+          3
+        ]
       }
     },
     {
@@ -277,17 +256,14 @@
         "structure": "HwInductionData.Heads"
       },
       "runtime_support_cm": "tasks/hw/support/course/sources.cm",
-      "benchmark": {
-        "topic": "induction",
-        "observation": "Input (x,xs); result is the directly returned int prefix length.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_list_length_max": 40,
-          "random_values": [
-            -3,
-            3
-          ]
-        }
+      "observation": "Input (x,xs); result is the directly returned int prefix length.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_list_length_max": 40,
+        "random_values": [
+          -3,
+          3
+        ]
       }
     },
     {
@@ -308,21 +284,18 @@
         "structure": "HwInductionData.Lists"
       },
       "runtime_support_cm": "tasks/hw/support/course/sources.cm",
-      "benchmark": {
-        "topic": "induction",
-        "observation": "Input (x,xs); result is the directly returned int list. The separately supplied Helpers.heads binding has the original heads signature.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_list_length_max": 40,
-          "random_values": [
-            -3,
-            3
-          ]
-        }
-      },
       "helpers": [
         "hw_heads"
-      ]
+      ],
+      "observation": "Input (x,xs); result is the directly returned int list. The separately supplied Helpers.heads binding has the original heads signature.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_list_length_max": 40,
+        "random_values": [
+          -3,
+          3
+        ]
+      }
     },
     {
       "id": "hw_sublist_sum",
@@ -342,17 +315,14 @@
         "file": "tasks/hw/support/datatypes/SublistData.sml",
         "structure": "HwSublistData"
       },
-      "benchmark": {
-        "topic": "datatypes",
-        "observation": "Input (xs,n); result is the directly returned int list option. List positions and repeated values remain observable.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_list_length_max": 10,
-          "random_values": [
-            -5,
-            5
-          ]
-        }
+      "observation": "Input (xs,n); result is the directly returned int list option. List positions and repeated values remain observable.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_list_length_max": 10,
+        "random_values": [
+          -5,
+          5
+        ]
       }
     },
     {
@@ -377,13 +347,10 @@
         ],
         "structure": "HwSymmetryData"
       },
-      "benchmark": {
-        "topic": "datatypes",
-        "observation": "The input SymmetryInput.tree is converted recursively to the target tree without changing shape or labels. Result is the returned bool.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_tree_nodes_max": 15
-        }
+      "observation": "The input SymmetryInput.tree is converted recursively to the target tree without changing shape or labels. Result is the returned bool.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_tree_nodes_max": 15
       }
     },
     {
@@ -404,17 +371,14 @@
         "spec",
         "hw.ordering"
       ],
-      "benchmark": {
-        "topic": "polysort",
-        "observation": "This concrete entrypoint fixes the comparator to Int.compare. Inputs and returned list elements are preserved without reordering by the adapter.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_list_length_max": 22,
-          "random_values": [
-            -3,
-            3
-          ]
-        }
+      "observation": "This concrete entrypoint fixes the comparator to Int.compare. Inputs and returned list elements are preserved without reordering by the adapter.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_list_length_max": 22,
+        "random_values": [
+          -3,
+          3
+        ]
       }
     },
     {
@@ -435,17 +399,14 @@
         "spec",
         "hw.ordering"
       ],
-      "benchmark": {
-        "topic": "polysort",
-        "observation": "This concrete entrypoint fixes the comparator to OrderSpec.keyCompare, comparing only the first component of each (key,id) pair. Full pairs and returned list positions remain visible.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_list_length_max": 22,
-          "random_values": [
-            -3,
-            3
-          ]
-        }
+      "observation": "This concrete entrypoint fixes the comparator to OrderSpec.keyCompare, comparing only the first component of each (key,id) pair. Full pairs and returned list positions remain visible.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_list_length_max": 22,
+        "random_values": [
+          -3,
+          3
+        ]
       }
     },
     {
@@ -466,17 +427,14 @@
         "spec",
         "hw.ordering"
       ],
-      "benchmark": {
-        "topic": "polysort",
-        "observation": "This concrete entrypoint fixes the comparator to Int.compare. Inputs and returned list elements are preserved without reordering by the adapter.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_list_length_max": 20,
-          "random_values": [
-            -3,
-            3
-          ]
-        }
+      "observation": "This concrete entrypoint fixes the comparator to Int.compare. Inputs and returned list elements are preserved without reordering by the adapter.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_list_length_max": 20,
+        "random_values": [
+          -3,
+          3
+        ]
       }
     },
     {
@@ -497,17 +455,14 @@
         "spec",
         "hw.ordering"
       ],
-      "benchmark": {
-        "topic": "polysort",
-        "observation": "This concrete entrypoint fixes the comparator to OrderSpec.keyCompare, comparing only the first component of each (key,id) pair. Full pairs and returned list positions remain visible.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_list_length_max": 20,
-          "random_values": [
-            -3,
-            3
-          ]
-        }
+      "observation": "This concrete entrypoint fixes the comparator to OrderSpec.keyCompare, comparing only the first component of each (key,id) pair. Full pairs and returned list positions remain visible.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_list_length_max": 20,
+        "random_values": [
+          -3,
+          3
+        ]
       }
     },
     {
@@ -530,14 +485,11 @@
         "hw.ordering",
         "hw.sequence"
       ],
-      "benchmark": {
-        "topic": "sequences",
-        "observation": "Input and result are actual shared abstract Seq.t nested sequences. Indices and dimensions are observable. There is no work/span observation.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_rows_max": 6,
-          "random_columns_max": 6
-        }
+      "observation": "Input and result are actual shared abstract Seq.t nested sequences. Indices and dimensions are observable. There is no work/span observation.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_rows_max": 6,
+        "random_columns_max": 6
       }
     },
     {
@@ -560,13 +512,10 @@
         "hw.ordering",
         "hw.sequence"
       ],
-      "benchmark": {
-        "topic": "sequences",
-        "observation": "The comparator is fixed to Int.compare; input and output are actual shared Seq.t values. All element values and sequence positions remain visible. There is no work/span observation.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_length_max": 20
-        }
+      "observation": "The comparator is fixed to Int.compare; input and output are actual shared Seq.t values. All element values and sequence positions remain visible. There is no work/span observation.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_length_max": 20
       }
     },
     {
@@ -589,13 +538,10 @@
         "hw.ordering",
         "hw.sequence"
       ],
-      "benchmark": {
-        "topic": "sequences",
-        "observation": "The comparator is fixed to OrderSpec.keyCompare on (key,id) pairs, comparing the key only; full pairs remain visible in the shared Seq.t values. There is no work/span observation.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_length_max": 20
-        }
+      "observation": "The comparator is fixed to OrderSpec.keyCompare on (key,id) pairs, comparing the key only; full pairs remain visible in the shared Seq.t values. There is no work/span observation.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_length_max": 20
       }
     },
     {
@@ -618,13 +564,10 @@
         "hw.ordering",
         "hw.sequence"
       ],
-      "benchmark": {
-        "topic": "sequences",
-        "observation": "The comparator is fixed to Int.compare; input and output are actual shared Seq.t values. All element values and sequence positions remain visible. There is no work/span observation.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_length_max": 20
-        }
+      "observation": "The comparator is fixed to Int.compare; input and output are actual shared Seq.t values. All element values and sequence positions remain visible. There is no work/span observation.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_length_max": 20
       }
     },
     {
@@ -649,14 +592,11 @@
         "file": "tasks/hw/support/book/Data.sml",
         "structure": "BookData.Bind"
       },
-      "benchmark": {
-        "topic": "modules",
-        "observation": "Input is pages:string list, corresponding to original bind L; no cursor is supplied. Result=(initial,steps), initial=(observed unbind contents,observed currentPage). The adapter then records exactly length pages forward-flip attempts, stopping if one raises; there is no extra attempt after reaching the end. These later steps describe separate flip operations and do not add requirements to bind.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_pages_max": 5,
-          "random_trace_steps_max": 12
-        }
+      "observation": "Input is pages:string list, corresponding to original bind L; no cursor is supplied. Result=(initial,steps), initial=(observed unbind contents,observed currentPage). The adapter then records exactly length pages forward-flip attempts, stopping if one raises; there is no extra attempt after reaching the end. These later steps describe separate flip operations and do not add requirements to bind.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_pages_max": 5,
+        "random_trace_steps_max": 12
       }
     },
     {
@@ -681,14 +621,11 @@
         "file": "tasks/hw/support/book/Data.sml",
         "structure": "BookData.Current"
       },
-      "benchmark": {
-        "topic": "modules",
-        "observation": "Input=(pages,cursor). The adapter constructs a fresh Book with bind pages then performs cursor forward flips; reachable cursors range from 0 through length pages inclusive. Result is the public currentPage view, not an abstract Book.book. The view representation is documented in the Book card.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_pages_max": 5,
-          "random_trace_steps_max": 12
-        }
+      "observation": "Input=(pages,cursor). The adapter constructs a fresh Book with bind pages then performs cursor forward flips; reachable cursors range from 0 through length pages inclusive. Result is the public currentPage view, not an abstract Book.book. The view representation is documented in the Book card.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_pages_max": 5,
+        "random_trace_steps_max": 12
       }
     },
     {
@@ -715,17 +652,11 @@
         "file": "tasks/hw/support/book/Data.sml",
         "structure": "BookData.Flip"
       },
-      "benchmark": {
-        "topic": "modules",
-        "observation": "Each call constructs a fresh abstract Book using bind then forward flips to the supplied reachable cursor; cursor ranges through the end inclusive. Output is the public view/content/exception observations described in the Book capability, not Book.book.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_pages_max": 5,
-          "random_trace_steps_max": 12
-        },
-        "blocked_reasons": [
-          "Unchanged student Book.unbind returns [] at the end cursor; required contents preservation fails after forward-to-end. Target/spec failure, not model failure."
-        ]
+      "observation": "Each call constructs a fresh abstract Book using bind then forward flips to the supplied reachable cursor; cursor ranges through the end inclusive. Output is the public view/content/exception observations described in the Book capability, not Book.book.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_pages_max": 5,
+        "random_trace_steps_max": 12
       }
     },
     {
@@ -752,17 +683,11 @@
         "file": "tasks/hw/support/book/Data.sml",
         "structure": "BookData.Trace"
       },
-      "benchmark": {
-        "topic": "modules",
-        "observation": "Each call constructs a fresh abstract Book using bind then forward flips to the supplied reachable cursor; cursor ranges through the end inclusive. Output is the public view/content/exception observations described in the Book capability, not Book.book.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_pages_max": 5,
-          "random_trace_steps_max": 12
-        },
-        "blocked_reasons": [
-          "Unchanged student Book.unbind returns [] at the end cursor; required contents preservation fails after forward-to-end. Target/spec failure, not model failure."
-        ]
+      "observation": "Each call constructs a fresh abstract Book using bind then forward flips to the supplied reachable cursor; cursor ranges through the end inclusive. Output is the public view/content/exception observations described in the Book capability, not Book.book.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_pages_max": 5,
+        "random_trace_steps_max": 12
       }
     },
     {
@@ -787,19 +712,16 @@
         "file": "tasks/hw/support/cps/Data.sml",
         "structure": "CpsData.FindOne"
       },
-      "benchmark": {
-        "topic": "cps",
-        "observation": "Input=(predicate,tree) uses the finite CpsCase predicate family and shrub representation. The adapter fixes success to SOME and failure to NONE; result records the chosen continuation outcome. It does not expose arbitrary continuation effects.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_tree_depth_max": 3,
-          "random_leaves_max": 8,
-          "random_values": [
-            -3,
-            3
-          ],
-          "random_n_max": 9
-        }
+      "observation": "Input=(predicate,tree) uses the finite CpsCase predicate family and shrub representation. The adapter fixes success to SOME and failure to NONE; result records the chosen continuation outcome. It does not expose arbitrary continuation effects.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_tree_depth_max": 3,
+        "random_leaves_max": 8,
+        "random_values": [
+          -3,
+          3
+        ],
+        "random_n_max": 9
       }
     },
     {
@@ -826,22 +748,16 @@
         "file": "tasks/hw/support/cps/Data.sml",
         "structure": "CpsData.FindN"
       },
-      "benchmark": {
-        "topic": "cps",
-        "observation": "Finite CpsCase descriptions instantiate total predicates and equivalence relations; SOME/NONE record success/failure continuations. Arbitrary continuations are outside this observation.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_tree_depth_max": 3,
-          "random_leaves_max": 8,
-          "random_values": [
-            -3,
-            3
-          ],
-          "random_n_max": 9
-        },
-        "blocked_reasons": [
-          "cps-2.pdf printed page 10 requires the n leftmost admissible distinct values (listing order irrelevant); current manual accepts any admissible selection. Resolve manual/original specification discrepancy before inclusion."
-        ]
+      "observation": "Finite CpsCase descriptions instantiate total predicates and equivalence relations; SOME/NONE record success/failure continuations. Arbitrary continuations are outside this observation.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_tree_depth_max": 3,
+        "random_leaves_max": 8,
+        "random_values": [
+          -3,
+          3
+        ],
+        "random_n_max": 9
       }
     },
     {
@@ -866,14 +782,11 @@
         "file": "tasks/hw/support/regex/Data.sml",
         "structure": "RegexData.Match"
       },
-      "benchmark": {
-        "topic": "regex",
-        "observation": "Input=(regexp,text,table). The AST and characters are preserved. table[i] is the continuation bool for the suffix after consuming i characters; a total table has at least length text+1 entries; extra entries are unused. The returned bool is observed directly.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_ast_depth": 3,
-          "random_text_length_max": 5
-        }
+      "observation": "Input=(regexp,text,table). The AST and characters are preserved. table[i] is the continuation bool for the suffix after consuming i characters; a total table has at least length text+1 entries; extra entries are unused. The returned bool is observed directly.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_ast_depth": 3,
+        "random_text_length_max": 5
       }
     },
     {
@@ -898,14 +811,11 @@
         "file": "tasks/hw/support/regex/Data.sml",
         "structure": "RegexData.Accept"
       },
-      "benchmark": {
-        "topic": "regex",
-        "observation": "Input=(regexp,text:string); the finite AST and text are preserved, and the returned bool is observed directly.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_ast_depth": 3,
-          "random_text_length_max": 5
-        }
+      "observation": "Input=(regexp,text:string); the finite AST and text are preserved, and the returned bool is observed directly.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_ast_depth": 3,
+        "random_text_length_max": 5
       }
     },
     {
@@ -930,14 +840,11 @@
         "file": "tasks/hw/support/regex/Data.sml",
         "structure": "RegexData.Both"
       },
-      "benchmark": {
-        "topic": "regex",
-        "observation": "Input=(regexp,text,table). The AST and characters are preserved. table[i] is the continuation bool for the suffix after consuming i characters; a total table has at least length text+1 entries; extra entries are unused. This case samples intersection-heavy ASTs; the returned bool is observed directly.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_ast_depth": 3,
-          "random_text_length_max": 5
-        }
+      "observation": "Input=(regexp,text,table). The AST and characters are preserved. table[i] is the continuation bool for the suffix after consuming i characters; a total table has at least length text+1 entries; extra entries are unused. This case samples intersection-heavy ASTs; the returned bool is observed directly.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_ast_depth": 3,
+        "random_text_length_max": 5
       }
     },
     {
@@ -959,19 +866,16 @@
         "file": "tasks/hw/support/hofs/PolynomialsData.sml",
         "structure": "PolynomialsData.Differentiate"
       },
-      "benchmark": {
-        "topic": "hofs",
-        "observation": "Input=(coefficients,probes), in that order. coefficients[i] is the coefficient of exponent i; all negative or out-of-range coefficients are zero. Result is the real list obtained by applying the returned derivative function at each exponent in probes, in order. No function closure or observations outside those probes are available; no tolerance is implied by the representation.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_coefficients_max": 8,
-          "random_coefficient_range": [
-            -16,
-            16
-          ],
-          "probe_exponents": "0..length coefficients",
-          "integral_constants": "[-2,0,3,random(-16..16)]"
-        }
+      "observation": "Input=(coefficients,probes), in that order. coefficients[i] is the coefficient of exponent i; all negative or out-of-range coefficients are zero. Result is the real list obtained by applying the returned derivative function at each exponent in probes, in order. No function closure or observations outside those probes are available; no tolerance is implied by the representation.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_coefficients_max": 8,
+        "random_coefficient_range": [
+          -16,
+          16
+        ],
+        "probe_exponents": "0..length coefficients",
+        "integral_constants": "[-2,0,3,random(-16..16)]"
       }
     },
     {
@@ -993,19 +897,16 @@
         "file": "tasks/hw/support/hofs/PolynomialsData.sml",
         "structure": "PolynomialsData.Integrate"
       },
-      "benchmark": {
-        "topic": "hofs",
-        "observation": "Input=(coefficients,constants,probes), in that order. coefficients[i] is the coefficient of exponent i; all negative or out-of-range coefficients are zero. For each constant in constants the adapter instantiates the returned antiderivative and evaluates each exponent in probes. Result rows align with constants and columns with probes. No observations outside those probes are available; no tolerance is implied by the representation.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_coefficients_max": 8,
-          "random_coefficient_range": [
-            -16,
-            16
-          ],
-          "probe_exponents": "0..length coefficients",
-          "integral_constants": "[-2,0,3,random(-16..16)]"
-        }
+      "observation": "Input=(coefficients,constants,probes), in that order. coefficients[i] is the coefficient of exponent i; all negative or out-of-range coefficients are zero. For each constant in constants the adapter instantiates the returned antiderivative and evaluates each exponent in probes. Result rows align with constants and columns with probes. No observations outside those probes are available; no tolerance is implied by the representation.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_coefficients_max": 8,
+        "random_coefficient_range": [
+          -16,
+          16
+        ],
+        "probe_exponents": "0..length coefficients",
+        "integral_constants": "[-2,0,3,random(-16..16)]"
       }
     },
     {
@@ -1027,15 +928,12 @@
         "file": "tasks/hw/support/hofs/RoseFoldsData.sml",
         "structure": "RoseFoldsData"
       },
-      "benchmark": {
-        "topic": "hofs",
-        "observation": "Input=(reducer,initial,tree), a finite rose tree with the supplied total string reducer family. Result=(foldlResult,foldrResult) records the returned strings directly.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_depth_max": 3,
-          "random_children_max": 3,
-          "random_nodes_max": 40
-        }
+      "observation": "Input=(reducer,initial,tree), a finite rose tree with the supplied total string reducer family. Result=(foldlResult,foldrResult) records the returned strings directly.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_depth_max": 3,
+        "random_children_max": 3,
+        "random_nodes_max": 40
       }
     },
     {
@@ -1057,15 +955,12 @@
         "file": "tasks/hw/support/lazy/Data.sml",
         "structure": "LazyData.Cycle"
       },
-      "benchmark": {
-        "topic": "lazy",
-        "observation": "Input=(source,probes), with a productive LazyCase source description. Result=(constructionForces,fronts); fronts contains at most max(0,probes) observations. NONE denotes an actually observed Empty; no further list item denotes exhausted observation budget. Infinite productivity and later forces are not observed.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_finite_length_max": 5,
-          "random_period_length_max": 4,
-          "random_front_probes_max": 12
-        }
+      "observation": "Input=(source,probes), with a productive LazyCase source description. Result=(constructionForces,fronts); fronts contains at most max(0,probes) observations. NONE denotes an actually observed Empty; no further list item denotes exhausted observation budget. Infinite productivity and later forces are not observed.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_finite_length_max": 5,
+        "random_period_length_max": 4,
+        "random_front_probes_max": 12
       }
     },
     {
@@ -1089,18 +984,12 @@
         "file": "tasks/hw/support/lazy/Data.sml",
         "structure": "LazyData.Interleave"
       },
-      "benchmark": {
-        "topic": "lazy",
-        "observation": "Cycle output is (constructionForces,fronts). Interleave output is (constructionForces,firstRightForces,fronts). NONE means real Empty; budget exhaustion is absence of another item. Descriptions guarantee productive inputs; observations cover finite prefixes and captured force counts only.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_finite_length_max": 5,
-          "random_period_length_max": 4,
-          "random_front_probes_max": 12
-        },
-        "blocked_reasons": [
-          "Unchanged solution forces both inputs when exposing the first result; PDF maximal laziness and manual first-right-force observation disagree with that target. Keep laziness requirement; target/spec issue."
-        ]
+      "observation": "Cycle output is (constructionForces,fronts). Interleave output is (constructionForces,firstRightForces,fronts). NONE means real Empty; budget exhaustion is absence of another item. Descriptions guarantee productive inputs; observations cover finite prefixes and captured force counts only.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_finite_length_max": 5,
+        "random_period_length_max": 4,
+        "random_front_probes_max": 12
       }
     },
     {
@@ -1122,16 +1011,13 @@
         "file": "tasks/hw/support/exceptions/CommandData.sml",
         "structure": "CommandData"
       },
-      "benchmark": {
-        "topic": "exceptions",
-        "observation": "Input=(bindings,action): bindings are prior assignments and action is the finite CommandCase description. The adapter fixes expression forms and finite counted loops. Result records completion, Break, Continue, or Return and the corresponding visible values. No general divergence or unbounded-command observation is available.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_action_depth": 2,
-          "random_commands_per_body_max": 3,
-          "random_loop_count_max": 4,
-          "random_bindings_max": 10
-        }
+      "observation": "Input=(bindings,action): bindings are prior assignments and action is the finite CommandCase description. The adapter fixes expression forms and finite counted loops. Result records completion, Break, Continue, or Return and the corresponding visible values. No general divergence or unbounded-command observation is available.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_action_depth": 2,
+        "random_commands_per_body_max": 3,
+        "random_loop_count_max": 4,
+        "random_bindings_max": 10
       }
     },
     {
@@ -1153,16 +1039,13 @@
         "file": "tasks/hw/support/encryption/Data.sml",
         "structure": "EncryptionData"
       },
-      "benchmark": {
-        "topic": "exceptions",
-        "observation": "Input has four payload groups for int, string, int list, and affine int->int functions, plus function probes. Each output group records a 3x3 decryption matrix, three first-key reuses, and nine foreign-type decryptions. Keys/exn/closures do not cross this boundary; only these fresh keys and supplied payloads are observed. Affine function application uses host Int arithmetic and may overflow; sampling bounds do not add a precondition to new.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "keys_per_type": 3,
-          "payload_types": 4,
-          "random_probes_max": 8,
-          "random_list_length_max": 5
-        }
+      "observation": "Input has four payload groups for int, string, int list, and affine int->int functions, plus function probes. Each output group records a 3x3 decryption matrix, three first-key reuses, and nine foreign-type decryptions. Keys/exn/closures do not cross this boundary; only these fresh keys and supplied payloads are observed. Affine function application uses host Int arithmetic and may overflow; sampling bounds do not add a precondition to new.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "keys_per_type": 3,
+        "payload_types": 4,
+        "random_probes_max": 8,
+        "random_list_length_max": 5
       }
     },
     {
@@ -1185,14 +1068,11 @@
         "file": "tasks/hw/support/find_partition/Data.sml",
         "structure": "PartitionData"
       },
-      "benchmark": {
-        "topic": "cps",
-        "observation": "Input=(xs,leftPredicate,rightPredicate) in the finite PartitionCase family. Success is recorded as SOME(leftSubsequence,(rightLength,rightMathematicalSum)); failure is NONE. Right-subsequence contents and arbitrary continuation effects are not exposed.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_input_length_max": 8,
-          "max_enumerated_partitions": 256
-        }
+      "observation": "Input=(xs,leftPredicate,rightPredicate) in the finite PartitionCase family. Success is recorded as SOME(leftSubsequence,(rightLength,rightMathematicalSum)); failure is NONE. Right-subsequence contents and arbitrary continuation effects are not exposed.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_input_length_max": 8,
+        "max_enumerated_partitions": 256
       }
     },
     {
@@ -1218,17 +1098,14 @@
         ],
         "structure": "LazyTreeMapData"
       },
-      "benchmark": {
-        "topic": "lazy",
-        "observation": "Input=(mapper,tree), a supplied affine mapper and a finite SymmetryInput tree. Result=(constructionInputForces,constructionMapperCalls,observedTree). The counters are captured before forcing the output; observedTree is then forced fully. No infinite tree or later-stage force trace is available.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_nodes_max": 15,
-          "random_values_and_affine_parameters": [
-            -3,
-            3
-          ]
-        }
+      "observation": "Input=(mapper,tree), a supplied affine mapper and a finite SymmetryInput tree. Result=(constructionInputForces,constructionMapperCalls,observedTree). The counters are captured before forcing the output; observedTree is then forced fully. No infinite tree or later-stage force trace is available.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_nodes_max": 15,
+        "random_values_and_affine_parameters": [
+          -3,
+          3
+        ]
       }
     },
     {
@@ -1250,27 +1127,24 @@
         "file": "tasks/hw/support/bbs/Data.sml",
         "structure": "BbsData"
       },
-      "benchmark": {
-        "topic": "lazy",
-        "observation": "Input=(modulus,seed,probes). Result is a list of at most max(0,probes) fronts of the constructed stream. NONE denotes an observed Empty; the end of the observation list denotes exhausted budget. The remaining infinite stream and its productivity are not observed.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_front_probes_max": 12,
-          "random_seed_range": [
-            -30,
-            30
-          ],
-          "sampled_primes": [
-            2,
-            3,
-            5,
-            7,
-            11,
-            13,
-            17,
-            19
-          ]
-        }
+      "observation": "Input=(modulus,seed,probes). Result is a list of at most max(0,probes) fronts of the constructed stream. NONE denotes an observed Empty; the end of the observation list denotes exhausted budget. The remaining infinite stream and its productivity are not observed.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_front_probes_max": 12,
+        "random_seed_range": [
+          -30,
+          30
+        ],
+        "sampled_primes": [
+          2,
+          3,
+          5,
+          7,
+          11,
+          13,
+          17,
+          19
+        ]
       }
     },
     {
@@ -1291,13 +1165,10 @@
         "structure": "Find150Data"
       },
       "runtime_support_cm": "tasks/hw/support/find150/runtime.cm",
-      "benchmark": {
-        "topic": "modules",
-        "observation": "Input is pages:string list and result is the returned bool. Each page is one complete string, without tokenization. Student module dependencies are loaded only at runtime.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_pages_max": 12
-        }
+      "observation": "Input is pages:string list and result is the returned bool. Each page is one complete string, without tokenization. Student module dependencies are loaded only at runtime.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_pages_max": 12
       }
     },
     {
@@ -1321,15 +1192,12 @@
         "structure": "TrackerData"
       },
       "runtime_support_cm": "tasks/hw/support/tracker/runtime.cm",
-      "benchmark": {
-        "topic": "sequences",
-        "observation": "Input=(n,chats,source,resolution). A fresh tracker is built with empty n then addChat for each chat; query source resolution returns a Seq observed losslessly as an int list. No work/span observations are supplied.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_mascots_max": 6,
-          "random_chats_max": 6,
-          "random_resolution_max": 6
-        }
+      "observation": "Input=(n,chats,source,resolution). A fresh tracker is built with empty n then addChat for each chat; query source resolution returns a Seq observed losslessly as an int list. No work/span observations are supplied.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_mascots_max": 6,
+        "random_chats_max": 6,
+        "random_resolution_max": 6
       }
     },
     {
@@ -1349,13 +1217,10 @@
         "file": "tasks/hw/support/flip_one/Data.sml",
         "structure": "FlipOneData"
       },
-      "benchmark": {
-        "topic": "induction",
-        "observation": "Input is a bool list; result is the directly returned list of bool lists. Inner and outer positions and duplicates remain visible. The representation itself imposes no output ordering or multiplicity conditions.",
-        "budgets": {
-          "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
-          "random_length_max": 20
-        }
+      "observation": "Input is a bool list; result is the directly returned list of bool lists. Inner and outer positions and duplicates remain visible. The representation itself imposes no output ordering or multiplicity conditions.",
+      "budgets": {
+        "scope": "random generation only; fixed edges can exceed these bounds; never add them to requires",
+        "random_length_max": 20
       }
     }
   ]

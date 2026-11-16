@@ -1,0 +1,119 @@
+{
+  "hw_remove": {
+    "topic": "induction"
+  },
+  "hw_heads": {
+    "topic": "induction"
+  },
+  "hw_tails": {
+    "topic": "induction"
+  },
+  "hw_sublist_sum": {
+    "topic": "datatypes"
+  },
+  "hw_is_symmetric": {
+    "topic": "datatypes"
+  },
+  "hw_pivot_split_int": {
+    "topic": "polysort"
+  },
+  "hw_pivot_split_key": {
+    "topic": "polysort"
+  },
+  "hw_quicksort_int": {
+    "topic": "polysort"
+  },
+  "hw_quicksort_key": {
+    "topic": "polysort"
+  },
+  "hw_transpose": {
+    "topic": "sequences"
+  },
+  "hw_collect_int": {
+    "topic": "sequences"
+  },
+  "hw_collect_key": {
+    "topic": "sequences"
+  },
+  "hw_unique_int": {
+    "topic": "sequences"
+  },
+  "hw_book_bind": {
+    "topic": "modules"
+  },
+  "hw_book_current_page": {
+    "topic": "modules"
+  },
+  "hw_book_flip": {
+    "topic": "modules",
+    "blocked_reasons": [
+      "Unchanged student Book.unbind returns [] at the end cursor; required contents preservation fails after forward-to-end. Target/spec failure, not model failure."
+    ]
+  },
+  "hw_book_trace": {
+    "topic": "modules",
+    "blocked_reasons": [
+      "Unchanged student Book.unbind returns [] at the end cursor; required contents preservation fails after forward-to-end. Target/spec failure, not model failure."
+    ]
+  },
+  "hw_find_one": {
+    "topic": "cps"
+  },
+  "hw_find_n": {
+    "topic": "cps",
+    "blocked_reasons": [
+      "cps-2.pdf printed page 10 requires the n leftmost admissible distinct values (listing order irrelevant); current manual accepts any admissible selection. Resolve manual/original specification discrepancy before inclusion."
+    ]
+  },
+  "hw_regex_match": {
+    "topic": "regex"
+  },
+  "hw_regex_accept": {
+    "topic": "regex"
+  },
+  "hw_regex_both": {
+    "topic": "regex"
+  },
+  "hw_hof_differentiate": {
+    "topic": "hofs"
+  },
+  "hw_hof_integrate": {
+    "topic": "hofs"
+  },
+  "hw_hof_rose_folds": {
+    "topic": "hofs"
+  },
+  "hw_lazy_cycle": {
+    "topic": "lazy"
+  },
+  "hw_lazy_interleave": {
+    "topic": "lazy",
+    "blocked_reasons": [
+      "Unchanged solution forces both inputs when exposing the first result; PDF maximal laziness and manual first-right-force observation disagree with that target. Keep laziness requirement; target/spec issue."
+    ]
+  },
+  "hw_exception_command": {
+    "topic": "exceptions"
+  },
+  "hw_encryption": {
+    "topic": "exceptions"
+  },
+  "hw_find_partition": {
+    "topic": "cps"
+  },
+  "hw_lazy_tree_map": {
+    "topic": "lazy"
+  },
+  "hw_bbs": {
+    "topic": "lazy"
+  },
+  "hw_find150": {
+    "topic": "modules"
+  },
+  "hw_tracker": {
+    "topic": "sequences"
+  },
+  "hw_flip_one": {
+    "topic": "induction"
+  }
+}

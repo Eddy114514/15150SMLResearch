@@ -93,7 +93,11 @@ def mocked_grid_checks(output, config, plan):
     for prompt in Path(prepared["prompts"]).glob("*/*/messages.json"):
         messages = benchmark.read(prompt)
         task = json.loads(messages[1]["content"])
-        assert not {"expected_status", "reason", "defect", "original_specification"}.intersection(task["target"])
+        case = plan["nodes"][prompt.parent.name]["case"]
+        assert task["target"]["observation"] == case["observation"]
+        assert task["target"]["budgets"] == case["budgets"]
+        assert not {"expected_status", "reason", "defect", "original_specification",
+                    "topic", "blocked_reasons"}.intersection(task["target"])
     local = benchmark.attempt_records({**prepared, "models": {"local": {"name": "offline-local"}}}, plan)
     assert local[0]["generation_seed"] == prepared["generation_seeds"][0]
     assert local[31]["generation_seed"] == prepared["generation_seeds"][1]
@@ -103,8 +107,8 @@ def mocked_grid_checks(output, config, plan):
     changed = {**plan, "specifications": {**plan["specifications"], ident: {
         **plan["specifications"][ident], "original": {
             **plan["specifications"][ident]["original"], "expected_status": "unsupported"}}},
-        "nodes": {**plan["nodes"], ident: {**plan["nodes"][ident], "case": {
-            **plan["nodes"][ident]["case"], "benchmark": {"topic": "current-topic"}}}}}
+        "benchmark_metadata": {**plan["benchmark_metadata"], ident: {
+            **plan["benchmark_metadata"][ident], "topic": "current-topic"}}}
     current = benchmark.attempt_records(prepared, changed)[0]
     assert current["expected_status"] == "unsupported" and current["topic"] == "current-topic"
 
@@ -216,7 +220,10 @@ def real_candidate_check(output, config):
 
 
 def main():
-    config, _, plan = run.load_plan(group="hw", property_source="model")
+    config, cases, plan = benchmark.load_plan()
+    assert all("benchmark" not in case for case in cases)
+    assert "sublist_sum" not in {case["id"] for case in cases}
+    assert set(plan["benchmark_metadata"]) == {case["id"] for case in cases if case.get("group") == "hw"}
     output = Path(tempfile.mkdtemp(prefix="benchmark-checks-", dir=ROOT / "runs"))
     (output / "MOCK_ONLY.txt").write_text("No real model requests. Grid responses mocked; candidate scoring also tested with real SML.\n")
     log = io.StringIO()
@@ -230,7 +237,8 @@ def main():
     summary = {"status": "passed", "real_model_calls": 0, "real_http_requests": 0,
                "specification_cells": 93, "attempts_per_model": 186, "mock_sessions": artifacts,
                "counts": counts,
-               "checks": ["helper_pbt_only_prepare", "version_and_repetition_order", "hidden_expected_status",
+               "checks": ["separate_case_metadata", "helper_pbt_only_prepare", "version_and_repetition_order",
+                           "hidden_expected_status",
                           "candidate_scoring_independent_of_pbt", "refusal_status_scoring",
                           "api_error_stop", "interrupt_checkpoint", "real_contradiction_labels"]}
     run.dump(output / "summary.json", summary)

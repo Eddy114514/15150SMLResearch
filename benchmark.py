@@ -19,6 +19,17 @@ def read(path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def load_plan(*, case_id=None):
+    """Add experiment settings and scoring data to the ordinary pipeline plan."""
+    config, cases, plan = run.load_plan(case_id=case_id, group="hw", property_source="model")
+    config["benchmark"] = {**read(ROOT / "benchmark/config.json"), "models": config["models"]}
+    plan["specifications"] = read(ROOT / "benchmark/specifications.json")
+    plan["benchmark_metadata"] = read(ROOT / "benchmark/metadata.json")
+    for ident, node in plan["nodes"].items():
+        plan["specifications"][ident]["original"]["text"] = node["contract"]
+    return config, cases, plan
+
+
 def specification_node(node, specification):
     """The selected wording is public; expected outcomes stay in scoring."""
     return {**node, "contract": specification["text"]}
@@ -147,7 +158,7 @@ def summarize(records, prepared):
 def attempt_records(prepared, plan):
     """Keep every planned model/version/problem/repetition, including unrun trials."""
     return [{"case_id": ident, "version": version,
-             "topic": plan["nodes"][ident]["case"].get("benchmark", {}).get("topic"),
+             "topic": plan["benchmark_metadata"][ident]["topic"],
              "expected_status": plan["specifications"][ident][version]["expected_status"],
              "model_label": label, "model": selected["name"], "repetition": index + 1,
              "generation_seed": None if selected.get("provider") in run.model.RESPONSES_PROVIDERS else seed,
@@ -243,7 +254,7 @@ def main():
     args = parser.parse_args()
     if args.action == "run" and (args.case or args.models):
         parser.error("run uses the prepared selection; select cases and models during prepare")
-    config, _, plan = run.load_plan(case_id=args.case, group="hw", property_source="model")
+    config, _, plan = load_plan(case_id=args.case)
     if args.models:
         config = {**config, "benchmark": {**config["benchmark"], "models": {
             label: config["benchmark"]["models"][label] for label in args.models}}}

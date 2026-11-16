@@ -37,7 +37,7 @@ def main():
     parser.add_argument("--ollama-version", default="0.34.2", help="official Ollama release (default: 0.34.2)")
     args = parser.parse_args()
     config = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
-    configured = config["benchmark"]["models"]
+    configured = config["models"]
     labels = args.models or [label for label, item in configured.items()
                             if item.get("provider", "ollama") == "ollama"]
     models = {label: configured[label] for label in labels}

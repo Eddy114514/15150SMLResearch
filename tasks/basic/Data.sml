@@ -30,13 +30,6 @@ structure BasicData = struct
     val showOutput = Runner.bool
   end
 
-  structure SublistSum = struct
-    val genInput = G.map (fn (x, xs) => (xs, x)) (G.zip (Generators.intGen, listGen))
-    val edges = List.map (fn (x, xs) => (xs, x)) Generators.pairEdges
-    val showInput = Runner.pair (Runner.list Runner.int, Runner.int)
-    val showOutput = Runner.option (Runner.list Runner.int)
-  end
-
   structure ListMax = struct
     val genInput = listGen
     val edges = listEdges

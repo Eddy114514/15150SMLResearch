@@ -185,12 +185,12 @@ def main():
     selection.add_argument("--group", help="run the cases with this manifest group")
     parser.add_argument("--properties", choices=("auto", "manual", "model"), default="auto",
                         help="property source; auto uses an available manual standard, otherwise the model")
-    parser.add_argument("--model", help="model label from config.benchmark.models")
+    parser.add_argument("--model", help="model label from config.models")
     args = parser.parse_args()
     config, _, plan = load_plan(case_id=args.case, file_path=args.file, group=args.group,
                                 property_source=args.properties)
     if args.model is not None:
-        models = config["benchmark"]["models"]
+        models = config["models"]
         if args.model not in models:
             parser.error(f"unknown model label: {args.model}; choose from {', '.join(models)}")
         config = model.configure(config, models[args.model])

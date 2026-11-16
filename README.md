@@ -63,6 +63,7 @@ python3 tests/book_adapter_checks.py
 python3 tests/compiler_checks.py
 python3 tests/api_checks.py
 python3 tests/benchmark_checks.py
+python3 tests/pipeline_boundary_checks.py
 python3 tests/pbt_regression.py
 ```
 
@@ -89,9 +90,13 @@ To download the exact 7B model on another machine, run `ollama pull qwen2.5-code
 
 For Colab GPU migration, use the [English installation plan](docs/COLAB.md) and [English Notebook](setup/colab.ipynb). [export_colab.py](setup/export_colab.py) packages the working tree, assignment dependencies and QCheck. Repeated `--model LABEL` arguments select GPU models without downloading weights or changing local API preparation. The Notebook installs dependencies, downloads the selected models, prepares the benchmark and backs up results to Drive. Formal generation is a separate step.
 
-`corpus.plan` independently selects the specification and manual reference. Homework translation reads the original entry directly from `benchmark/specifications.json`, once during planning. The manifest no longer duplicates the specification, and manual comments never replace it. Basic examples use their source contract. `run.py --properties auto|manual|model` chooses how to obtain predicates: auto/manual use registered references, model translates the selected text. All 43 active cases have references, so the ordinary default makes no model calls. A student helper still needs successful PBT before it can be supplied to another task.
+`corpus.plan` independently selects the contract and manual reference. Homework translation reads the canonical text and provenance from [tasks/contracts.json](tasks/contracts.json), once during planning. Basic examples use their marked source contract. Manual comments never replace a registered contract. `run.py --properties auto|manual|model` chooses how to obtain predicates: auto/manual use registered references, model translates the selected text. All 42 active cases have references, so the ordinary default makes no model calls. A student helper still needs successful PBT before it can be supplied to another task.
 
-The manifest's optional `enabled` field defaults to true. Four homework cases currently have `enabled: false`: `hw_book_flip`, `hw_book_trace`, `hw_lazy_interleave`, and `hw_find_n`. Ordinary selection, benchmark preparation and regression tests all exclude them, including explicit `--case` selection. An excluded helper blocks its caller and is never scheduled. Their definitions, standards and existing failure evidence remain available. The active set contains 31 homework cases and 12 basic examples.
+[tasks/manifest.json](tasks/manifest.json) contains pipeline registration: case IDs, selection flags, sources, entrypoints, types, interfaces, helper dependencies, runtime/data adapters and optional observation/generation-budget descriptions. Generator code still determines sampling; the documented budgets never become preconditions. The duplicate basic `sublist_sum` case has been removed; use `hw_sublist_sum`.
+
+Ordinary `run.py` does not read `benchmark/` or fixed evaluation labels. Model labels live in `config.json` under `models`. Only `benchmark.load_plan` reads [benchmark/config.json](benchmark/config.json) for experiment repetitions, [benchmark/specifications.json](benchmark/specifications.json) for wording variants and scoring expectations, and [benchmark/metadata.json](benchmark/metadata.json) for topics and exclusion reasons. Its original variant reuses the pipeline contract; the text is not duplicated in the benchmark dataset. Benchmark calls the ordinary pipeline, which has no reverse dependency on experiment settings.
+
+The manifest's optional `enabled` field defaults to true. Four homework cases currently have `enabled: false`: `hw_book_flip`, `hw_book_trace`, `hw_lazy_interleave`, and `hw_find_n`. Ordinary selection, benchmark preparation and regression tests all exclude them, including explicit `--case` selection. An excluded helper blocks its caller and is never scheduled. Their definitions, standards and existing failure evidence remain available. The active set contains 31 homework cases and 11 basic examples.
 
 `run.load_plan` reads the configuration and manifest, selects enabled roots and invokes `corpus.plan`. Planning reads each source once, follows explicit manifest `helpers` IDs, resolves one interface index and one text copy per selected card, and computes each task's transitive `dependency_order` in global execution order. The same context supplies prompt cards and shared/runtime CM paths to export, translation, compilation and linking. Helper metadata shares its source task's context, and runtime assembly consumes the precomputed closure.
 
@@ -109,10 +114,10 @@ Use the configured WSL, SML/NJ, and Ollama environment:
 
 ```bash
 cd /home/SMLResearch/15150SMLResearch
-python3 run.py                               # All 43 enabled cases, manual predicates
-python3 run.py --case sublist_sum            # One manual case
+python3 run.py                               # All 42 enabled cases, manual predicates
+python3 run.py --case hw_sublist_sum          # One manual case
 python3 run.py --case list_max
-python3 run.py --file tasks/sublist_sum/sublist_sum.sml
+python3 run.py --file tasks/hw/sublist_sum.sml
 python3 run.py --group hw                    # All 31 enabled homework cases
 python3 run.py --case hw_tails --properties manual
 # Explicit model route, only when model execution is intended:
@@ -120,7 +125,7 @@ python3 run.py --case hw_tails --properties model
 python3 run.py --case all_even --properties model # Translate helper, then caller
 ```
 
-Edit [config.json](config.json) for the model, seed, sample counts, timeouts, and paths. Defaults: `qwen3.8:27b-q4_K_M` with `think: "low"`, 1,000 valid samples, 10,000 candidates, 600-second model timeout, and 30-second SML timeout. Use `--model LABEL` to select a configured benchmark model for an ordinary run; sampling and PBT budgets remain in config.json.
+Edit [config.json](config.json) for model definitions, seed, sample counts, timeouts, and paths. Defaults: `qwen3.8:27b-q4_K_M` with `think: "low"`, 1,000 valid samples, 10,000 candidates, 600-second model timeout, and 30-second SML timeout. Use `--model LABEL` to select from the shared `models` registry. Benchmark repetition seeds live separately in `benchmark/config.json`; ordinary runs do not load them.
 
 For the Ollama route, set `model`, `model_options`, and the root-level `think` in that same file to switch models. Omit `think` or use `null` for the backend default; `false` explicitly disables thinking, while `true` or a backend-supported level string enables it. Initial and repair requests use the same settings. Only the final `message.content` is parsed as JSON; thinking stays in the raw response and is not replayed during repair. Output truncation is recorded as a failure. Larger models may use both CPU and GPU memory; download size does not establish VRAM requirements, and enabling thinking does not establish translation correctness.
 
@@ -144,14 +149,14 @@ Create `tasks/my_task.sml`:
 
 ```sml
 (* @solution *)
-fun countElements (xs : int list) : int = List.length xs
-
-(* @manual count_elements *)
 (* @contract countElements
  * countElements : int list -> int
  * REQUIRES: true
  * ENSURES: The result equals the number of elements in xs.
  *)
+fun countElements (xs : int list) : int = List.length xs
+
+(* @manual count_elements *)
 functor ManualContract (Helpers : sig end) = struct
   type input = int list
   type output = int
@@ -183,7 +188,7 @@ Append this object to the `cases` array in [tasks/manifest.json](tasks/manifest.
 
 Register each public helper and main function as a separate case, as in [all_even.sml](tasks/all_even/all_even.sml), and list helper case IDs in the caller's manifest `helpers` array. Keep both implementations in their original source. Contract wording describes behavior; it does not create dependency edges. An explicit lambda entrypoint may still adapt a curried target: the harness applies `(entrypoint) input`. Such an adapter is not an injectable helper signature.
 
-Every case selects a data adapter exporting `genInput`, `edges`, `showInput`, and `showOutput`. This example reuses `BasicData.ListMax` because it generates `int list` inputs and prints `int` outputs; the adapter does not encode the target's behavior. [BasicData](tasks/basic/Data.sml) also supplies `Flatten`, `IntBool`, `SublistSum`, and `AllEven`. These adapters preserve the basic tasks' fixed boundary inputs followed by random inputs: integers in -100..100 and list lengths in 0..20, at both levels for nested lists. Choose or write an adapter with the input distribution and printers your task requires.
+Every case selects a data adapter exporting `genInput`, `edges`, `showInput`, and `showOutput`. This example reuses `BasicData.ListMax` because it generates `int list` inputs and prints `int` outputs; the adapter does not encode the target's behavior. [BasicData](tasks/basic/Data.sml) also supplies `Flatten`, `IntBool`, and `AllEven`. These adapters preserve the basic tasks' fixed boundary inputs followed by random inputs: integers in -100..100 and list lengths in 0..20, at both levels for nested lists. Choose or write an adapter with the input distribution and printers your task requires.
 
 ## Check Helpers Before Their Callers
 
@@ -254,7 +259,7 @@ This example trusts `Tree` as an input representation. If the data structure its
 
 Keep the unchanged answer under `(* @solution *)` and a handwritten reference under `(* @manual CASE_ID *)`. `contract_file` is only for external references. Homework references and fixed labelled tests in `tasks/hw/evaluation/` describe the submitted conditions, including weak conditions. Register all three specification versions when adding a benchmark case.
 
-Store specification text and provenance in `benchmark/specifications.json`. Only the selected contract, neutral representation description, budgets, declared helpers and capability cards enter the prompt. Other versions, expected refusals, defect labels, manual code and labelled test answers stay private.
+Store canonical contract text and provenance in `tasks/contracts.json`, or use a marked source contract with `contract_id`. Put public observations and generation-budget descriptions in the manifest. A task does not need a benchmark entry to run. For a benchmark case, register scoring expectations and altered wording in `benchmark/specifications.json`, and topics/exclusion reasons in `benchmark/metadata.json`. Only the selected contract, neutral representation description, budgets, declared helpers and capability cards enter the prompt. Other versions, expected refusals, defect labels, manual code and labelled test answers stay private.
 
 Reuse the existing facilities before adding helpers:
 
@@ -284,9 +289,11 @@ All adapters use one driver, `Generators.sample`, and `Runner.run`; Data never m
 
 Use `List.map f probes` directly for finite function observations; the task retains its probe order and result shape. Do not replace polynomial coefficient descriptions, valid equivalence relations or CPS-total predicates with arbitrary functions. Lazy and stateful adapters construct fresh runtime inputs per call. Their counters and exception outcomes keep their task-specific meanings: Book's `OutOfBounds`, Cnot control exceptions and encryption's ordinary `exn` values are not interchangeable.
 
-Run `python3 tests/pbt_regression.py` for all 43 enabled cases with manual contracts and no model calls. The 31 homework cases also receive fixed-label scoring. The suite covers runtime assembly, predicate isolation and helper bindings. The tracker implementation is expected to produce a PBT counterexample against its literal condition; the other 42 cases pass. Excluded cases are not executed. `tests/book_adapter_checks.py` covers Book observation order and exception behavior.
+Run `python3 tests/pbt_regression.py` for all 42 enabled cases with manual contracts and no model calls. The 31 homework cases also receive fixed-label scoring. The suite covers runtime assembly, predicate isolation and helper bindings. The tracker implementation is expected to produce a PBT counterexample against its literal condition; the other 41 cases pass. Excluded cases are not executed. `tests/book_adapter_checks.py` covers Book observation order and exception behavior.
 
 Run `python3 tests/compiler_checks.py` for compilation and one-repair behavior using stubbed responses. Compiler errors are returned directly to the translation loop; there is no Python diagnostic-location filter. These checks make no real model requests.
+
+Run `python3 tests/pipeline_boundary_checks.py` to forbid all Python reads of benchmark files and fixed evaluation labels while running the ordinary CLI with a recorded predicate response. It checks all enabled task plans, then performs actual SML compilation and 1,000 PBT samples without HTTP or model requests. The benchmark tests independently check variant selection and fixed-label scoring.
 
 ## Read Results
 

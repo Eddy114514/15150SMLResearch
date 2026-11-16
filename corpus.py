@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-SPECIFICATIONS = ROOT / "benchmark/specifications.json"
+CONTRACTS = ROOT / "tasks/contracts.json"
 FIELDS = ("entrypoint", "input_type", "output_type", "input_pattern")
 _TASK_MARKER = re.compile(
     r"(?m)^[ \t]*\(\*[ \t]*@(solution|manual)\b([^\r\n]*?)\*\)[ \t]*(?:\r?\n|$)")
@@ -62,8 +62,8 @@ def plan(cases, roots, tasks_dir, *, property_source="auto"):
     """Read once, schedule explicit helpers first, and resolve runtime context."""
     cases_by_id = {case["id"]: case for case in cases}
     paths = {case["id"]: (Path(tasks_dir) / case["source"]).resolve() for case in cases}
-    specifications = json.loads(SPECIFICATIONS.read_text(encoding="utf-8"))
-    result = {"order": [], "nodes": {}, "errors": {}, "specifications": specifications,
+    contracts = json.loads(CONTRACTS.read_text(encoding="utf-8"))
+    result = {"order": [], "nodes": {}, "errors": {},
               "roots": list(dict.fromkeys(case["id"] for case in roots))}
     files, sources, state, stack = {}, {}, {}, []
 
@@ -86,8 +86,8 @@ def plan(cases, roots, tasks_dir, *, property_source="auto"):
                 source["manual_text"] = text if sections is None else sections[ident]
             elif sections is not None and ident in sections:
                 source["manual_text"] = sections[ident]
-            if ident in specifications:
-                source["contract"] = specifications[ident]["original"]["text"]
+            if ident in contracts:
+                source["contract"] = contracts[ident]["text"]
             else:
                 source["contract"] = extract_contract(solution, case["contract_id"])
             sources[ident] = source

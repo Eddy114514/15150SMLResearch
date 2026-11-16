@@ -69,13 +69,13 @@ class SelectionChecks(unittest.TestCase):
     def setUp(self):
         self.config = {
             "model": "root-default:q4",
-            "benchmark": {"models": {
+            "models": {
                 "local": {"name": "installed:q8"},
                 "api": {"name": "remote", "provider": "openai"},
-            }},
+            },
         }
 
-    def test_default_uses_root_model_without_requiring_all_benchmark_models(self):
+    def test_default_uses_root_model_without_requiring_all_models(self):
         self.assertEqual(doctor.select_models(self.config, selection()),
                          [("default", {"name": "root-default:q4", "provider": "ollama"})])
 

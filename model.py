@@ -32,12 +32,11 @@ def build_task_data(case, contract, helpers=()):
     target["contract"] = contract
     # Only public task context enters the request. Labels, manual predicates,
     # readiness findings and source implementations remain outside this list.
-    benchmark = case.get("benchmark", {})
     # The selected contract is the sole specification. Supplying another
     # version alongside it would silently repair ambiguous benchmark inputs.
     for key in ("observation", "budgets"):
-        if key in benchmark:
-            target[key] = benchmark[key]
+        if key in case:
+            target[key] = case[key]
     return {"target": target, "helpers": [
         {key: helper[key] for key in
          ("case_id", "callable_name", "signature", "contract", "status")}
@@ -65,7 +64,7 @@ def extract_metrics(envelope):
 
 
 def configure(config, selected, seed=None):
-    """Select one benchmark model without mutating the shared configuration."""
+    """Select one configured model without mutating the shared configuration."""
     provider = selected.get("provider", "ollama")
     configured = {**config, "model": selected["name"], "provider": provider,
                   "model_options": dict(config["model_options"])}

@@ -21,17 +21,41 @@
   "sml_timeout": 30,
   "think": "low",
   "keep_alive": "15m",
-  "benchmark": {
-    "models": {
-      "7B": {"name": "qwen2.5-coder:7b-instruct-q8_0", "think": null},
-      "Qwen3.5-9B": {"name": "qwen3.5:9b-q8_0", "think": true},
-      "Gemma4-E4B": {"name": "gemma4:e4b-it-q8_0", "think": true},
-      "Ministral3-8B": {"name": "ministral-3:8b-instruct-2512-q8_0", "think": null},
-      "27B": {"name": "qwen3.8:27b-q4_K_M", "think": "low"},
-      "GPT-Luna": {"name": "gpt-6-luna", "provider": "openai", "reasoning_effort": "medium"},
-      "GPT-Terra": {"name": "gpt-6.1-terra", "provider": "openai", "reasoning_effort": "medium"},
-      "DeepSeek-1017": {"name": "deepseek-flash", "provider": "deepseek", "reasoning_effort": "high"}
+  "models": {
+    "7B": {
+      "name": "qwen2.5-coder:7b-instruct-q8_0",
+      "think": null
     },
-    "generation_seeds": [15001, 15002]
+    "Qwen3.5-9B": {
+      "name": "qwen3.5:9b-q8_0",
+      "think": true
+    },
+    "Gemma4-E4B": {
+      "name": "gemma4:e4b-it-q8_0",
+      "think": true
+    },
+    "Ministral3-8B": {
+      "name": "ministral-3:8b-instruct-2512-q8_0",
+      "think": null
+    },
+    "27B": {
+      "name": "qwen3.8:27b-q4_K_M",
+      "think": "low"
+    },
+    "GPT-Luna": {
+      "name": "gpt-6-luna",
+      "provider": "openai",
+      "reasoning_effort": "medium"
+    },
+    "GPT-Terra": {
+      "name": "gpt-6.1-terra",
+      "provider": "openai",
+      "reasoning_effort": "medium"
+    },
+    "DeepSeek-1017": {
+      "name": "deepseek-flash",
+      "provider": "deepseek",
+      "reasoning_effort": "high"
+    }
   }
 }
