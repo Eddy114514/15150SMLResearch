@@ -2,6 +2,72 @@
 
 Student-written requires/ensures → faithful Boolean predicates → independent translation checks and implementation PBT. The specification, translation, and student implementation are three distinct objects; an implementation counterexample is not a translation failure.
 
+## Clone and dependencies
+
+Clone the repository together with its pinned QCheck dependency:
+
+```bash
+git clone --recurse-submodules <repository-url> 15150SMLResearch
+cd 15150SMLResearch
+```
+
+The `15150HW/` assignment sources and materials are tracked in this repository. QCheck is an external Git submodule at `vendor/qcheck`, fetched from [league/qcheck](https://github.com/league/qcheck); the main repository stores only its URL and pinned commit, not its source files. SML/NJ compilation caches and Windows download metadata are ignored.
+
+For an existing clone, or after pulling changes to the pinned dependency, run:
+
+```bash
+git submodule update --init --recursive
+git submodule status
+```
+
+Install Python 3.10 or newer (the supported baseline), SML/NJ (`sml`), Git, Make, and Perl separately. Local model execution also requires Ollama and the selected model weights; Git does not download them. On a new machine, rerun `benchmark.py prepare` before `benchmark.py run`, because prepared artifacts contain machine-specific paths.
+
+### Environment setup and check
+
+On Ubuntu 22.04/24.04, including WSL2:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y python3 git make perl smlnj libsmlnj-smlnj
+```
+
+On macOS with Homebrew, use `brew install python smlnj git make perl` ([SML/NJ formula](https://formulae.brew.sh/formula/smlnj)). This repository's checked environment is WSL2; native macOS must pass the checks below and the regression suite before use in experiments.
+
+After cloning, generate QCheck's untracked platform-specific files. Repeat this step when changing SML/NJ versions or CPU architectures:
+
+```bash
+make -C vendor/qcheck -f Makefile.nj -B \
+  src/QCheckVersion.sml src/GENERATOR_SIG-nj.sml
+```
+
+Install and start [Ollama](https://docs.ollama.com/quickstart), then download the model you intend to use, for example `ollama pull qwen2.5-coder:7b-instruct-q8_0`. Run the standalone checker from the repository root:
+
+```bash
+bash setup/check_environment.sh                    # Root config.json model
+bash setup/check_environment.sh --model 7B         # One configured model label
+bash setup/check_environment.sh --all-local-models # All configured Ollama models
+bash setup/check_environment.sh --offline          # Compiler/source checks only
+```
+
+The shell launcher reports a missing Python installation; `python3 setup/check_environment.py` accepts the same options. Repeat `--model LABEL` to select several models. For hosted API labels it checks only whether the required environment variable is set, without printing its value or contacting the provider.
+
+The checker verifies tool versions, tracked homework dependencies, the QCheck Git revision, generated QCheck files, and actual SML/NJ/Basis/smlnj-lib/QCheck compilation in a temporary copy. It checks the configured Ollama URL using only [`GET /api/version` and `GET /api/tags`](https://github.com/ollama/ollama/blob/main/docs/api.md), and reports missing models with download instructions. It never installs software, downloads weights, starts inference, or changes the checkout's generated files/caches. Compilation checks use the existing generated SML files; they do not regenerate a stale adapter. Default tool/compiler timeout is 60 seconds (`--timeout SECONDS`); each HTTP request is limited to at most 5 seconds.
+
+Exit codes: `0` means all selected checks passed (warnings/skipped optional checks are allowed), `1` means a required check failed, and `2` means invalid command-line syntax. A successful inventory check does not establish GPU availability, sufficient memory, API permissions, or correct model output.
+
+For a new machine, follow the environment check with the offline regression checks; these do not call models:
+
+```bash
+mkdir -p runs
+python3 tests/book_adapter_checks.py
+python3 tests/compiler_checks.py
+python3 tests/api_checks.py
+python3 tests/benchmark_checks.py
+python3 tests/pbt_regression.py
+```
+
+## Pipeline
+
 The model receives the selected specification, types, selected interface cards and declared direct helpers that passed their independent checks in this run. Student implementations and evaluation answers are excluded. Generated predicate functors compile with selected shared types and trusted capabilities, separately from the student target; the runtime supplies admitted student helpers. An error in a generated predicate allows one repair using the same conversation, failed JSON and compiler diagnostics, without changing its helper environment.
 
 Homework comparison preparation is separate from model execution:
